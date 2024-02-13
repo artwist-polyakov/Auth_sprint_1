@@ -1,0 +1,110 @@
+version: '3'
+
+services:
+
+  nginx:
+   container_name: nginx
+   build: ./nginx
+   volumes:
+     - static_volume:/var/www/static
+     - media_volume:/var/www/media
+   depends_on:
+     - uvicorn
+   ports:
+     - "8000:80"
+
+
+
+  uvicorn:
+    container_name: uvicorn
+    build: ./src
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - elasticsearch-node1
+      - elasticsearch-node2
+      - redis
+
+
+
+  etl:
+    container_name: etl
+    build: ./etl
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - elasticsearch-node1
+      - elasticsearch-node2
+      - redis
+
+
+
+  postgres:
+    container_name: postgres
+    image: postgres:${POSTGRES_VERSION}
+    env_file:
+      - .env
+    volumes:
+      - ./etl/core/postgres/:/docker-entrypoint-initdb.d/
+
+
+
+  elasticsearch-node1:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch-node1
+    env_file:
+      - .env
+    environment:
+      - node.name=elasticsearch-node1
+      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.name=${CLUSTER_NAME}
+      - bootstrap.memory_lock=${MEMORY_LOCK}
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+
+  elasticsearch-node2:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch-node2
+    env_file:
+      - .env
+    environment:
+      - node.name=elasticsearch-node2
+      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.name=${CLUSTER_NAME}
+      - bootstrap.memory_lock=${MEMORY_LOCK}
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+    depends_on:
+      - elasticsearch-node1
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes:
+      - ./core/redis.conf:/redis.conf
+    command: [ "redis-server", "/redis.conf" ]
+
+volumes:
+    static_volume:
+    media_volume:
+    elasticsearch_data:
+    redis_data:
+    postgres_data:
