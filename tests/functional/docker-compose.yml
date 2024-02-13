@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+
+  tests:
+    container_name: tests
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - fastapi-tests
+      - elasticsearch-node1
+      - elasticsearch-node2
+      - redis
+    ports:
+      - ${TESTS_PORTS}
+    expose:
+      - ${TESTS_PORT}
+
+  fastapi-tests:
+    container_name: fastapi-tests
+    build: ../../src
+    env_file:
+      - ../../.env
+    ports:
+      - ${FASTAPI_PORTS}
+    depends_on:
+      - elasticsearch-node1
+      - elasticsearch-node2
+      - redis
+
+  elasticsearch-node1:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch-node1
+    env_file:
+      - .env
+    environment:
+      - node.name=elasticsearch-node1
+      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.name=${CLUSTER_NAME}
+      - bootstrap.memory_lock=${MEMORY_LOCK}
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - ${ELASTIC_PORTS}
+
+
+  elasticsearch-node2:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch-node2
+    env_file:
+      - .env
+    environment:
+      - node.name=elasticsearch-node2
+      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.name=${CLUSTER_NAME}
+      - bootstrap.memory_lock=${MEMORY_LOCK}
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+    depends_on:
+      - elasticsearch-node1
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes:
+      - ./core/redis.conf:/redis.conf
+    command: [ "redis-server", "/redis.conf" ]
