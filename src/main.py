@@ -5,6 +5,8 @@ from fastapi.responses import ORJSONResponse
 from api.v1 import films, genres, persons
 from configs.settings import Settings
 from core.logger import LOGGING
+from db.models.auth.user import User
+from db.postgres import create_database
 from utils.creator_provider import get_creator
 
 settings = Settings()
@@ -16,6 +18,11 @@ app = FastAPI(
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse
 )
+
+
+@app.on_event('startup')
+async def startup():
+    await create_database(model=User)
 
 
 @app.on_event('shutdown')

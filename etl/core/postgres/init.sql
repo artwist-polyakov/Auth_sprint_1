@@ -1,5 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS content;
 
+CREATE SCHEMA IF NOT EXISTS users;
+
 SET search_path TO content;
 
 CREATE TABLE IF NOT EXISTS film_work ( id UUID PRIMARY KEY, title TEXT NOT NULL, description TEXT, creation_date DATE, file_path TEXT, rating FLOAT, type TEXT not null, created timestamp with time zone, modified timestamp with time zone );
