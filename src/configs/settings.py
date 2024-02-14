@@ -13,10 +13,20 @@ log_levels = {
 class Settings(BaseSettings):
     project_name: str = "movie_api_default"
     logging_level: str = "INFO"
+
     redis_host: str = ...
     redis_port: int = 6379
+
     elastic_host: str = ...
     elastic_port: int = 9200
+
+    postgres_host: str = ...
+    postgres_port: int = ...
+    postgres_name: str = ...
+    postgres_user: str = ...
+    postgres_password: str = ...
+
+    postgres_schema_2: str = ...
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
@@ -44,3 +54,11 @@ class ElasticSettings(BaseSettings):
     timeout: int = 60
     max_retries: int = 10
     retry_on_timeout: bool = True
+
+
+class PostgresSettings(BaseSettings):
+    db: str = settings.postgres_name
+    user: str = settings.postgres_user
+    password: str = settings.postgres_password
+    host: str = settings.postgres_host
+    port: int = settings.postgres_port
