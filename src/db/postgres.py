@@ -25,4 +25,3 @@ async def create_database(model=Base) -> None:
 async def purge_database(model=Base) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(model.metadata.drop_all)
-
