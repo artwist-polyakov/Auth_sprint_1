@@ -1,14 +1,26 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.auth.user_storage import UserStorage
+from db.models.auth_requests.requests import SignUpRequest
+from db.models.auth_responses.auth_answers.signup_answers import SignUpAnswer
 
 
 class UserService:
     def __init__(self, postgres: AsyncSession | UserStorage):
         self._postgres = postgres
 
-    async def register(self):
-        pass
+    async def sign_up(self, data: dict):
+        request = SignUpRequest(
+            login=data['login'],
+            password=data['password'],
+            first_name=data['first_name'],
+            last_name=data['last_name']
+        )
+
+        # проверка
+
+        result = await self._postgres.handle_request(request)
+        return SignUpAnswer if result else None
 
     async def login(self):
         pass
@@ -43,4 +55,5 @@ class UserService:
         # функция для назначения ролей пользователям
         pass
 
-
+    async def check_password(self):
+        pass
