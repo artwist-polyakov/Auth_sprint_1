@@ -1,6 +1,11 @@
 from abc import ABC
 
+from pydantic import BaseModel
+
 
 class Answer(ABC):
-    def get_message(self):
-        pass
+    pass
+
+
+class BaseAnswerModel(BaseModel):
+    pass

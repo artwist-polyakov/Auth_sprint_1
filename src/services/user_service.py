@@ -1,26 +1,36 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from db.auth.user_storage import UserStorage
-from db.models.auth_requests.requests import SignUpRequest
-from db.models.auth_responses.auth_answers.signup_answers import SignUpAnswer
+from db.models.auth_requests.user_request import UserRequest
+from db.models.auth_responses.auth_answers.signup_answers import SignUpAnswer, SignUpAnswerModel
 
 
 class UserService:
-    def __init__(self, postgres: AsyncSession | UserStorage):
-        self._postgres = postgres
+    def __init__(self, session):
+        self._postgres = session
 
-    async def sign_up(self, data: dict):
-        request = SignUpRequest(
-            login=data['login'],
-            password=data['password'],
-            first_name=data['first_name'],
-            last_name=data['last_name']
+    async def sign_up(
+            self,
+            login: str,
+            password: str,
+            first_name: str,
+            last_name: str
+    ) -> SignUpAnswerModel:
+        request = UserRequest(
+            login=login,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
         )
 
         # проверка
 
-        result = await self._postgres.handle_request(request)
-        return SignUpAnswer if result else None
+        result = await self._postgres.add_data(request)
+
+        # проверка
+
+        if result:
+            answer = SignUpAnswer(True)
+        else:
+            answer = SignUpAnswer(False)
+        return answer.get_answer_model()
 
     async def login(self):
         pass
