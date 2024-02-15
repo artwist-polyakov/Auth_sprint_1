@@ -5,7 +5,7 @@ from fastapi.responses import ORJSONResponse
 from api.v1 import films, genres, persons
 from configs.settings import Settings
 from core.logger import LOGGING
-from db.models.auth.user import User
+from db.auth.user import User
 from db.postgres import create_database
 from utils.creator_provider import get_creator
 
