@@ -6,11 +6,12 @@ from api.v1 import films, genres, persons
 from configs.settings import Settings
 from core.logger import LOGGING
 from db.auth.user import User
-from db.postgres import create_database
+from db.postgres import PostgresProvider
 from utils.creator_provider import get_creator
 
 settings = Settings()
 creator = get_creator()
+postgres = PostgresProvider()
 
 app = FastAPI(
     title=settings.project_name,
@@ -22,7 +23,7 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    await create_database(model=User)
+    await postgres.create_database(model=User)
 
 
 @app.on_event('shutdown')

@@ -1,17 +1,23 @@
-from abc import ABC
+from typing import Any
+
+from db.models.auth_responses.base_response import BaseResponse
 
 
-class BaseSuccess(ABC):
+class BaseSuccess:
     # пользователь создан
-    pass
+    def answer(self):
+        return True
 
 
-class BaseFailure(ABC):
-    pass
+class BaseFailure:
+    def answer(self):
+        return False
 
 
-class BaseResult(ABC):
-    # возвращает результат работы UserRepository
-    # содержит Failure и Success - в одной переменной. if Success... else...
-    def __init__(self):
-        self.answer_type: BaseSuccess | BaseFailure
+class BaseResult(BaseResponse):
+    def __init__(self, answer_type, **data: Any):
+        super().__init__(**data)
+        self.answer_type: BaseSuccess | BaseFailure = answer_type
+
+    def result(self):
+        self.answer_type.answer()

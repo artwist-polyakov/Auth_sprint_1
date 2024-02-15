@@ -3,10 +3,13 @@ from datetime import datetime
 
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import declarative_base
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from configs.settings import settings
-from db.postgres import Base
+
+
+Base = declarative_base()
 
 
 class User(Base):
