@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from db.models.auth_responses.auth_answers.signup_answers import SignUpAnswerModel
+from db.models.auth_responses.auth_answers.signup_answer import SignUpAnswerModel
 from db.postgres import PostgresProvider
 from services.user_service import UserService
 
@@ -9,8 +9,7 @@ router = APIRouter()
 
 def get_user_service():
     postgres = PostgresProvider()
-    session = postgres.get_session()
-    return UserService(session)
+    return UserService(postgres)
 
 
 service: UserService = get_user_service()

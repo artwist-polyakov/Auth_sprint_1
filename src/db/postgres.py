@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError, IntegrityError
 
 from configs.settings import PostgresSettings
 from sqlalchemy.orm import sessionmaker
@@ -20,9 +21,13 @@ class PostgresProvider:
             expire_on_commit=False
         )
 
+    # async def get_session(self) -> AsyncSession:
+    #     async with self._async_session() as session:
+    #         yield session
+
     async def get_session(self) -> AsyncSession:
-        async with self._async_session() as session:
-            yield session
+        return self._async_session()
+    # todo закрыть соединение
 
     async def create_database(self, model: Base) -> None:
         async with self._engine.begin() as conn:
@@ -32,34 +37,39 @@ class PostgresProvider:
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.drop_all)
 
-    async def get_data(self, model: Base):
-        async with self.get_session() as session:
-            # SELECT запрос
-            result = await session.execute(select(model))
-            data = result.scalars().all()
-            return data
+    # async def get_data(self, model: Base):
+    #     # SELECT запрос
+    #     async with self.get_session() as session:
+    #         result = await session.execute(select(model))
+    #         data = result.scalars().all()
+    #         return data
 
-    async def add_data(self, model: Base):
-        async with self.get_session() as session:
-            # INSERT запрос
-            new_record = model(name='Test', value=123)
-            session.add(new_record)
-            await session.commit()
-
-    async def update_data(self, model: Base):
-        async with self.get_session() as session:
-            # UPDATE запрос
-            result = await session.execute(select(model).where(model.id == 1))
-            record = result.scalars().one_or_none()
-            if record:
-                record.value = 456
+    async def add_data(self, request: Base):
+        try:
+            async with await self.get_session() as session:
+                session.add(request)
                 await session.commit()
+            return True
+        except OperationalError as e:
+            return False
+        except IntegrityError as e:
+            return False
+        # SQLAlchemyError - все возможные ошибки
 
-    async def delete_data(self, model: Base):
-        async with self.get_session() as session:
-            # DELETE запрос
-            result = await session.execute(select(model).where(model.id == 1))
-            record = result.scalars().one_or_none()
-            if record:
-                await session.delete(record)
-                await session.commit()
+    # async def update_data(self, model: Base):
+    #     # UPDATE запрос
+    #     async with await self.get_session() as session:
+    #         result = await session.execute(select(model).where(model.id == 1))
+    #         record = result.scalars().one_or_none()
+    #         if record:
+    #             record.value = 456
+    #             await session.commit()
+    #
+    # async def delete_data(self, model: Base):
+    #     # DELETE запрос
+    #     async with await self.get_session() as session:
+    #         result = await session.execute(select(model).where(model.id == 1))
+    #         record = result.scalars().one_or_none()
+    #         if record:
+    #             await session.delete(record)
+    #             await session.commit()

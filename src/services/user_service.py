@@ -1,10 +1,11 @@
 from db.models.auth_requests.user_request import UserRequest
-from db.models.auth_responses.auth_answers.signup_answers import SignUpAnswer, SignUpAnswerModel
+from db.models.auth_responses.auth_answers.signup_answer import SignUpAnswer, SignUpAnswerModel
+from db.postgres import PostgresProvider
 
 
 class UserService:
-    def __init__(self, session):
-        self._postgres = session
+    def __init__(self, instance: PostgresProvider):
+        self._postgres = instance
 
     async def sign_up(
             self,
@@ -27,9 +28,9 @@ class UserService:
         # проверка
 
         if result:
-            answer = SignUpAnswer(True)
+            answer = SignUpAnswer('success')
         else:
-            answer = SignUpAnswer(False)
+            answer = SignUpAnswer('fail')
         return answer.get_answer_model()
 
     async def login(self):
