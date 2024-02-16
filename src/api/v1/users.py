@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 
-from api.v1.models.users.sign_up import SignUpAnswer, SignUpAnswerModel
+from api.v1.models.users.answers.sign_up import SignUpAnswer, SignUpAnswerModel
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()

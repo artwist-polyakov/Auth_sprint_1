@@ -1,5 +1,5 @@
-from api.v1.models.users.answer import Answer, BaseAnswerModel
-from api.v1.models.users.errors_answers import ERRORS_TYPES
+from api.v1.models.users.answers.answer import Answer, BaseAnswerModel
+from api.v1.models.users.answers.errors_answers import ERRORS_TYPES
 
 SIGNUP_ANSWER_TYPES = {
     'Success': 'Пользователь успешно зарегистрирован',
