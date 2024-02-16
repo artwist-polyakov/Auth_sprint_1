@@ -1,18 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from db.models.auth_responses.auth_answers.signup_answer import SignUpAnswerModel
-from db.postgres import PostgresProvider
-from services.user_service import UserService
+
+from api.v1.models.users.sign_up import SignUpAnswer, SignUpAnswerModel
+from services.user_service import UserService, get_user_service
 
 router = APIRouter()
-
-
-def get_user_service():
-    postgres = PostgresProvider()
-    return UserService(postgres)
-
-
-service: UserService = get_user_service()
 
 
 @router.post(
@@ -25,12 +17,15 @@ async def sign_up(
         login: str,
         password: str,
         first_name: str,
-        last_name: str
+        last_name: str,
+        service: UserService = Depends(get_user_service)
 ) -> SignUpAnswerModel:
-    results = await service.sign_up(
+    answer_type = await service.sign_up(
         login=login,
         password=password,
         first_name=first_name,
         last_name=last_name
     )
+    answer = SignUpAnswer()
+    results = answer.get_answer_model(answer_type)
     return results

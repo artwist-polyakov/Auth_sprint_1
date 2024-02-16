@@ -1,5 +1,6 @@
+from functools import lru_cache
+
 from db.models.auth_requests.user_request import UserRequest
-from db.models.auth_responses.auth_answers.signup_answer import SignUpAnswer, SignUpAnswerModel
 from db.postgres import PostgresProvider
 
 
@@ -13,7 +14,7 @@ class UserService:
             password: str,
             first_name: str,
             last_name: str
-    ) -> SignUpAnswerModel:
+    ) -> str:
         request = UserRequest(
             login=login,
             password=password,
@@ -21,14 +22,10 @@ class UserService:
             last_name=last_name
         )
 
-        # проверка
+        # проверка валидности
 
-        result = await self._postgres.add_data(request)
-
-        # проверка
-
-        answer = SignUpAnswer(result)
-        return answer.get_answer_model()
+        answer_type: str = await self._postgres.add_data(request)
+        return answer_type
 
     async def login(self):
         pass
@@ -65,3 +62,9 @@ class UserService:
 
     async def check_password(self):
         pass
+
+
+@lru_cache
+def get_user_service():
+    postgres = PostgresProvider()
+    return UserService(postgres)
