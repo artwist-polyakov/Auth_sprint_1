@@ -1,9 +1,9 @@
 from db.models.auth_responses.answer import Answer, BaseAnswerModel
-
+from db.models.auth_responses.auth_answers.exception_answers import ERRORS_TYPES
 
 SIGNUP_ANSWER_TYPES = {
     'success': 'Пользователь успешно зарегистрирован',
-    'already exists': 'Пользователь с этим логином уже существует'
+    'IntegrityError': 'Пользователь с этим логином уже существует',
 }
 
 
@@ -13,7 +13,10 @@ class SignUpAnswer(Answer):
         self.message: str = ''
 
     def get_answer_model(self):
-        self.message = SIGNUP_ANSWER_TYPES[self.answer_type]
+        if self.answer_type in SIGNUP_ANSWER_TYPES:
+            self.message = SIGNUP_ANSWER_TYPES[self.answer_type]
+        else:
+            self.message = ERRORS_TYPES[self.answer_type]
         return SignUpAnswerModel(
             message=self.message
         )

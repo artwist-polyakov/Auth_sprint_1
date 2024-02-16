@@ -1,5 +1,7 @@
 from sqlalchemy import select
-from sqlalchemy.exc import OperationalError, IntegrityError
+from sqlalchemy.exc import (OperationalError, IntegrityError, InterfaceError,
+                            DatabaseError, DataError, InternalError,
+                            ProgrammingError, NotSupportedError, SQLAlchemyError)
 
 from configs.settings import PostgresSettings
 from sqlalchemy.orm import sessionmaker
@@ -27,6 +29,7 @@ class PostgresProvider:
 
     async def get_session(self) -> AsyncSession:
         return self._async_session()
+
     # todo закрыть соединение
 
     async def create_database(self, model: Base) -> None:
@@ -37,6 +40,30 @@ class PostgresProvider:
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.drop_all)
 
+    # todo можно ли сократить, например, через ERRORS_TYPES
+    async def handle_errors(self, e):
+        if isinstance(e, IntegrityError):
+            return 'IntegrityError'
+        elif isinstance(e, OperationalError):
+            return 'OperationalError'
+        elif isinstance(e, InterfaceError):
+            return 'InterfaceError'
+        elif isinstance(e, DataError):
+            return 'DataError'
+        elif isinstance(e, InternalError):
+            return 'InternalError'
+        elif isinstance(e, ProgrammingError):
+            return 'ProgrammingError'
+        elif isinstance(e, NotSupportedError):
+            return 'NotSupportedError'
+        elif isinstance(e, DatabaseError):
+            return 'DatabaseError'
+        elif isinstance(e, SQLAlchemyError):
+            return 'SQLAlchemyError'
+        else:
+            # todo logger
+            return 'UnknownError'
+
     # async def get_data(self, model: Base):
     #     # SELECT запрос
     #     async with self.get_session() as session:
@@ -45,15 +72,19 @@ class PostgresProvider:
     #         return data
 
     async def add_data(self, request: Base):
+        session = await self.get_session()
+        await session.begin()
         try:
-            async with await self.get_session() as session:
-                session.add(request)
-                await session.commit()
+            session.add(request)
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            error_type = await self.handle_errors(e)
+            return error_type
+        else:
             return 'success'
-        except IntegrityError as e:
-            return 'already exists'
-        # SQLAlchemyError - все возможные ошибки
-        # OperationalError
+        finally:
+            await session.close()
 
     # async def update_data(self, model: Base):
     #     # UPDATE запрос
