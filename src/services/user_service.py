@@ -27,10 +27,7 @@ class UserService:
 
         # проверка
 
-        if result:
-            answer = SignUpAnswer('success')
-        else:
-            answer = SignUpAnswer('fail')
+        answer = SignUpAnswer(result)
         return answer.get_answer_model()
 
     async def login(self):

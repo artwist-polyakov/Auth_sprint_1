@@ -3,13 +3,13 @@ from db.models.auth_responses.answer import Answer, BaseAnswerModel
 
 SIGNUP_ANSWER_TYPES = {
     'success': 'Пользователь успешно зарегистрирован',
-    'fail': 'Регистрация не удалась'
+    'already exists': 'Пользователь с этим логином уже существует'
 }
 
 
 class SignUpAnswer(Answer):
     def __init__(self, answer_type: str):
-        self.answer_type: str = answer_type
+        self.answer_type: str = answer_type  # передается из PostgresProvider
         self.message: str = ''
 
     def get_answer_model(self):

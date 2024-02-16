@@ -49,12 +49,11 @@ class PostgresProvider:
             async with await self.get_session() as session:
                 session.add(request)
                 await session.commit()
-            return True
-        except OperationalError as e:
-            return False
+            return 'success'
         except IntegrityError as e:
-            return False
+            return 'already exists'
         # SQLAlchemyError - все возможные ошибки
+        # OperationalError
 
     # async def update_data(self, model: Base):
     #     # UPDATE запрос
