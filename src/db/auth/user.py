@@ -16,7 +16,7 @@ class User(Base):
     __tablename__ = 'users'
     __table_args__ = {'schema': f'{settings.postgres_schema_2}'}
 
-    id = Column(
+    uuid = Column(
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,

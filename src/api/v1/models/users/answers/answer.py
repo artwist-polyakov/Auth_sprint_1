@@ -1,6 +1,4 @@
-from abc import ABC
-
-from pydantic import BaseModel
+from api.v1.models.output import Output
 
 
 class Answer:
@@ -16,5 +14,5 @@ class Answer:
         return self.answer_model(message=message)
 
 
-class BaseAnswerModel(BaseModel):
+class BaseAnswerModel(Output):
     pass

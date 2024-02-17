@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from db.models.auth_requests.user_request import UserRequest
+from db.models.auth_responses.user_response import UserResponse
 from db.postgres import PostgresProvider
 
 
@@ -23,10 +24,38 @@ class UserService:
             is_verified=True  # аккаунт всегда подтвержден
         )
 
-        # проверка валидности
+        # todo проверка, что пользователь с таким логином не существует
+
+        # todo проверка валидности
 
         answer_type: str = await self._postgres.add_data(request)
         return answer_type
+
+    async def get_user(
+            self,
+            uuid: str,
+            login: str,
+            password: str,
+            first_name: str,
+            last_name: str
+    ) -> dict | None:
+        data = {}
+        if uuid:
+            data['uuid'] = uuid
+        if login:
+            data['login'] = login
+        if password:
+            data['password'] = password
+        if first_name:
+            data['first_name'] = first_name
+        if last_name:
+            data['last_name'] = last_name
+        result: UserResponse | None = await self._postgres.get_single_data(**data)
+        if result:
+            data = result.model_dump()
+        else:
+            data = None
+        return data
 
     async def login(self):
         pass
@@ -45,9 +74,6 @@ class UserService:
         pass
 
     async def reset_password(self):
-        pass
-
-    async def get_user_data(self):
         pass
 
     async def list_users(self):

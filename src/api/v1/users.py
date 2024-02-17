@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 
 
 from api.v1.models.users.answers.sign_up import SignUpAnswer, SignUpAnswerModel
+from api.v1.models.users.results.user_response import UserResult
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()
@@ -29,3 +30,24 @@ async def sign_up(
     answer = SignUpAnswer()
     results = answer.get_answer_model(answer_type)
     return results
+
+
+@router.get(
+    path='/get_user',
+    response_model=UserResult,
+    summary="Get User",
+    description="Get one user with current params"
+)
+async def get_user(
+        uuid: str,
+        login: str,
+        password: str,
+        first_name: str,
+        last_name: str,  # todo сейчас api требует заполнения всех полей
+        service: UserService = Depends(get_user_service)
+) -> UserResult:
+    result: dict = await service.get_user(uuid, login, password, first_name, last_name)
+    if result:
+        return UserResult(**result)
+    else:
+        pass  # todo надо здесь что-то придумать (запись не найдена)

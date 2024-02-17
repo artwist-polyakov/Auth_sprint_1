@@ -1,7 +1,7 @@
 import logging
 
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import text, select
+from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from configs.settings import PostgresSettings
 from sqlalchemy.orm import sessionmaker
@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 from db.auth.user import Base
 from db.auth.user_storage import UserStorage
+from db.models.auth_responses.user_response import UserResponse
 
 
 class PostgresProvider(UserStorage):
@@ -33,6 +34,11 @@ class PostgresProvider(UserStorage):
             await conn.run_sync(model.metadata.create_all)
 
     async def add_data(self, request: Base) -> str:
+        """
+        Выполняет INSERT запрос
+        :param request: объект-request, который наследуется от Base
+        :return: ответ
+        """
         # INSERT запрос
         async with self._async_session() as session:
             try:
@@ -50,12 +56,31 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return '500_unknown_error'
 
-    # async def get_data(self, model: Base):
-    #     # SELECT запрос
-    #     async with self.get_session() as session:
-    #         result = await session.execute(select(model))
-    #         data = result.scalars().all()
-    #         return data
+    async def get_single_data(self, **params) -> UserResponse | None:
+        """
+        Выполняет SELECT запрос для поиска одной записи
+        :param params: словарь {"имя параметра":"значение параметра"},
+        по которым происходит поиск
+        :return: объект UserResult или None, если запись не найдена
+        """
+        async with self._async_session() as session:
+            try:
+                query = select(UserResponse).filter_by(**params)
+                result = await session.execute(query)
+                return result.scalar_one()
+
+            except NoResultFound as e:
+                logging.error(type(e).__name__, e)
+                return None
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return None
+
+    async def get_multiple_data(self, model: Base):
+        # SELECT запрос (несколько записей)
+        pass
 
     # async def update_data(self, model: Base):
     #     # UPDATE запрос
