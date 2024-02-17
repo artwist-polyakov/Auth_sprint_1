@@ -23,6 +23,7 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
+    await postgres.create_schema(schema_name=settings.postgres_schema_2)
     await postgres.create_database(model=User)
 
 

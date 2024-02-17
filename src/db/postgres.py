@@ -1,3 +1,8 @@
+import logging
+
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
 from configs.settings import PostgresSettings
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -19,6 +24,10 @@ class PostgresProvider(UserStorage):
             expire_on_commit=False
         )
 
+    async def create_schema(self, schema_name: str) -> None:
+        async with self._engine.begin() as conn:
+            await conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name};"))
+
     async def create_database(self, model: Base) -> None:
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.create_all)
@@ -29,12 +38,17 @@ class PostgresProvider(UserStorage):
             try:
                 session.add(request)
                 await session.commit()
+                return '201_success'
+
+            except SQLAlchemyError as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return '500_sqlalchemy_error'
+
             except Exception as e:
                 await session.rollback()
-                error_type = type(e).__name__
-                return error_type
-            else:
-                return 'Success'
+                logging.error(type(e).__name__, e)
+                return '500_unknown_error'
 
     # async def get_data(self, model: Base):
     #     # SELECT запрос
