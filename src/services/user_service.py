@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from fastapi import Response, status
 
+from db.auth.user import User
 from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.postgres import PostgresProvider
@@ -26,7 +27,7 @@ class UserService:
             is_verified=True  # аккаунт всегда подтвержден
         )
 
-        user: UserResponse | None = await self._postgres.get_single_data(
+        user: User | None = await self._postgres.get_single_data(
             field_name='login',
             field_value=login
         )
@@ -35,28 +36,33 @@ class UserService:
 
         # todo проверка валидности
 
-        answer_type: Response = await self._postgres.add_data(request)
-        return answer_type
+        response: Response = await self._postgres.add_data(request)
+        return response
 
     async def get_user_by_uuid(
             self,
             uuid: str
     ) -> dict | None:
-        result: UserResponse | None = await self._postgres.get_single_data(
+        user: User | None = await self._postgres.get_single_data(
             field_name='uuid',
             field_value=uuid
         )
-        if result:
-            data = result.model_dump()
-        else:
-            data = None
-        return data
+        if not user:
+            return None
+        response = UserResponse(
+            uuid=str(user.uuid),
+            login=user.login,
+            first_name=user.first_name,
+            is_verified=user.is_verified
+        )
+        return response.model_dump()
 
     async def remove_account(
             self,
             uuid: str
-    ) -> str:
-        pass
+    ) -> Response:
+        response = await self._postgres.delete_single_data(uuid)
+        return response
 
     async def login(self):
         pass

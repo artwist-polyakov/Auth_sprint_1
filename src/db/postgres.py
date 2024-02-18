@@ -52,7 +52,7 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return Response(content='', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    async def get_single_data(self, field_name: str, field_value) -> UserResponse | None:
+    async def get_single_data(self, field_name: str, field_value) -> User | None:
         # SELECT запрос
         async with self._async_session() as session:
             try:
@@ -65,14 +65,7 @@ class PostgresProvider(UserStorage):
                 user = query_result.scalar_one_or_none()
                 if not user:
                     return None
-                result = UserResponse(
-                    uuid=str(user.uuid),
-                    login=user.login,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    is_verified=user.is_verified
-                )
-                return result
+                return user
 
             except NoResultFound as e:
                 logging.error(type(e).__name__, e)
@@ -83,9 +76,29 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return None
 
-    async def get_all_data(self, model: Base):
-        # SELECT запрос
-        pass
+    async def delete_single_data(self, uuid) -> Response:
+        # DELETE запрос
+        async with self._async_session() as session:
+            try:
+                record = await self.get_single_data(
+                    field_name='uuid',
+                    field_value=uuid
+                )
+                if not record:
+                    return Response(content='', status_code=status.HTTP_404_NOT_FOUND)
+                await session.delete(record)
+                await session.commit()
+                return Response(content='', status_code=status.HTTP_200_OK)
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return Response(content='',
+                                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # async def get_all_data(self, model: Base):
+    #     # SELECT запрос
+    #     pass
 
     # async def update_data(self, model: Base):
     #     # UPDATE запрос
@@ -94,13 +107,4 @@ class PostgresProvider(UserStorage):
     #         record = result.scalars().one_or_none()
     #         if record:
     #             record.value = 456
-    #             await session.commit()
-    #
-    # async def delete_data(self, model: Base):
-    #     # DELETE запрос
-    #     async with await self.get_session() as session:
-    #         result = await session.execute(select(model).where(model.id == 1))
-    #         record = result.scalars().one_or_none()
-    #         if record:
-    #             await session.delete(record)
     #             await session.commit()

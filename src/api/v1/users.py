@@ -49,3 +49,23 @@ async def get_user_by_uuid(
         return UserResult(**result)
     else:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+
+@router.post(
+    path='/delete',
+    summary="Delete User by UUID",
+    description="Delete one user with current uuid if exists"
+)
+async def delete_user(
+        uuid: str,
+        service: UserService = Depends(get_user_service)
+) -> JSONResponse:
+    response = await service.remove_account(uuid)
+    if response.status_code == 200:
+        return JSONResponse(content={"message": "Пользователь успешно удален"},
+                            status_code=status.HTTP_200_OK)
+    if response.status_code == 404:
+        return JSONResponse(content={"message": "Пользователь не найден"},
+                            status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        raise HTTPException(status_code=500, detail="Попробуйте позже")
