@@ -1,5 +1,7 @@
 from functools import lru_cache
 
+from fastapi import Response, status
+
 from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.postgres import PostgresProvider
@@ -15,7 +17,7 @@ class UserService:
             password: str,
             first_name: str,
             last_name: str
-    ) -> str:
+    ) -> Response:
         request = UserRequest(
             login=login,
             password=password,
@@ -29,16 +31,16 @@ class UserService:
             field_value=login
         )
         if user:
-            return '409_already_exists'
+            return Response(content='', status_code=status.HTTP_409_CONFLICT)
 
         # todo проверка валидности
 
-        answer_type: str = await self._postgres.add_data(request)
+        answer_type: Response = await self._postgres.add_data(request)
         return answer_type
 
     async def get_user_by_uuid(
             self,
-            uuid: str,
+            uuid: str
     ) -> dict | None:
         result: UserResponse | None = await self._postgres.get_single_data(
             field_name='uuid',
@@ -50,13 +52,16 @@ class UserService:
             data = None
         return data
 
+    async def remove_account(
+            self,
+            uuid: str
+    ) -> str:
+        pass
+
     async def login(self):
         pass
 
     async def logout(self):
-        pass
-
-    async def remove_account(self):
         pass
 
     async def update_profile(self):

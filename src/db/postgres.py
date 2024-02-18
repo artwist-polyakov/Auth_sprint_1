@@ -1,5 +1,6 @@
 import logging
 
+from fastapi import Response, status
 from sqlalchemy import text, select
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
@@ -33,23 +34,23 @@ class PostgresProvider(UserStorage):
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.create_all)
 
-    async def add_data(self, request: Base) -> str:
+    async def add_data(self, request: Base) -> Response:
         # INSERT запрос
         async with self._async_session() as session:
             try:
                 session.add(request)
                 await session.commit()
-                return '201_success'
+                return Response(content='', status_code=status.HTTP_201_CREATED)
 
             except SQLAlchemyError as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return '500_sqlalchemy_error'
+                return Response(content='', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return '500_unknown_error'
+                return Response(content='', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     async def get_single_data(self, field_name: str, field_value) -> UserResponse | None:
         # SELECT запрос

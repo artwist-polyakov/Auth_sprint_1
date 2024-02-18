@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 
-from api.v1.models.users.answers.sign_up import SignUpAnswer, SignUpAnswerModel
 from api.v1.models.users.results.user_response import UserResult
 from services.user_service import UserService, get_user_service
 
@@ -9,7 +9,6 @@ router = APIRouter()
 
 @router.post(
     path='/sign_up',
-    response_model=SignUpAnswerModel,
     summary="Sign Up",
     description="Sign Up"
 )
@@ -19,16 +18,20 @@ async def sign_up(
         first_name: str,
         last_name: str,
         service: UserService = Depends(get_user_service)
-) -> SignUpAnswerModel:
-    answer_type = await service.sign_up(
+) -> JSONResponse:
+    response = await service.sign_up(
         login=login,
         password=password,
         first_name=first_name,
         last_name=last_name
     )
-    answer = SignUpAnswer()
-    results = answer.get_answer_model(answer_type)
-    return results
+    if response.status_code == 201:
+        return JSONResponse(content={"message": "Пользователь успешно зарегистрирован"},
+                            status_code=status.HTTP_201_CREATED)
+    elif response.status_code == 409:
+        raise HTTPException(status_code=409, detail="Пользователь с этим логином уже существует")
+    else:
+        raise HTTPException(status_code=500, detail="Попробуйте позже")
 
 
 @router.get(
