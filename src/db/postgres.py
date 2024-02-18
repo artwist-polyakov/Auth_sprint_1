@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
-from db.models.auth_responses.user_response import UserResponse
 
 
 class PostgresProvider(UserStorage):

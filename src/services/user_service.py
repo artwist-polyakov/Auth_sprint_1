@@ -84,14 +84,8 @@ class UserService:
         # список пользователей, только для администраторов
         pass
 
-    async def delete_account(self):
-        pass
-
     async def associate_role(self):
         # функция для назначения ролей пользователям
-        pass
-
-    async def check_password(self):
         pass
 
 
