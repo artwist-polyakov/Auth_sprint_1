@@ -24,7 +24,12 @@ class UserService:
             is_verified=True  # аккаунт всегда подтвержден
         )
 
-        # todo проверка, что пользователь с таким логином не существует
+        user: UserResponse | None = await self._postgres.get_single_data(
+            field_name='login',
+            field_value=login
+        )
+        if user:
+            return '409_already_exists'
 
         # todo проверка валидности
 

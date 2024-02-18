@@ -55,10 +55,10 @@ class PostgresProvider(UserStorage):
         # SELECT запрос
         async with self._async_session() as session:
             try:
-                if field_name == 'login':
-                    query = select(User).where(User.login == field_value)
-                elif field_name == 'uuid':
+                if field_name == 'uuid':
                     query = select(User).where(User.uuid == field_value)
+                elif field_name == 'login':
+                    query = select(User).where(User.login == field_value)
 
                 query_result = await session.execute(query)
                 user = query_result.scalar_one_or_none()
