@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, HTTPException
 
 from api.v1.models.users.answers.sign_up import SignUpAnswer, SignUpAnswerModel
 from api.v1.models.users.results.user_response import UserResult
@@ -33,21 +32,17 @@ async def sign_up(
 
 
 @router.get(
-    path='/get_user',
+    path='/user',
     response_model=UserResult,
-    summary="Get User",
-    description="Get one user with current params"
+    summary="Get User by UUID",
+    description="Get one user with current uuid if exists"
 )
-async def get_user(
+async def get_user_by_uuid(
         uuid: str,
-        login: str,
-        password: str,
-        first_name: str,
-        last_name: str,  # todo сейчас api требует заполнения всех полей
         service: UserService = Depends(get_user_service)
 ) -> UserResult:
-    result: dict = await service.get_user(uuid, login, password, first_name, last_name)
+    result: dict = await service.get_user_by_uuid(uuid)
     if result:
         return UserResult(**result)
     else:
-        pass  # todo надо здесь что-то придумать (запись не найдена)
+        raise HTTPException(status_code=404, detail="Пользователь не найден")

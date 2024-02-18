@@ -7,7 +7,7 @@ from configs.settings import PostgresSettings
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
-from db.auth.user import Base
+from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
 from db.models.auth_responses.user_response import UserResponse
 
@@ -34,11 +34,6 @@ class PostgresProvider(UserStorage):
             await conn.run_sync(model.metadata.create_all)
 
     async def add_data(self, request: Base) -> str:
-        """
-        Выполняет INSERT запрос
-        :param request: объект-request, который наследуется от Base
-        :return: ответ
-        """
         # INSERT запрос
         async with self._async_session() as session:
             try:
@@ -56,18 +51,27 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return '500_unknown_error'
 
-    async def get_single_data(self, **params) -> UserResponse | None:
-        """
-        Выполняет SELECT запрос для поиска одной записи
-        :param params: словарь {"имя параметра":"значение параметра"},
-        по которым происходит поиск
-        :return: объект UserResult или None, если запись не найдена
-        """
+    async def get_single_data(self, field_name: str, field_value) -> UserResponse | None:
+        # SELECT запрос
         async with self._async_session() as session:
             try:
-                query = select(UserResponse).filter_by(**params)
-                result = await session.execute(query)
-                return result.scalar_one()
+                if field_name == 'login':
+                    query = select(User).where(User.login == field_value)
+                elif field_name == 'uuid':
+                    query = select(User).where(User.uuid == field_value)
+
+                query_result = await session.execute(query)
+                user = query_result.scalar_one_or_none()
+                if not user:
+                    return None
+                result = UserResponse(
+                    uuid=str(user.uuid),
+                    login=user.login,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    is_verified=user.is_verified
+                )
+                return result
 
             except NoResultFound as e:
                 logging.error(type(e).__name__, e)
@@ -78,8 +82,8 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return None
 
-    async def get_multiple_data(self, model: Base):
-        # SELECT запрос (несколько записей)
+    async def get_all_data(self, model: Base):
+        # SELECT запрос
         pass
 
     # async def update_data(self, model: Base):

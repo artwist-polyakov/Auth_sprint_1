@@ -31,26 +31,14 @@ class UserService:
         answer_type: str = await self._postgres.add_data(request)
         return answer_type
 
-    async def get_user(
+    async def get_user_by_uuid(
             self,
             uuid: str,
-            login: str,
-            password: str,
-            first_name: str,
-            last_name: str
     ) -> dict | None:
-        data = {}
-        if uuid:
-            data['uuid'] = uuid
-        if login:
-            data['login'] = login
-        if password:
-            data['password'] = password
-        if first_name:
-            data['first_name'] = first_name
-        if last_name:
-            data['last_name'] = last_name
-        result: UserResponse | None = await self._postgres.get_single_data(**data)
+        result: UserResponse | None = await self._postgres.get_single_data(
+            field_name='uuid',
+            field_value=uuid
+        )
         if result:
             data = result.model_dump()
         else:
