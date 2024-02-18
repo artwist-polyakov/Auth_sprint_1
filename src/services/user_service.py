@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from fastapi import Response, status
+from fastapi import Response
 
 from db.auth.user import User
 from db.models.auth_requests.user_request import UserRequest
@@ -27,33 +27,35 @@ class UserService:
             is_verified=True  # аккаунт всегда подтвержден
         )
 
-        user: User | None = await self._postgres.get_single_data(
+        # Проверить, существует ли пользователь с таким login
+        user: User | Response = await self._postgres.get_single_data(
             field_name='login',
             field_value=login
         )
-        if user:
-            return Response(content='', status_code=status.HTTP_409_CONFLICT)
+        if isinstance(user, User):
+            return Response(status_code=409)
 
-        # todo проверка валидности
+        # todo проверка валидности полей
 
+        # Создать нового пользователя
         response: Response = await self._postgres.add_data(request)
         return response
 
     async def get_user_by_uuid(
             self,
             uuid: str
-    ) -> dict | None:
-        user: User | None = await self._postgres.get_single_data(
+    ) -> dict | Response:
+        result: User | Response = await self._postgres.get_single_data(
             field_name='uuid',
             field_value=uuid
         )
-        if not user:
-            return None
+        if isinstance(result, Response):
+            return result
         response = UserResponse(
-            uuid=str(user.uuid),
-            login=user.login,
-            first_name=user.first_name,
-            is_verified=user.is_verified
+            uuid=str(result.uuid),
+            login=result.login,
+            first_name=result.first_name,
+            is_verified=result.is_verified
         )
         return response.model_dump()
 
@@ -61,7 +63,7 @@ class UserService:
             self,
             uuid: str
     ) -> Response:
-        response = await self._postgres.delete_single_data(uuid)
+        response: Response = await self._postgres.delete_single_data(uuid)
         return response
 
     async def login(self):

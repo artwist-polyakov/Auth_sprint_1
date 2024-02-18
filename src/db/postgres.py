@@ -1,8 +1,7 @@
 import logging
 
-from fastapi import Response, status
+from fastapi import Response
 from sqlalchemy import text, select
-from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from configs.settings import PostgresSettings
 from sqlalchemy.orm import sessionmaker
@@ -11,6 +10,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
 
+
+# todo вынести "except Exception as e" из всех методов
 
 class PostgresProvider(UserStorage):
     def __init__(self):
@@ -39,19 +40,18 @@ class PostgresProvider(UserStorage):
             try:
                 session.add(request)
                 await session.commit()
-                return Response(content='', status_code=status.HTTP_201_CREATED)
-
-            except SQLAlchemyError as e:
-                await session.rollback()
-                logging.error(type(e).__name__, e)
-                return Response(content='', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(status_code=201)
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return Response(content='', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(status_code=500)
 
-    async def get_single_data(self, field_name: str, field_value) -> User | None:
+    async def get_single_data(
+            self,
+            field_name: str,
+            field_value
+    ) -> User | Response:
         # SELECT запрос
         async with self._async_session() as session:
             try:
@@ -63,37 +63,32 @@ class PostgresProvider(UserStorage):
                 query_result = await session.execute(query)
                 user = query_result.scalar_one_or_none()
                 if not user:
-                    return None
+                    return Response(status_code=404)
                 return user
-
-            except NoResultFound as e:
-                logging.error(type(e).__name__, e)
-                return None
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return None
+                return Response(status_code=500)
 
     async def delete_single_data(self, uuid) -> Response:
         # DELETE запрос
         async with self._async_session() as session:
             try:
-                record = await self.get_single_data(
+                result: User | Response = await self.get_single_data(
                     field_name='uuid',
                     field_value=uuid
                 )
-                if not record:
-                    return Response(content='', status_code=status.HTTP_404_NOT_FOUND)
-                await session.delete(record)
+                if isinstance(result, Response):
+                    return result
+                await session.delete(result)
                 await session.commit()
-                return Response(content='', status_code=status.HTTP_200_OK)
+                return Response(status_code=200)
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return Response(content='',
-                                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(status_code=500)
 
     # async def get_all_data(self, model: Base):
     #     # SELECT запрос
