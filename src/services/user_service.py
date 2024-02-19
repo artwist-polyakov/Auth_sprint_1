@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from fastapi import Response
+from fastapi.responses import Response, JSONResponse
 
 from db.auth.user import User
 from db.models.auth_requests.user_request import UserRequest
@@ -40,8 +40,20 @@ class UserService:
 
         # Создать нового пользователя
         response: Response = await self._postgres.add_data(request)
-        # todo вернуть uuid
-        return response
+
+        # Вернуть UUID нового пользователя
+        new_user: User | Response = await self._postgres.get_single_data(
+            field_name='login',
+            field_value=login
+        )
+        if isinstance(new_user, Response):
+            # todo когда пользователь добавлен, но uuid не получен
+            #  (м.б. соединение, например)
+            return JSONResponse(
+                status_code=new_user.status_code,
+                content={'uuid': 'CHECK ERROR'}
+            )
+        return JSONResponse(status_code=201, content={'uuid': str(new_user.uuid)})
 
     async def get_user_by_uuid(self, uuid: str) -> dict | Response:
         result: User | Response = await self._postgres.get_single_data(
@@ -96,10 +108,6 @@ class UserService:
 
     async def change_password(self):
         # todo хеш
-        pass
-
-    async def get_users(self):
-        # todo admin only
         pass
 
     async def logout(self):

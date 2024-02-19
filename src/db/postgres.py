@@ -40,7 +40,6 @@ class PostgresProvider(UserStorage):
             try:
                 session.add(request)
                 await session.commit()
-                # todo return uuid (по REST)
                 return Response(status_code=201)
 
             except Exception as e:
@@ -113,7 +112,3 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return Response(status_code=500)
-
-    # async def get_all_data(self, model: Base):
-    #     # SELECT запрос
-    #     pass

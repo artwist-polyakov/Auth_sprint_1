@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 
 from api.v1.models.users.results.user_response import UserResult
 from services.user_service import UserService, get_user_service
@@ -19,7 +19,7 @@ async def sign_up(
         last_name: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    response: Response = await service.sign_up(
+    response: Response | JSONResponse = await service.sign_up(
         login=login,
         password=password,
         first_name=first_name,
