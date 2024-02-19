@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import Response
-from sqlalchemy import text, select
+from sqlalchemy import text, select, update
 
 from configs.settings import PostgresSettings
 from sqlalchemy.orm import sessionmaker
@@ -91,15 +91,29 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return Response(status_code=500)
 
+    async def update_single_data(self, request: Base):
+        # UPDATE запрос
+        async with self._async_session() as session:
+            try:
+                # todo м.б. можно отправить запрос по-другому?
+                query = (
+                    update(User)
+                    .where(User.uuid == request.uuid)
+                    .values(
+                        login=request.login,
+                        first_name=request.first_name,
+                        last_name=request.last_name
+                    )
+                )
+                await session.execute(query)
+                await session.commit()
+                return Response(status_code=200)
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return Response(status_code=500)
+
     # async def get_all_data(self, model: Base):
     #     # SELECT запрос
     #     pass
-
-    # async def update_data(self, model: Base):
-    #     # UPDATE запрос
-    #     async with await self.get_session() as session:
-    #         result = await session.execute(select(model).where(model.id == 1))
-    #         record = result.scalars().one_or_none()
-    #         if record:
-    #             record.value = 456
-    #             await session.commit()

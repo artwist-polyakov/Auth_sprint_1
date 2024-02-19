@@ -70,3 +70,20 @@ async def login_user(
 ) -> Response:
     response: Response = await service.authenticate(login, password)
     return response
+
+
+@router.post(
+    path='/update',
+    summary="Update Profile Data",
+    description="Update profile data except password"
+)
+async def update_user(
+        uuid: str,  # передается, чтобы можно было поменять логин
+        login: str,
+        first_name: str,
+        last_name: str,
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    # в fastapi поля обязательные, но их, кажется, могут заполнять на фронте
+    response: Response = await service.update_profile(uuid, login, first_name, last_name)
+    return response

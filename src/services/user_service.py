@@ -4,6 +4,7 @@ from fastapi import Response
 
 from db.auth.user import User
 from db.models.auth_requests.user_request import UserRequest
+from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.postgres import PostgresProvider
 
@@ -39,6 +40,7 @@ class UserService:
 
         # Создать нового пользователя
         response: Response = await self._postgres.add_data(request)
+        # todo вернуть uuid
         return response
 
     async def get_user_by_uuid(self, uuid: str) -> dict | Response:
@@ -75,25 +77,37 @@ class UserService:
         else:
             return Response(status_code=400)  # Password is incorrect
 
-    async def logout(self):
-        pass
-
-    async def update_profile(self):
+    async def update_profile(
+            self,
+            uuid: str,
+            login: str,
+            first_name: str,
+            last_name: str
+    ) -> Response:
         # поменять логин и другие данные, кроме пароля
-        pass
+        request: UserUpdateRequest = UserUpdateRequest(
+            uuid=uuid,
+            login=login,
+            first_name=first_name,
+            last_name=last_name
+        )
+        result: Response = await self._postgres.update_single_data(request)
+        return result
 
     async def change_password(self):
+        # todo хеш
+        pass
+
+    async def get_users(self):
+        # todo admin only
+        pass
+
+    async def logout(self):
+        # todo работа с токенами
         pass
 
     async def reset_password(self):
-        pass
-
-    async def list_users(self):
-        # список пользователей, только для администраторов
-        pass
-
-    async def associate_role(self):
-        # функция для назначения ролей пользователям
+        # todo работа с токенами?
         pass
 
 
