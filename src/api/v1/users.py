@@ -56,3 +56,17 @@ async def delete_user(
 ) -> Response:
     response: Response = await service.remove_account(uuid)
     return response
+
+
+@router.get(
+    path='/login',
+    summary="Login",
+    description="Login by login and password"
+)
+async def login_user(
+        login: str,
+        password: str,
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    response: Response = await service.authenticate(login, password)
+    return response

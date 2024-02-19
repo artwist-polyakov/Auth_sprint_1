@@ -40,6 +40,7 @@ class PostgresProvider(UserStorage):
             try:
                 session.add(request)
                 await session.commit()
+                # todo return uuid (по REST)
                 return Response(status_code=201)
 
             except Exception as e:

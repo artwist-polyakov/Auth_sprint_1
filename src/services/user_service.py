@@ -27,13 +27,13 @@ class UserService:
             is_verified=True  # аккаунт всегда подтвержден
         )
 
-        # Проверить, существует ли пользователь с таким login
+        # Существует ли пользователь с таким login
         user: User | Response = await self._postgres.get_single_data(
             field_name='login',
             field_value=login
         )
         if isinstance(user, User):
-            return Response(status_code=409)
+            return Response(status_code=409)  # User already exists
 
         # todo проверка валидности полей
 
@@ -41,10 +41,7 @@ class UserService:
         response: Response = await self._postgres.add_data(request)
         return response
 
-    async def get_user_by_uuid(
-            self,
-            uuid: str
-    ) -> dict | Response:
+    async def get_user_by_uuid(self, uuid: str) -> dict | Response:
         result: User | Response = await self._postgres.get_single_data(
             field_name='uuid',
             field_value=uuid
@@ -59,15 +56,24 @@ class UserService:
         )
         return response.model_dump()
 
-    async def remove_account(
-            self,
-            uuid: str
-    ) -> Response:
+    async def remove_account(self, uuid: str) -> Response:
         response: Response = await self._postgres.delete_single_data(uuid)
         return response
 
-    async def login(self):
-        pass
+    async def authenticate(self, login: str, password: str) -> Response:
+        result: User | Response = await self._postgres.get_single_data(
+            field_name='login',
+            field_value=login
+        )
+        if isinstance(result, Response):
+            return result
+
+        # todo is_password_correct: bool = result.check_password(password) - хеш
+        if result.password == password:
+            # todo будет создаваться токен
+            return Response(status_code=201)  # Login OK
+        else:
+            return Response(status_code=400)  # Password is incorrect
 
     async def logout(self):
         pass
