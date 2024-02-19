@@ -39,6 +39,7 @@ class UserService:
         # todo проверка валидности полей
 
         # Создать нового пользователя
+        # todo куда этот статус код?
         response: Response = await self._postgres.add_data(request)
 
         # Вернуть UUID нового пользователя
