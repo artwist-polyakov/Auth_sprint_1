@@ -1,7 +1,5 @@
 import logging
 
-from redis.asyncio import Redis
-
 from configs.settings import RedisCacheSettings
 from db.cache.cache_storage import CacheStorage
 from db.redis_core import RedisCore
