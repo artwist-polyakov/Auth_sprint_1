@@ -1,3 +1,5 @@
+import bcrypt
+
 from functools import lru_cache
 
 from db.auth.user import User
@@ -29,9 +31,10 @@ class UserService:
                 'status_code': 409,
                 'content': 'user with this login already exists'
             }
+        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         request = UserRequest(
             login=login,
-            password=password,
+            password=password_hash,
             first_name=first_name,
             last_name=last_name,
             is_verified=True  # аккаунт всегда подтвержден
@@ -78,8 +81,8 @@ class UserService:
         if isinstance(result, dict):
             return result
 
-        # todo is_password_correct: bool = result.check_password(password) - хеш
-        if result.password == password:
+        valid = bcrypt.checkpw(password.encode(), result.password.encode())
+        if valid:
             # todo будет создаваться токен
             return {'status_code': 200, 'content': 'authenticated'}
         else:

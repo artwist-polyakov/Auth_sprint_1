@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response, JSONResponse
 
 from api.v1.models.users.results.user_result import UserResult
-from db.models.auth_responses.user_response import UserResponse
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()

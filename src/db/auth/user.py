@@ -37,13 +37,10 @@ class User(Base):
                  last_name: str,
                  is_verified: bool) -> None:
         self.login = login
-        self.password = self.password = generate_password_hash(password)
+        self.password = password
         self.first_name = first_name
         self.last_name = last_name
         self.is_verified = is_verified
-
-    def check_password(self, password: str) -> bool:
-        return check_password_hash(self.password, password)
 
     def __repr__(self) -> str:
         return f'<User {self.login}>'
