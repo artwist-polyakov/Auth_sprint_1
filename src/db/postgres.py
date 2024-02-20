@@ -1,12 +1,11 @@
 import logging
 
 from pydantic import BaseModel
-from sqlalchemy import text, select, update
+from sqlalchemy import select, text, update
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from configs.settings import PostgresSettings
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-
 from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
 from db.models.auth_db_requests.user_request import UserRequest

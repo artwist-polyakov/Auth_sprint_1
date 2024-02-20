@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from api.v1.models.users.results.user_result import UserResult
 from services.user_service import UserService, get_user_service

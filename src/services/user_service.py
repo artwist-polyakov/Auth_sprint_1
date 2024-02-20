@@ -1,6 +1,6 @@
-import bcrypt
-
 from functools import lru_cache
+
+import bcrypt
 
 from db.auth.user import User
 from db.models.auth_requests.user_request import UserRequest

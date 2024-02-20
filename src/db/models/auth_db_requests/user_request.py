@@ -1,5 +1,3 @@
-import uuid
-
 from configs.settings import settings
 from db.auth.user import Base
 
