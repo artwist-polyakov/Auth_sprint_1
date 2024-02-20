@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import Response, JSONResponse
 
-from api.v1.models.users.results.user_response import UserResult
+from api.v1.models.users.results.user_result import UserResult
+from db.models.auth_responses.user_response import UserResponse
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()
@@ -19,17 +20,15 @@ async def sign_up(
         last_name: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    response: Response | dict = await service.sign_up(
+    response: dict = await service.sign_up(
         login=login,
         password=password,
         first_name=first_name,
         last_name=last_name
     )
-    if isinstance(response, Response):
-        return response
     return JSONResponse(
         status_code=response['status_code'],
-        content={'uuid': response['content']}
+        content=response['content']
     )
 
 
@@ -43,11 +42,20 @@ async def get_user_by_uuid(
         uuid: str,
         service: UserService = Depends(get_user_service)
 ) -> UserResult | Response:
-    result: dict | Response = await service.get_user_by_uuid(uuid)
-    if isinstance(result, dict):
-        return UserResult(**result)
+    response: dict = await service.get_user_by_uuid(uuid)
+    if response['status_code'] == 200:
+        return UserResult(
+            uuid=str(response['content']['uuid']),
+            login=response['content']['login'],
+            first_name=response['content']['first_name'],
+            last_name=response['content']['last_name'],
+            is_verified=response['content']['is_verified']
+        )
     else:
-        return result
+        return JSONResponse(
+                status_code=response['status_code'],
+                content=response['content']
+            )
 
 
 @router.post(
@@ -59,8 +67,11 @@ async def delete_user(
         uuid: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    response: Response = await service.remove_account(uuid)
-    return response
+    response: dict = await service.remove_account(uuid)
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
 
 
 @router.get(
@@ -73,8 +84,11 @@ async def login_user(
         password: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    response: Response = await service.authenticate(login, password)
-    return response
+    response: dict = await service.authenticate(login, password)
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
 
 
 @router.post(
@@ -89,6 +103,8 @@ async def update_user(
         last_name: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    # в fastapi поля обязательные, но их, кажется, могут заполнять на фронте
-    response: Response = await service.update_profile(uuid, login, first_name, last_name)
-    return response
+    response: dict = await service.update_profile(uuid, login, first_name, last_name)
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )

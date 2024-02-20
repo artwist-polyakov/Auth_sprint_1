@@ -1,7 +1,5 @@
 from functools import lru_cache
 
-from fastapi.responses import Response
-
 from db.auth.user import User
 from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_requests.user_update_request import UserUpdateRequest
@@ -19,9 +17,18 @@ class UserService:
             password: str,
             first_name: str,
             last_name: str
-    ) -> Response | dict:
+    ) -> dict:
         # todo проверка валидности полей
 
+        exists: User | dict = await self._postgres.get_single_data(
+            field_name='login',
+            field_value=login
+        )
+        if isinstance(exists, User):
+            return {
+                'status_code': 409,
+                'content': 'user with this login already exists'
+            }
         request = UserRequest(
             login=login,
             password=password,
@@ -29,18 +36,23 @@ class UserService:
             last_name=last_name,
             is_verified=True  # аккаунт всегда подтвержден
         )
-        response: Response = await self._postgres.add_single_data(request)
+        response: dict = await self._postgres.add_single_data(request)
+        match response['status_code']:
+            case 201:
+                content = {'uuid': str(request.uuid)}
+            case _:
+                content = response['content']
         return {
-            'status_code': response.status_code,
-            'content': str(request.uuid)
+            'status_code': response['status_code'],
+            'content': content
         }
 
-    async def get_user_by_uuid(self, uuid: str) -> dict | Response:
-        result: User | Response = await self._postgres.get_single_data(
+    async def get_user_by_uuid(self, uuid: str) -> dict:
+        result: User | dict = await self._postgres.get_single_data(
             field_name='uuid',
             field_value=uuid
         )
-        if isinstance(result, Response):
+        if isinstance(result, dict):
             return result
         response = UserResponse(
             uuid=str(result.uuid),
@@ -49,26 +61,29 @@ class UserService:
             last_name=result.last_name,
             is_verified=result.is_verified
         )
-        return response.model_dump()
+        return {
+            'status_code': 200,
+            'content': response.model_dump()
+        }
 
-    async def remove_account(self, uuid: str) -> Response:
-        response: Response = await self._postgres.delete_single_data(uuid)
+    async def remove_account(self, uuid: str) -> dict:
+        response: dict = await self._postgres.delete_single_data(uuid)
         return response
 
-    async def authenticate(self, login: str, password: str) -> Response:
-        result: User | Response = await self._postgres.get_single_data(
+    async def authenticate(self, login: str, password: str) -> dict:
+        result: User | dict = await self._postgres.get_single_data(
             field_name='login',
             field_value=login
         )
-        if isinstance(result, Response):
+        if isinstance(result, dict):
             return result
 
         # todo is_password_correct: bool = result.check_password(password) - хеш
         if result.password == password:
             # todo будет создаваться токен
-            return Response(status_code=201)  # Login OK
+            return {'status_code': 200, 'content': 'authenticated'}
         else:
-            return Response(status_code=400)  # Password is incorrect
+            return {'status_code': 400, 'content': 'password is incorrect'}
 
     async def update_profile(
             self,
@@ -76,7 +91,7 @@ class UserService:
             login: str,
             first_name: str,
             last_name: str
-    ) -> Response:
+    ) -> dict:
         # поменять логин и другие данные, кроме пароля
         request: UserUpdateRequest = UserUpdateRequest(
             uuid=uuid,
@@ -84,7 +99,7 @@ class UserService:
             first_name=first_name,
             last_name=last_name
         )
-        result: Response = await self._postgres.update_single_data(request)
+        result: dict = await self._postgres.update_single_data(request)
         return result
 
     async def change_password(self):

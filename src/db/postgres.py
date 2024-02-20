@@ -1,6 +1,5 @@
 import logging
 
-from fastapi import Response
 from pydantic import BaseModel
 from sqlalchemy import text, select, update
 
@@ -35,7 +34,7 @@ class PostgresProvider(UserStorage):
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.create_all)
 
-    async def add_single_data(self, request: BaseModel) -> Response:
+    async def add_single_data(self, request: BaseModel) -> dict:
         # INSERT запрос
         async with self._async_session() as session:
             try:
@@ -49,18 +48,18 @@ class PostgresProvider(UserStorage):
                 )
                 session.add(db_request)
                 await session.commit()
-                return Response(status_code=201)
+                return {'status_code': 201, 'content': 'user created'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return Response(status_code=500)
+                return {'status_code': 500, 'content': 'error'}
 
     async def get_single_data(
             self,
             field_name: str,
             field_value
-    ) -> User | Response:
+    ) -> User | dict:
         # SELECT запрос
         async with self._async_session() as session:
             try:
@@ -72,34 +71,34 @@ class PostgresProvider(UserStorage):
                 query_result = await session.execute(query)
                 user = query_result.scalar_one_or_none()
                 if not user:
-                    return Response(status_code=404)
+                    return {'status_code': 404, 'content': 'user not found'}
                 return user
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return Response(status_code=500)
+                return {'status_code': 500, 'content': 'error'}
 
-    async def delete_single_data(self, uuid) -> Response:
+    async def delete_single_data(self, uuid) -> dict:
         # DELETE запрос
         async with self._async_session() as session:
             try:
-                result: User | Response = await self.get_single_data(
+                result: User | dict = await self.get_single_data(
                     field_name='uuid',
                     field_value=uuid
                 )
-                if isinstance(result, Response):
+                if isinstance(result, dict):
                     return result
                 await session.delete(result)
                 await session.commit()
-                return Response(status_code=200)
+                return {'status_code': 200, 'content': 'success'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return Response(status_code=500)
+                return {'status_code': 500, 'content': 'error'}
 
-    async def update_single_data(self, request: BaseModel) -> Response:
+    async def update_single_data(self, request: BaseModel) -> dict:
         # UPDATE запрос
         async with self._async_session() as session:
             try:
@@ -121,9 +120,9 @@ class PostgresProvider(UserStorage):
                 )
                 await session.execute(query)
                 await session.commit()
-                return Response(status_code=200)
+                return {'status_code': 200, 'content': 'success'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return Response(status_code=500)
+                return {'status_code': 500, 'content': 'error'}
