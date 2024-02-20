@@ -1,7 +1,8 @@
 from functools import wraps
 
-from configs.settings import RedisSettings
 from redis.asyncio import Redis
+
+from configs.settings import RedisSettings
 
 
 class RedisCore:
