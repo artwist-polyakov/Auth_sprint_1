@@ -38,9 +38,10 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-class RedisSettings(BaseSettings):
+class RedisCacheSettings(BaseSettings):
     host: str = settings.redis_host
     port: int = settings.redis_port
+    db: int = 0
 
 
 class RedisLogoutSettings(BaseSettings):

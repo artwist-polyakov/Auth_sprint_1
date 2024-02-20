@@ -3,14 +3,14 @@ from functools import wraps
 
 from redis.asyncio import Redis
 
-from configs.settings import RedisSettings
+from configs.settings import RedisCacheSettings
 from db.cache.cache_storage import CacheStorage
 from utils.wrappers import backoff
 
 
 class RedisStorage(CacheStorage):
     _redis: Redis | None = None
-    _settings = RedisSettings()
+    _settings = RedisCacheSettings()
 
     @staticmethod
     def initialize(func):
