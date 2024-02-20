@@ -1,6 +1,7 @@
-from configs.settings import PostgresSettings
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+
+from configs.settings import PostgresSettings
 
 # Создаём базовый класс для будущих моделей
 Base = declarative_base()
