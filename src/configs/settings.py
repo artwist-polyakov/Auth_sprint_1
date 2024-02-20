@@ -43,6 +43,12 @@ class RedisSettings(BaseSettings):
     port: int = settings.redis_port
 
 
+class RedisLogoutSettings(BaseSettings):
+    host: str = settings.redis_host
+    port: int = settings.redis_port
+    db: int = 1
+
+
 class ElasticDsn(BaseSettings):
     scheme: str = 'http'
     host: str = settings.elastic_host
