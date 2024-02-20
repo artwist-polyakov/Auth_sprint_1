@@ -1,3 +1,4 @@
+from db.auth.user_storage import UserStorage
 from db.cache.cache_storage import CacheStorage
 from db.creator import Creator
 from db.search.elastic_storage import ElasticStorage
@@ -14,12 +15,19 @@ class StoragesCreator(Creator):
             cls._instance = super(StoragesCreator, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, cache_provider: CacheStorage, search_provider: SearchStorage):
+    def __init__(self,
+                 cache_provider: CacheStorage,
+                 search_provider: SearchStorage,
+                 users_provider: UserStorage):
         self._cache = cache_provider
         self._search = search_provider
+        self._users = users_provider
 
     def get_cache_storage(self) -> CacheStorage:
         return self._cache
 
     def get_search_storage(self) -> ElasticStorage:
         return self._search
+
+    def get_users_storage(self) -> UserStorage:
+        return self._users

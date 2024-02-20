@@ -9,6 +9,7 @@ uvicorn==0.12.2
 uvloop==0.17.0 ; sys_platform != "win32" and implementation_name == "cpython"
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
-sqlalchemy==2.0.27
+sqlalchemy[asyncio]==2.0.27
 werkzeug==3.0.1
 asyncpg==0.29.0
+bcrypt==4.1.2
