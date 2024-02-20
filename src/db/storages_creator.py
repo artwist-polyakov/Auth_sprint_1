@@ -1,3 +1,4 @@
+from db.auth.user_storage import UserStorage
 from db.cache.cache_storage import CacheStorage
 from db.creator import Creator
 from db.logout.logout_storage import LogoutStorage
@@ -19,11 +20,12 @@ class StoragesCreator(Creator):
             self,
             cache_provider: CacheStorage,
             search_provider: SearchStorage,
-            logout_provider: LogoutStorage
-    ):
+            logout_provider: LogoutStorage,
+            users_provider: UserStorage):
         self._cache = cache_provider
         self._search = search_provider
         self._logout = logout_provider
+        self._users = users_provider
 
     def get_cache_storage(self) -> CacheStorage:
         return self._cache
@@ -33,3 +35,6 @@ class StoragesCreator(Creator):
 
     def get_logout_storage(self) -> LogoutStorage:
         return self._logout
+        
+    def get_users_storage(self) -> UserStorage:
+        return self._users

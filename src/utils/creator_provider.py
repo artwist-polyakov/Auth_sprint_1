@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from db.cache.redis_storage import RedisStorage
 from db.logout.redis_logout_storage import RedisLogoutStorage
+from db.postgres import PostgresProvider
 from db.search.elastic_converter import ElasticConverter
 from db.search.elastic_storage import ElasticStorage
 from db.storages_creator import StoragesCreator
@@ -49,6 +50,7 @@ def get_creator():
     creator = StoragesCreator(
         RedisStorage(),
         ElasticStorage(search_convertor),
-        RedisLogoutStorage()
+        RedisLogoutStorage(),
+        PostgresProvider()
     )
     return creator

@@ -2,15 +2,16 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films, genres, persons
+from api.v1 import films, genres, persons, users
 from configs.settings import Settings
 from core.logger import LOGGING
-from db.models.auth.user import User
-from db.postgres import create_database
+from db.auth.user import User
+from db.postgres import PostgresProvider
 from utils.creator_provider import get_creator
 
 settings = Settings()
 creator = get_creator()
+postgres = PostgresProvider()
 
 app = FastAPI(
     title=settings.project_name,
@@ -22,7 +23,8 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    await create_database(model=User)
+    await postgres.create_schema(schema_name=settings.postgres_schema_2)
+    await postgres.create_database(model=User)
 
 
 @app.on_event('shutdown')
@@ -37,6 +39,7 @@ async def shutdown():
 app.include_router(films.router, prefix='/api/v1/films', tags=['Films'])
 app.include_router(genres.router, prefix='/api/v1/genres', tags=['Genres'])
 app.include_router(persons.router, prefix='/api/v1/persons', tags=['Persons'])
+app.include_router(users.router, prefix='/api/v1/users', tags=['Users'])
 
 if __name__ == '__main__':
     uvicorn.run(
