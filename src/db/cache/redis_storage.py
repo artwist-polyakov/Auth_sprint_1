@@ -18,7 +18,10 @@ class RedisStorage(CacheStorage):
         async def inner(self, *args, **kwargs):
             if self._redis is None:
                 self._redis = await Redis(
-                    host=self._settings.host, port=self._settings.port).initialize()
+                    host=self._settings.host,
+                    port=self._settings.port,
+                    db=self._settings.db,
+                ).initialize()
             return await func(self, *args, **kwargs)
 
         return inner
