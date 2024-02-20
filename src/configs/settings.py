@@ -28,6 +28,9 @@ class Settings(BaseSettings):
 
     postgres_schema_2: str = ...
 
+    access_token_expire_minutes: int = 60
+    refresh_token_expire_minutes: int = 60 * 24 * 7
+
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 
@@ -41,6 +44,17 @@ settings = Settings()
 class RedisSettings(BaseSettings):
     host: str = settings.redis_host
     port: int = settings.redis_port
+    db: int = 0
+
+
+class RedisCacheSettings(RedisSettings):
+    db: int = 0
+
+
+class RedisLogoutSettings(RedisSettings):
+    db: int = 1
+    access_lifetime: int = settings.access_token_expire_minutes * 60
+    refresh_lifetime: int = settings.refresh_token_expire_minutes * 60
 
 
 class ElasticDsn(BaseSettings):

@@ -7,6 +7,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      - name: Cleanup Github-Actions bot comments
+        continue-on-error: true
+        run: |
+            sh ./.ci/github_comments_cleanup.sh "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.number }}" "github-actions[bot]" "${{ secrets.GITHUB_TOKEN }}"
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
