@@ -48,7 +48,7 @@ Git-flow
 
 ## Подключение линтеров
 
-```angular2html
+```shell
 pip install flake8
 pip install isort
 ```
@@ -56,12 +56,12 @@ pip install isort
 ## Запуск линтеров
 
 Запуск flake8
-```angular2html
+```shell
 flake8 --config=.flake8
 ```
 
 Запуск isort
-```angular2html
+```shell
 isort .
 ```
 
@@ -69,7 +69,7 @@ isort .
 
 Инструкция по запуску тестов в отдельном контейнере:
 
-```commandline
+```shell
 cd ./tests/functional
 README.md
 ```
@@ -77,12 +77,19 @@ README.md
 ## Первая версия функциональных тестов
 
 потребуется библиотека requests
-```angular2html
+```shell
 pip install requests
 ```
 
 запуск тестов
-```angular2html
+```shell
 python tests_simple/test_es_query.py    
 ```
 
+## Генерация собственного сертификата
+
+```shell
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
+   -keyout localhost.key -out localhost.crt -subj "/CN=localhost" \
+   -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+```
