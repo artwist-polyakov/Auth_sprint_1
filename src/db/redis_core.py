@@ -1,3 +1,4 @@
+from abc import ABC
 from functools import wraps
 
 from redis.asyncio import Redis
@@ -5,7 +6,7 @@ from redis.asyncio import Redis
 from configs.settings import RedisSettings
 
 
-class RedisCore:
+class RedisCore(ABC):
     _settings = RedisSettings()
     _redis: Redis | None = None
 
