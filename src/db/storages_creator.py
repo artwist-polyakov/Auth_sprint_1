@@ -11,6 +11,7 @@ class StoragesCreator(Creator):
     класс, который следит, чтобы был только один экземпляр класса и ничего больше.
 
     """
+
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, '_instance'):
             cls._instance = super(StoragesCreator, cls).__new__(cls)
@@ -35,6 +36,6 @@ class StoragesCreator(Creator):
 
     def get_logout_storage(self) -> LogoutStorage:
         return self._logout
-        
+
     def get_users_storage(self) -> UserStorage:
         return self._users
