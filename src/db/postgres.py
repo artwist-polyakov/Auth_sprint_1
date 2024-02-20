@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import Response
+from pydantic import BaseModel
 from sqlalchemy import text, select, update
 
 from configs.settings import PostgresSettings
@@ -9,6 +10,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
+from db.models.auth_db_requests.user_request import UserRequest
+from db.models.auth_db_requests.user_update_request import UserUpdateRequest
 
 
 class PostgresProvider(UserStorage):
@@ -32,11 +35,19 @@ class PostgresProvider(UserStorage):
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.create_all)
 
-    async def add_data(self, request: Base) -> Response:
+    async def add_single_data(self, request: BaseModel) -> Response:
         # INSERT запрос
         async with self._async_session() as session:
             try:
-                session.add(request)
+                db_request = UserRequest(
+                    uuid=request.uuid,
+                    login=request.login,
+                    password=request.password,
+                    first_name=request.first_name,
+                    last_name=request.last_name,
+                    is_verified=request.is_verified
+                )
+                session.add(db_request)
                 await session.commit()
                 return Response(status_code=201)
 
@@ -88,18 +99,24 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return Response(status_code=500)
 
-    async def update_single_data(self, request: Base):
+    async def update_single_data(self, request: BaseModel) -> Response:
         # UPDATE запрос
         async with self._async_session() as session:
             try:
-                # todo м.б. можно отправить запрос по-другому?
+                # todo м.б. можно лучше
+                db_request = UserUpdateRequest(
+                    uuid=request.uuid,
+                    login=request.login,
+                    first_name=request.first_name,
+                    last_name=request.last_name
+                )
                 query = (
                     update(User)
-                    .where(User.uuid == request.uuid)
+                    .where(User.uuid == db_request.uuid)
                     .values(
-                        login=request.login,
-                        first_name=request.first_name,
-                        last_name=request.last_name
+                        login=db_request.login,
+                        first_name=db_request.first_name,
+                        last_name=db_request.last_name
                     )
                 )
                 await session.execute(query)

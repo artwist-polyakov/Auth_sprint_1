@@ -29,7 +29,7 @@ class UserService:
             last_name=last_name,
             is_verified=True  # аккаунт всегда подтвержден
         )
-        response: Response = await self._postgres.add_data(request)
+        response: Response = await self._postgres.add_single_data(request)
         return {
             'status_code': response.status_code,
             'content': str(request.uuid)
@@ -46,6 +46,7 @@ class UserService:
             uuid=str(result.uuid),
             login=result.login,
             first_name=result.first_name,
+            last_name=result.last_name,
             is_verified=result.is_verified
         )
         return response.model_dump()

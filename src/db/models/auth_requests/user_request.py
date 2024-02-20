@@ -1,22 +1,12 @@
 import uuid
 
-from configs.settings import settings
-from db.auth.user import Base
+from db.models.auth_requests.base_request import BaseRequest
 
 
-class UserRequest(Base):
-    __tablename__ = 'users'
-    __table_args__ = {'schema': f'{settings.postgres_schema_2}'}
-
-    def __init__(self,
-                 login: str,
-                 password: str,
-                 first_name: str,
-                 last_name: str,
-                 is_verified: bool) -> None:
-        self.uuid = uuid.uuid4()
-        self.login = login
-        self.password = password
-        self.first_name = first_name
-        self.last_name = last_name
-        self.is_verified = is_verified
+class UserRequest(BaseRequest):
+    uuid: str = uuid.uuid4()
+    login: str
+    password: str
+    first_name: str
+    last_name: str
+    is_verified: bool
