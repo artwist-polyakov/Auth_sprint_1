@@ -11,8 +11,6 @@ from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
 
 
-# todo вынести "except Exception as e" из всех методов
-
 class PostgresProvider(UserStorage):
     def __init__(self):
         self._pstg = PostgresSettings()

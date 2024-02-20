@@ -19,13 +19,18 @@ async def sign_up(
         last_name: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    response: Response | JSONResponse = await service.sign_up(
+    response: Response | dict = await service.sign_up(
         login=login,
         password=password,
         first_name=first_name,
         last_name=last_name
     )
-    return response
+    if isinstance(response, Response):
+        return response
+    return JSONResponse(
+        status_code=response['status_code'],
+        content={'uuid': response['content']}
+    )
 
 
 @router.get(

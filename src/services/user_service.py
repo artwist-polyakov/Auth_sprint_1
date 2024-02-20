@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import Response
 
 from db.auth.user import User
 from db.models.auth_requests.user_request import UserRequest
@@ -19,7 +19,9 @@ class UserService:
             password: str,
             first_name: str,
             last_name: str
-    ) -> Response:
+    ) -> Response | dict:
+        # todo проверка валидности полей
+
         request = UserRequest(
             login=login,
             password=password,
@@ -27,34 +29,11 @@ class UserService:
             last_name=last_name,
             is_verified=True  # аккаунт всегда подтвержден
         )
-
-        # Существует ли пользователь с таким login
-        user: User | Response = await self._postgres.get_single_data(
-            field_name='login',
-            field_value=login
-        )
-        if isinstance(user, User):
-            return Response(status_code=409)  # User already exists
-
-        # todo проверка валидности полей
-
-        # Создать нового пользователя
-        # todo куда этот статус код?
         response: Response = await self._postgres.add_data(request)
-
-        # Вернуть UUID нового пользователя
-        new_user: User | Response = await self._postgres.get_single_data(
-            field_name='login',
-            field_value=login
-        )
-        if isinstance(new_user, Response):
-            # todo когда пользователь добавлен, но uuid не получен
-            #  (м.б. соединение, например)
-            return JSONResponse(
-                status_code=new_user.status_code,
-                content={'uuid': 'CHECK ERROR'}
-            )
-        return JSONResponse(status_code=201, content={'uuid': str(new_user.uuid)})
+        return {
+            'status_code': response.status_code,
+            'content': str(request.uuid)
+        }
 
     async def get_user_by_uuid(self, uuid: str) -> dict | Response:
         result: User | Response = await self._postgres.get_single_data(

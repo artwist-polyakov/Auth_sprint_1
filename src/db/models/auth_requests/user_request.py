@@ -1,3 +1,5 @@
+import uuid
+
 from configs.settings import settings
 from db.auth.user import Base
 
@@ -12,6 +14,7 @@ class UserRequest(Base):
                  first_name: str,
                  last_name: str,
                  is_verified: bool) -> None:
+        self.uuid = uuid.uuid4()
         self.login = login
         self.password = password
         self.first_name = first_name
