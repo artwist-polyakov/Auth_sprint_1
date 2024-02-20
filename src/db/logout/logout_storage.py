@@ -1,15 +1,17 @@
 from abc import ABC, abstractmethod
 
+from db.models.auth.access_token_container import AccessTokenContainer
+
 
 class LogoutStorage(ABC):
     @abstractmethod
-    def logout_current_session(self, access_token: str) -> None:
+    async def logout_current_session(self, access_token: AccessTokenContainer) -> None:
         pass
 
     @abstractmethod
-    def logout_all_sessions(self, access_token: str) -> None:
+    async def logout_all_sessions(self, access_token: AccessTokenContainer) -> None:
         pass
 
     @abstractmethod
-    def is_blacklisted(self, access_token: str) -> bool:
+    async def is_blacklisted(self, access_token: AccessTokenContainer) -> bool:
         pass
