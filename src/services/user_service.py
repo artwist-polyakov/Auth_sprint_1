@@ -8,7 +8,7 @@ from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.postgres import PostgresProvider
 
-from src.services.models.signup import SignupModel, LoginModel, ProfileModel
+from services.models.signup import SignupModel, ProfileModel
 
 
 class UserService:
