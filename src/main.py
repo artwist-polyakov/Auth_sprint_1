@@ -5,6 +5,8 @@ from fastapi.responses import ORJSONResponse
 from api.v1 import films, genres, persons, users
 from configs.settings import Settings
 from core.logger import LOGGING
+from db.auth.refresh_token import RefreshToken
+from db.auth.role import Role
 from db.auth.user import User
 from db.postgres import PostgresProvider
 from utils.creator_provider import get_creator
@@ -25,6 +27,8 @@ app = FastAPI(
 async def startup():
     await postgres.create_schema(schema_name=settings.postgres_schema_2)
     await postgres.create_database(model=User)
+    await postgres.create_database(model=Role)
+    await postgres.create_database(model=RefreshToken)
 
 
 @app.on_event('shutdown')

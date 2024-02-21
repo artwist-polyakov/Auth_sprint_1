@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from db.auth.access_token_container import AccessTokenContainer
+from db.models.token_models.access_token_container import AccessTokenContainer
 
 
 class LogoutStorage(ABC):

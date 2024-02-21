@@ -17,7 +17,6 @@ class User(Base):
     uuid = Column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
         unique=True,
         nullable=False
     )
@@ -25,20 +24,19 @@ class User(Base):
     password = Column(String(255), nullable=False)
     first_name = Column(String(50))
     last_name = Column(String(50))
-    is_verified = Column(Boolean, default=0, nullable=False)
+    # todo role =
+    #     role_id = relationship('Role', foreign_keys='role.uuid')
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def __init__(self,
                  login: str,
                  password: str,
                  first_name: str,
-                 last_name: str,
-                 is_verified: bool) -> None:
+                 last_name: str) -> None:
         self.login = login
         self.password = password
         self.first_name = first_name
         self.last_name = last_name
-        self.is_verified = is_verified
 
     def __repr__(self) -> str:
         return f'<User {self.login}>'
