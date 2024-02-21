@@ -15,7 +15,8 @@ LoginStr = constr(
 NameStr = constr(
     strip_whitespace=True,
     min_length=2,
-    max_length=100
+    max_length=100,
+
 )
 
 
@@ -49,3 +50,9 @@ class EmailModel(BaseModel):
 class SignupModel(LoginModel, EmailModel, PasswordModel):
     first_name: str = NameStr
     last_name: str = NameStr
+
+
+class ProfileModel(LoginModel):
+    first_name: str = NameStr
+    last_name: str = NameStr
+    uuid: str
