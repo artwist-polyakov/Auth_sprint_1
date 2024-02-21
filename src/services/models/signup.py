@@ -20,6 +20,12 @@ NameStr = constr(
 )
 
 
+class CustomValueError(Exception):
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(self.message)
+
+
 class PasswordModel(BaseModel):
     password: str
 
@@ -27,15 +33,15 @@ class PasswordModel(BaseModel):
     def check_pass(cls, value):
         value = str(value)
         if len(value) < MIN_PASS_LENGTH:
-            raise ValueError(f"Password must have at least {MIN_PASS_LENGTH} characters")
+            raise CustomValueError(f"Password must have at least {MIN_PASS_LENGTH} characters")
         if not any(c.isupper() for c in value):
-            raise ValueError("Password must have at least one uppercase letter")
+            raise CustomValueError("Password must have at least one uppercase letter")
         if not any(c.islower() for c in value):
-            raise ValueError("Password must have at least one lowercase letter")
+            raise CustomValueError("Password must have at least one lowercase letter")
         if not any(c.isdigit() for c in value):
-            raise ValueError("Password must have at least one digit")
+            raise CustomValueError("Password must have at least one digit")
         if ' ' in value:
-            raise ValueError("Password must not contain spaces")
+            raise CustomValueError("Password must not contain spaces")
         return value
 
 
