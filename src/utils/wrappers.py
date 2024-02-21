@@ -27,6 +27,7 @@ def value_error_handler():
 
     return func_wrapper
 
+
 def cached(result_type, cache_provider_attribute: str = "_cache"):
     """Декоратор для работы с данными кеша.
 
@@ -91,7 +92,7 @@ def backoff(max_attempts=-1, start_sleep_time=0.1, factor=2, border_sleep_time=1
                 except Exception as error:
                     sleep_time = min(border_sleep_time, start_sleep_time * factor * attempt)
                     sleep_with_jitter = random.uniform(0, sleep_time)
-                    attempt_string = f" Attempt {max_attempts - attempt + 1} "\
+                    attempt_string = f" Attempt {max_attempts - attempt + 1} " \
                         if max_attempts >= 0 else " "
                     logging.error(f"Error: {error}.{attempt_string}"
                                   f"Retrying in {sleep_with_jitter} seconds...")

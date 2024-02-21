@@ -7,8 +7,7 @@ from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.postgres import PostgresProvider
-
-from services.models.signup import SignupModel, ProfileModel
+from services.models.signup import ProfileModel, SignupModel
 
 
 class UserService:
@@ -112,7 +111,6 @@ class UserService:
             first_name=first_name,
             last_name=last_name
         )
-
 
         # поменять логин и другие данные, кроме пароля
         request: UserUpdateRequest = UserUpdateRequest(

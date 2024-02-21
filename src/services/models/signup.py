@@ -1,6 +1,4 @@
-import re
-
-from pydantic import BaseModel, EmailStr, ValidationError, constr, field_validator
+from pydantic import BaseModel, EmailStr, constr, field_validator
 
 MIN_PASS_LENGTH = 5
 
