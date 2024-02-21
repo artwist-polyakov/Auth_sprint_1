@@ -21,9 +21,6 @@ app = FastAPI(
 )
 
 
-async def postgres_check():
-    pass
-
 @app.on_event('startup')
 async def startup():
     await postgres.create_schema(schema_name=settings.postgres_schema_2)
