@@ -1,5 +1,3 @@
-import uuid
-
 from pydantic import BaseModel
 
 
@@ -12,4 +10,3 @@ class AccessTokenContainer(BaseModel):
     created_at: int = 0
     refresh_id: str
     refreshed_at: int = 0
-

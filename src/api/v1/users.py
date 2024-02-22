@@ -41,7 +41,7 @@ async def sign_up(
     )
     if response['status_code'] == 201:
         uuid = response['content']['uuid']
-        access_token = response['content']['access_token']
+        # access_token = response['content']['access_token']
         refresh_token = response['content']['refresh_token']
 
         json_response = JSONResponse(
@@ -49,7 +49,8 @@ async def sign_up(
             content={'uuid': uuid, "refresh_token": refresh_token, "token_type": 'bearer'}
         )
 
-        # todo при создании пользователя мы пока не возвращаем токены в ответе (опционально добавим потом)
+        # todo при создании пользователя мы пока не
+        #  возвращаем токены в ответе (опционально добавим потом)
 
         # json_response.set_cookie(
         #     key="access_token",

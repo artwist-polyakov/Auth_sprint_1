@@ -16,7 +16,7 @@ from db.models.search_responses.persons.films_brief_result import \
 from db.models.search_responses.persons.person_work_result import \
     PersonWorkResult
 from db.models.token_models.access_token_container import AccessTokenContainer
-from utils.jwt_toolkit import dict_from_jwt, dict_to_jwt, get_jwt_settings
+from utils.jwt_toolkit import dict_to_jwt, get_jwt_settings
 
 
 class APIConvertor:
@@ -192,7 +192,8 @@ class APIConvertor:
             'verified': token_container.verified,
             'subscribed': token_container.subscribed,
             'subscribed_till': token_container.subscribed_till,
-            'active_till': token_container.created_at + get_jwt_settings().access_token_expire_minutes,
+            'active_till': (token_container.created_at +
+                            get_jwt_settings().access_token_expire_minutes),
             'refresh_id': token_container.refresh_id,
         }
 
@@ -203,7 +204,7 @@ class APIConvertor:
         result = {
             'refresh_id': token_container.refresh_id,
             'user_id': token_container.user_id,
-            'active_till': token_container.created_at + get_jwt_settings().refresh_token_expire_minutes,
+            'active_till': (token_container.created_at +
+                            get_jwt_settings().refresh_token_expire_minutes),
         }
         return dict_to_jwt(result)
-
