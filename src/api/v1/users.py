@@ -2,8 +2,10 @@ from fastapi import APIRouter, Cookie, Depends
 from fastapi.responses import JSONResponse, Response
 
 from api.v1.models.users.results.user_result import UserResult
+from api.v1.utils.api_convertor import APIConvertor
+from db.models.token_models.access_token_container import AccessTokenContainer
 from services.user_service import UserService, get_user_service
-from utils.jwt_toolkit import dict_from_jwt
+from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
 
 router = APIRouter()
@@ -46,17 +48,20 @@ async def sign_up(
             status_code=response['status_code'],
             content={'uuid': uuid, "refresh_token": refresh_token, "token_type": 'bearer'}
         )
-        json_response.set_cookie(
-            key="access_token",
-            value=access_token,
-            httponly=True
-        )
-        json_response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            expires=10
-        )
+
+        # todo при создании пользователя мы пока не возвращаем токены в ответе (опционально добавим потом)
+
+        # json_response.set_cookie(
+        #     key="access_token",
+        #     value=access_token,
+        #     httponly=True
+        # )
+        # json_response.set_cookie(
+        #     key="refresh_token",
+        #     value=refresh_token,
+        #     httponly=True,
+        #     expires=10
+        # )
         return json_response
     else:
         return JSONResponse(
@@ -129,26 +134,30 @@ async def login_user(
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.authenticate(login, password)
-    if response['status_code'] == 200:
-        access_token = response['content']['access_token']
-        refresh_token = response['content']['refresh_token']
 
-        json_response = JSONResponse(
-            status_code=response['status_code'],
-            content={"refresh_token": refresh_token, "token_type": 'bearer'}
+    if isinstance(response, AccessTokenContainer):
+        access = APIConvertor().map_token_container_to_refresh_token(response)
+        refresh = APIConvertor().map_token_container_to_access_token(response)
+        json_result = JSONResponse(
+            status_code=200,
+            content={"refresh_token": access,
+                     "access_token": refresh,
+                     "token_type": 'bearer'}
         )
-        json_response.set_cookie(
+        json_result.set_cookie(
             key="access_token",
-            value=access_token,
-            httponly=True
-        )
-        json_response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
+            value=access,
             httponly=True,
-            expires=10
+            expires=get_jwt_settings().access_token_expire_minutes*60
         )
-        return json_response
+
+        json_result.set_cookie(
+            key="refresh_token",
+            value=refresh,
+            httponly=True,
+            expires=get_jwt_settings().refresh_token_expire_minutes*60
+        )
+        return json_result
     else:
         return JSONResponse(
             status_code=response['status_code'],
