@@ -6,7 +6,7 @@ from fastapi.responses import ORJSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from api.v1 import films, genres, persons, users
-from configs.rbac_conf import RBAC_CONF, EXСLUDED_PATHS
+from configs.rbac_conf import EXСLUDED_PATHS, RBAC_CONF
 from configs.settings import Settings
 from core.logger import LOGGING
 from db.auth.refresh_token import RefreshToken
@@ -55,7 +55,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
                 raise HTTPException(status_code=401, detail="Access token expired")
         if not role:
             raise HTTPException(status_code=401, detail="Bad credentials")
-        if not resource in EXСLUDED_PATHS:
+        if resource not in EXСLUDED_PATHS:
             if role != 'unauthorized' and not has_permission(role, resource.split("/")[2], action):
                 raise HTTPException(status_code=403, detail="Insufficient permissions")
         logging.warning(f"Role: {role}")
