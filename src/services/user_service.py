@@ -59,7 +59,7 @@ class UserService:
             case 201:
                 access_token = AccessTokenContainer(
                     user_id=str(request.uuid),
-                    role=["user"],
+                    role="user",
                     verified=True,
                     subscribed=False,
                     subscription_till=0,
