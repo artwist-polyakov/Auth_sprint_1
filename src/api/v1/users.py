@@ -48,12 +48,12 @@ def decode_jwt():
 
 
 @encode_jwt()
-def get_token(data: dict) -> dict | str:
+def dict_to_jwt(data: dict) -> dict | str:
     return data
 
 
 @decode_jwt()
-def get_jwt(data: str) -> str | dict:
+def dict_from_jwt(data: str) -> str | dict:
     return data
 
 
@@ -63,7 +63,7 @@ def get_jwt(data: str) -> str | dict:
     description="Check access token"
 )
 async def check_token(token: str) -> dict:
-    return {'is_valid': 'login' in (get_jwt(token).keys())}
+    return {'is_valid': 'login' in (dict_from_jwt(token).keys())}
 
 
 @router.post(
