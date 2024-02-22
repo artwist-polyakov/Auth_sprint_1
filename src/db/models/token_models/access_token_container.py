@@ -3,7 +3,8 @@ from pydantic import BaseModel
 
 class AccessTokenContainer(BaseModel):
     user_id: str
-    role: list[str]
+    role: str
+    is_superuser: bool = False
     verified: bool = False
     subscribed: bool = False
     subscribed_till: int = 0

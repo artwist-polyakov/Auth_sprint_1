@@ -189,6 +189,7 @@ class APIConvertor:
         result = {
             'user_id': token_container.user_id,
             'role': token_container.role,
+            'is_superuser': token_container.is_superuser,
             'verified': token_container.verified,
             'subscribed': token_container.subscribed,
             'subscribed_till': token_container.subscribed_till,

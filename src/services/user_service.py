@@ -131,7 +131,8 @@ class UserService:
 
         reuslt = AccessTokenContainer(
             user_id=str(user.uuid),
-            role=["user"],
+            role="user",
+            is_superuser=False,
             verified=True,
             subscribed=False,
             created_at=int(datetime.now().timestamp()),
