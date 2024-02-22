@@ -137,8 +137,8 @@ async def login_user(
     response: dict = await service.authenticate(login, password)
 
     if isinstance(response, AccessTokenContainer):
-        access = APIConvertor().map_token_container_to_refresh_token(response)
-        refresh = APIConvertor().map_token_container_to_access_token(response)
+        access = APIConvertor().map_token_container_to_access_token(response)
+        refresh = APIConvertor().map_token_container_to_refresh_token(response)
         json_result = JSONResponse(
             status_code=200,
             content={"refresh_token": access,
