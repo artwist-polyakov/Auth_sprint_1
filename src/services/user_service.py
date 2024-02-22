@@ -36,7 +36,7 @@ class UserService:
             email=None
         )
 
-        exists: User | dict = await self._postgres.get_single_data(
+        exists: User | dict = await self._postgres.get_single_user(
             field_name='login',
             field_value=model.login
         )
@@ -47,6 +47,7 @@ class UserService:
             }
         password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
         request = UserRequest(
+            uuid=str(uuid.uuid4()),
             login=model.login,
             password=password_hash,
             first_name=model.first_name,
@@ -106,7 +107,8 @@ class UserService:
         response: dict = await self._postgres.delete_single_data(uuid)
         return response
 
-    async def authenticate(self, login: str, password: str) -> dict:
+    # todo сделаеть обёртку для ошибок или raise (я бы выбрал raise)
+    async def authenticate(self, login: str, password: str) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
             field_name='login',
             field_value=login
@@ -118,26 +120,25 @@ class UserService:
         if not valid:
             return {'status_code': 400, 'content': 'password is incorrect'}
 
-        access_token = AccessTokenContainer(
-            user_id=str(user.uuid),
-            role=["user"],
-            created_at=int(datetime.now().timestamp()),
-            refresh_id=str(uuid.uuid4())
-        )
         refresh_token = RefreshToken(
-            uuid=str(access_token.refresh_id),
+            uuid=str(uuid.uuid4()),
             user_id=str(user.uuid),
             active_till=int((datetime.now() + timedelta(
                 minutes=settings.refresh_token_expire_minutes)).timestamp())
+            # todo добавить в базу данные о дате создания рефреша
         )
         await self._postgres.add_single_data(refresh_token, 'refresh_token')
-        return {
-            'status_code': 200,
-            'content': {
-                'access_token': access_token.model_dump(),
-                'refresh_token': refresh_token.model_dump()
-            }
-        }
+
+        reuslt = AccessTokenContainer(
+            user_id=str(user.uuid),
+            role=["user"],
+            verified=True,
+            subscribed=False,
+            created_at=int(datetime.now().timestamp()),
+            refresh_id=str(refresh_token.uuid),
+            refreshed_at=int(datetime.now().timestamp())
+        )
+        return reuslt
 
     async def update_profile(
             self,
