@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 from api.v1.models.users.results.user_result import UserResult
 from configs.security_settings import SecuritySettings
 from services.user_service import UserService, get_user_service
+from utils.wrappers import value_error_handler
 
 router = APIRouter()
 
@@ -70,6 +71,7 @@ async def check_token(token: str) -> dict:
     summary="Sign Up",
     description="Sign Up"
 )
+@value_error_handler()
 async def sign_up(
         login: str,
         password: str,
@@ -138,7 +140,8 @@ async def get_user_by_uuid(
     else:
         return JSONResponse(
             status_code=response['status_code'],
-            content=response['content'])
+            content=response['content']
+        )
 
 
 @router.post(

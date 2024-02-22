@@ -4,8 +4,28 @@ import time
 from functools import wraps
 
 from db.cache.cache_storage import CacheStorage
+from services.models.signup import CustomValueError
 
 CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+
+
+def value_error_handler():
+    """Декоратор для обработки ошибок валидации Pydantic."""
+
+    def func_wrapper(func):
+        @wraps(func)
+        async def inner(*args, **kwargs):
+            try:
+                return await func(*args, **kwargs)
+            except CustomValueError as error:
+                return {
+                    'status_code': 422,
+                    'content': str(error)
+                }
+
+        return inner
+
+    return func_wrapper
 
 
 def cached(result_type, cache_provider_attribute: str = "_cache"):
@@ -72,7 +92,7 @@ def backoff(max_attempts=-1, start_sleep_time=0.1, factor=2, border_sleep_time=1
                 except Exception as error:
                     sleep_time = min(border_sleep_time, start_sleep_time * factor * attempt)
                     sleep_with_jitter = random.uniform(0, sleep_time)
-                    attempt_string = f" Attempt {max_attempts - attempt + 1} "\
+                    attempt_string = f" Attempt {max_attempts - attempt + 1} " \
                         if max_attempts >= 0 else " "
                     logging.error(f"Error: {error}.{attempt_string}"
                                   f"Retrying in {sleep_with_jitter} seconds...")

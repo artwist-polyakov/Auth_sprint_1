@@ -12,6 +12,7 @@ from db.models.auth_responses.user_response import UserResponse
 from db.models.token_models.access_token_container import AccessTokenContainer
 from db.models.token_models.refresh_token import RefreshToken
 from db.postgres import PostgresProvider
+from services.models.signup import ProfileModel, SignupModel
 
 
 class UserService:
@@ -22,27 +23,35 @@ class UserService:
             self,
             login: str,
             password: str,
-            first_name: str,
-            last_name: str
+            first_name: str = '',
+            last_name: str = ''
     ) -> dict:
         # todo проверка валидности полей
 
-        exists: User | dict = await self._postgres.get_single_user(
+        model = SignupModel(
+            login=login,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            email=None
+        )
+
+        exists: User | dict = await self._postgres.get_single_data(
             field_name='login',
-            field_value=login
+            field_value=model.login
         )
         if isinstance(exists, User):
             return {
                 'status_code': 409,
                 'content': 'user with this login already exists'
             }
-        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+        password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
         request = UserRequest(
-            uuid=str(uuid.uuid4()),
-            login=login,
+            login=model.login,
             password=password_hash,
-            first_name=first_name,
-            last_name=last_name
+            first_name=model.first_name,
+            last_name=model.last_name,
+            is_verified=True  # аккаунт всегда подтвержден !! НАОБОРОТ по дефолту не !!
         )
         response: dict = await self._postgres.add_single_data(request, 'user')
         match response['status_code']:
@@ -137,14 +146,22 @@ class UserService:
             first_name: str,
             last_name: str
     ) -> dict:
-        # поменять логин и другие данные, кроме пароля
-        request: UserUpdateRequest = UserUpdateRequest(
-            uuid=uuid,
+
+        model = ProfileModel(
             login=login,
+            uuid=uuid,
             first_name=first_name,
             last_name=last_name
         )
-        result: dict = await self._postgres.update_single_user(request)
+
+        # поменять логин и другие данные, кроме пароля
+        request: UserUpdateRequest = UserUpdateRequest(
+            uuid=model.uuid,
+            login=model.login,
+            first_name=model.first_name,
+            last_name=model.last_name
+        )
+        result: dict = await self._postgres.update_single_data(request)
         return result
 
     async def update_tokens(self, refresh_token: str):

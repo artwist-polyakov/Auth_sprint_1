@@ -12,6 +12,7 @@ services:
       - elasticsearch-node1
       - elasticsearch-node2
       - redis
+      - postgres
     ports:
       - ${TESTS_PORTS}
     expose:
@@ -28,6 +29,7 @@ services:
       - elasticsearch-node1
       - elasticsearch-node2
       - redis
+      - postgres
 
   elasticsearch-node1:
     image: elasticsearch:${STACK_VERSION}
@@ -78,3 +80,13 @@ services:
     volumes:
       - ./core/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
+
+  postgres:
+    container_name: postgres
+    image: postgres:${POSTGRES_VERSION}
+    env_file:
+      - .env
+    volumes:
+      - ./etl/core/postgres/:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"

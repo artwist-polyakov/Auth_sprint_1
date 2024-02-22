@@ -48,7 +48,7 @@ Git-flow
 
 ## Подключение линтеров
 
-```angular2html
+```shell
 pip install flake8
 pip install isort
 ```
@@ -56,12 +56,12 @@ pip install isort
 ## Запуск линтеров
 
 Запуск flake8
-```angular2html
+```shell
 flake8 --config=.flake8
 ```
 
 Запуск isort
-```angular2html
+```shell
 isort .
 ```
 
@@ -69,7 +69,7 @@ isort .
 
 Инструкция по запуску тестов в отдельном контейнере:
 
-```commandline
+```shell
 cd ./tests/functional
 README.md
 ```
@@ -77,12 +77,36 @@ README.md
 ## Первая версия функциональных тестов
 
 потребуется библиотека requests
-```angular2html
+```shell
 pip install requests
 ```
 
 запуск тестов
-```angular2html
+```shell
 python tests_simple/test_es_query.py    
 ```
 
+## Генерация собственного сертификата
+
+1. Создать корневой сертификат
+
+Лично я заменяю `RootCA` на `PoliakovCA` чтобы отличать свои сертификаты от других.
+
+```shell
+openssl req -x509 -nodes -new -sha256 -days 1024 -newkey rsa:2048 -keyout RootCA.key -out RootCA.pem -subj "/C=US/CN=Example-Root-CA"
+openssl x509 -outform pem -in RootCA.pem -out RootCA.crt
+```
+
+2. Конфигурируем файл `domains.ext` в корне проекта
+
+3. Запускаем в корне проекта команду
+
+```shell
+
+openssl req -new -nodes -newkey rsa:2048 -keyout localhost.key -out localhost.csr -subj "/C=US/ST=YourState/L=YourCity/O=Example-Certificates/CN=localhost.local"
+openssl x509 -req -sha256 -days 1024 -in localhost.csr -CA RootCA.pem -CAkey RootCA.key -CAcreateserial -extfile domains.ext -out localhost.crt
+
+```
+
+4. Копируем созданные сертификаты `localhost.crt` и `localhost.key` в папку `./nginx/ssl`
+5. Делаем сертификат `RootCA.crt` доверенным в браузере
