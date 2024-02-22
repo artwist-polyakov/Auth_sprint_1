@@ -1,4 +1,5 @@
 from functools import lru_cache, wraps
+
 from jose import JWTError, jwt
 
 from configs.security_settings import JWTSecuritySettings
@@ -15,7 +16,11 @@ def encode_jwt():
         def inner(*args, **kwargs):
             result = func(*args, **kwargs)
             if result and isinstance(result, dict):
-                return jwt.encode(result, get_jwt_settings().openssl_key, algorithm=get_jwt_settings().algorithm)
+                return jwt.encode(
+                    result,
+                    get_jwt_settings().openssl_key,
+                    algorithm=get_jwt_settings().algorithm
+                )
             else:
                 return result
 
@@ -30,7 +35,11 @@ def decode_jwt():
         def inner(*args, **kwargs):
             try:
                 token = func(*args, **kwargs)
-                return jwt.decode(token, get_jwt_settings().openssl_key, algorithms=[get_jwt_settings().algorithm])
+                return jwt.decode(
+                    token,
+                    get_jwt_settings().openssl_key,
+                    algorithms=[get_jwt_settings().algorithm]
+                )
             except JWTError:
                 return {}
 

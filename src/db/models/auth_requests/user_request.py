@@ -1,5 +1,3 @@
-import uuid
-
 from db.models.auth_requests.base_request import BaseRequest
 
 

@@ -1,5 +1,4 @@
-
-from fastapi import APIRouter, Depends, Cookie
+from fastapi import APIRouter, Cookie, Depends
 from fastapi.responses import JSONResponse, Response
 
 from api.v1.models.users.results.user_result import UserResult
@@ -8,8 +7,6 @@ from utils.jwt_toolkit import dict_from_jwt
 from utils.wrappers import value_error_handler
 
 router = APIRouter()
-
-
 
 
 @router.get(
@@ -75,9 +72,9 @@ async def sign_up(
     description="Get one user with current uuid if exists"
 )
 async def get_user_by_uuid(
-       uuid: str,
-       access_token: str = Cookie(None),
-       service: UserService = Depends(get_user_service)
+        uuid: str,
+        access_token: str = Cookie(None),
+        service: UserService = Depends(get_user_service)
 ) -> UserResult | Response:
     if not check_token(access_token):
         return JSONResponse(
@@ -127,9 +124,9 @@ async def delete_user(
     description="Login by login and password"
 )
 async def login_user(
-       login: str,
-       password: str,
-       service: UserService = Depends(get_user_service)
+        login: str,
+        password: str,
+        service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.authenticate(login, password)
     if response['status_code'] == 200:
@@ -165,12 +162,12 @@ async def login_user(
     description="Update profile data except password"
 )
 async def update_user(
-       uuid: str,
-       login: str,
-       first_name: str,
-       last_name: str,
-       access_token: str = Cookie(None),
-       service: UserService = Depends(get_user_service)
+        uuid: str,
+        login: str,
+        first_name: str,
+        last_name: str,
+        access_token: str = Cookie(None),
+        service: UserService = Depends(get_user_service)
 ) -> Response:
     if not check_token(access_token):
         return JSONResponse(
