@@ -1,60 +1,15 @@
-from functools import lru_cache, wraps
 
 from fastapi import APIRouter, Depends, Cookie
 from fastapi.responses import JSONResponse, Response
-from jose import JWTError, jwt
 
 from api.v1.models.users.results.user_result import UserResult
-from configs.security_settings import SecuritySettings
 from services.user_service import UserService, get_user_service
+from utils.jwt_toolkit import dict_from_jwt
 from utils.wrappers import value_error_handler
 
 router = APIRouter()
 
 
-@lru_cache()
-def get_settings():
-    return SecuritySettings()
-
-
-def encode_jwt():
-    def wrapper(func):
-        @wraps(func)
-        def inner(*args, **kwargs):
-            result = func(*args, **kwargs)
-            if result and isinstance(result, dict):
-                return jwt.encode(result, get_settings().openssl_key, algorithm=get_settings().algorithm)
-            else:
-                return result
-
-        return inner
-
-    return wrapper
-
-
-def decode_jwt():
-    def wrapper(func):
-        @wraps(func)
-        def inner(*args, **kwargs):
-            try:
-                token = func(*args, **kwargs)
-                return jwt.decode(token, get_settings().openssl_key, algorithms=[get_settings().algorithm])
-            except JWTError:
-                return {}
-
-        return inner
-
-    return wrapper
-
-
-@encode_jwt()
-def dict_to_jwt(data: dict) -> dict | str:
-    return data
-
-
-@decode_jwt()
-def dict_from_jwt(data: str) -> str | dict:
-    return data
 
 
 @router.get(
