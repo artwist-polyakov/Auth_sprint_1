@@ -1,0 +1,34 @@
+from aiocache import Cache, cached
+from aiocache.serializers import JsonSerializer
+
+from services.role_service import get_role_service
+
+RBAC_CONF = {
+    'admin': {
+        'films': ['read', 'write', 'delete'],
+        'genres': ['read', 'write', 'delete'],
+        'persons': ['read', 'write', 'delete'],
+        'users': ['read', 'write', 'delete'],
+    },
+    'user': {
+        'films': ['read'],
+        'genres': ['read'],
+        'persons': ['read'],
+        'users': ['read', 'write', 'delete'],
+    }
+}
+
+
+@cached(serializer=JsonSerializer())
+async def get_rbac_conf():
+    return await get_role_service().get_roles()
+
+
+cache = Cache()  # Создаём экземпляр кэша
+
+
+async def clear_rbac_conf_cache():
+    await cache.delete('get_rbac_conf()')
+
+
+EXСLUDED_PATHS = ['docs', 'openapi.json', 'api/openapi', 'api/openapi.json']
