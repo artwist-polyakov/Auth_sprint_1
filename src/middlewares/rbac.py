@@ -28,9 +28,9 @@ async def has_permission(user_role, resource_name, required_permission):
 
     logging.warning(f"RBAC_CONF: {RBAC_CONF}")
     logging.warning(f"DB_conf: {await get_rbac_conf()}")
-
-    if user_role in RBAC_CONF and resource_name in RBAC_CONF[user_role]:
-        return required_permission in RBAC_CONF[user_role][resource_name]
+    conf = await get_rbac_conf()
+    if user_role in conf and resource_name in conf[user_role]:
+        return required_permission in conf[user_role][resource_name]
     return False
 
 
