@@ -28,9 +28,9 @@ async def has_permission(user_role, resource_name, required_permission):
 
     logging.warning(f"RBAC_CONF: {RBAC_CONF}")
     logging.warning(f"DB_conf: {await get_rbac_conf()}")
-
-    if user_role in RBAC_CONF and resource_name in RBAC_CONF[user_role]:
-        return required_permission in RBAC_CONF[user_role][resource_name]
+    conf = await get_rbac_conf()
+    if user_role in conf and resource_name in conf[user_role]:
+        return required_permission in conf[user_role][resource_name]
     return False
 
 
@@ -42,15 +42,18 @@ class RBACMiddleware(BaseHTTPMiddleware):
         if resource not in EXСLUDED_PATHS:
             token = request.cookies.get(ACCESS_TOKEN_KEY)
             role = UNAUTHORIZED_ROLE
+            is_superuser = False
             if token:
-                role = dict_from_jwt(token).get(ROLE_KEY, None)
+                jwt = dict_from_jwt(token)
+                role = jwt.get(ROLE_KEY, None)
+                is_superuser = jwt.get("is_superuser", None)
             else:
                 refresh_token = request.cookies.get(REFRESH_TOKEN_KEY)
                 if refresh_token and not (LOGIN_HANDLE in resource):
                     raise HTTPException(status_code=401, detail="Access token expired")
             if not role:
                 raise HTTPException(status_code=401, detail="Bad credentials")
-            if role != UNAUTHORIZED_ROLE and not await has_permission(
+            if not is_superuser and role != UNAUTHORIZED_ROLE and not await has_permission(
                     role,
                     resource.split("/")[2],
                     action
