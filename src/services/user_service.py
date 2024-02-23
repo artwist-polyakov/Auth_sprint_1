@@ -148,44 +148,6 @@ class UserService:
         result: dict = await self._postgres.update_single_user(request)
         return result
 
-    async def update_tokens(self, refresh_token: str):
-        old_refresh_token = await self._postgres.get_refresh_token(refresh_token)
-        if not old_refresh_token:
-            return {
-                'status_code': 401,
-                'content': 'Invalid refresh token'
-            }
-
-        if old_refresh_token.active_till < int(datetime.now().timestamp()):
-            return {
-                'status_code': 401,
-                'content': 'Refresh token has expired'
-            }
-
-        new_access_token = AccessTokenContainer(
-            user_id=str(old_refresh_token.user_id),
-            created_at=int(datetime.now().timestamp()),
-            refresh_id=str(old_refresh_token.uuid)
-        )
-
-        new_refresh_token = RefreshToken(
-            uuid=str(old_refresh_token.uuid),
-            user_id=str(old_refresh_token.user_id),
-            active_till=int((datetime.now() + timedelta(
-                minutes=settings.refresh_token_expire_minutes)).timestamp())
-        )
-
-        # Запись нового refresh токена в постгрес
-        await self._postgres.update_refresh_token(new_refresh_token)
-
-        return {
-            'status_code': 200,
-            'content': {
-                'access_token': new_access_token.model_dump(),
-                'refresh_token': new_refresh_token.model_dump()
-            }
-        }
-
     async def change_password(self, user_id: str, old_password: str, new_password: str):
         # Получение пользователя по user_id
         user = await self._postgres.get_single_user('uuid', user_id)
@@ -215,6 +177,34 @@ class UserService:
     async def logout(self):
         # todo
         pass
+
+    async def refresh_access_token(self, refresh_id: str, user_id: str, active_till: int):
+        if active_till < int(datetime.now().timestamp()):
+            return {
+                'status_code': 401,
+                'content': 'Refresh token has expired'
+            }
+        new_refresh_token = RefreshToken(
+            uuid=refresh_id,
+            user_id=user_id,
+            active_till=int((datetime.now() + timedelta(
+                minutes=settings.refresh_token_expire_minutes)).timestamp())
+        )
+        await self._postgres.update_refresh_token(new_refresh_token, refresh_id)
+
+        # todo  добавить информацию про роль данного пользователя
+
+        result = AccessTokenContainer(
+            user_id=user_id,
+            role="user",
+            is_superuser=False,
+            verified=True,
+            subscribed=False,
+            created_at=int(datetime.now().timestamp()),
+            refresh_id=str(new_refresh_token.uuid),
+            refreshed_at=int(datetime.now().timestamp())
+        )
+        return result
 
 
 @lru_cache
