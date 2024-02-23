@@ -23,6 +23,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     first_name = Column(String(50))
     last_name = Column(String(50))
+    role = Column(String(255), nullable=False, default='unauthorized')
     is_verified = Column(Boolean, default=0, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 

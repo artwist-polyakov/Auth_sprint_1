@@ -63,6 +63,23 @@ class RoleService:
         response: dict = await self._postgres.delete_single_data(uuid, 'role')
         return response
 
+    async def change_user_role(
+            self,
+            uuid: str,
+            new_role: str
+    ) -> dict:
+        role_item = await self._postgres.get_single_user(
+            field_name='uuid', field_value=uuid)
+
+        if isinstance(role_item, dict):
+            return {
+                'status_code': 404,
+                'content': 'User not found'
+            }
+
+        response: dict = await self._postgres.update_user_role(uuid, new_role)
+        return response
+
 
 @lru_cache
 def get_role_service():

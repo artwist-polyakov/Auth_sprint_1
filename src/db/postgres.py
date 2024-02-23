@@ -257,3 +257,23 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
+
+    async def update_user_role(self, uuid: str, new_role: str) -> dict:
+        # UPDATE запрос
+        async with self._async_session() as session:
+            try:
+                query = (
+                    update(User)
+                    .where(User.uuid == uuid)
+                    .values(
+                        role=new_role
+                    )
+                )
+                await session.execute(query)
+                await session.commit()
+                return {'status_code': 200, 'content': 'success'}
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {'status_code': 500, 'content': 'error'}
