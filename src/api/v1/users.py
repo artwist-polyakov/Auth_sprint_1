@@ -39,14 +39,15 @@ def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
     else:
         return None
 
+
 def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
     if isinstance(response, AccessTokenContainer):
         access = APIConvertor().map_token_container_to_access_token(response)
         refresh = APIConvertor().map_token_container_to_refresh_token(response)
         json_result = JSONResponse(
             status_code=200,
-            content={"refresh_token": access,
-                     "access_token": refresh,
+            content={"refresh_token": refresh,
+                     "access_token": access,
                      "token_type": 'bearer'}
         )
         json_result.set_cookie(
@@ -166,7 +167,6 @@ async def login_user(
     return get_tokens_response(response)
 
 
-
 @router.post(
     path='/update',
     summary="Update Profile Data",
@@ -188,6 +188,7 @@ async def update_user(
         content=response['content']
     )
 
+
 @router.post(
     path='/refresh',
     summary="Refresh access token via refresh token",
@@ -202,5 +203,13 @@ async def refresh_access_token(
             status_code=401,
             content='Invalid refresh token'
         )
-    response: dict = await service.refresh_access_token(refresh_token)
-    return get_tokens_response(response)
+
+    response: dict = await service.refresh_access_token(
+        *APIConvertor.refresh_token_to_tuple(
+            refresh_token
+        )
+    )
+    return get_tokens_response(response) if response else JSONResponse(
+        status_code=401,
+        content='Invalid refresh token'
+    )
