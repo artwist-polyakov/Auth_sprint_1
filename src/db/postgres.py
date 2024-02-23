@@ -271,7 +271,6 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
 
-
     async def get_history(self, uuid) -> dict:
         # SELECT запрос
         async with self._async_session() as session:
@@ -320,4 +319,3 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
-
