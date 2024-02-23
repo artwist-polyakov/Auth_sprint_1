@@ -16,8 +16,6 @@ settings = Settings()
 creator = get_creator()
 postgres = PostgresProvider()
 
-
-
 app = FastAPI(
     title=settings.project_name,
     docs_url='/api/openapi',

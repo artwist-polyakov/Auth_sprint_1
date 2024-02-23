@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Cookie, Depends
 from fastapi.responses import JSONResponse, Response
 
@@ -9,6 +11,23 @@ from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
 
 router = APIRouter()
+
+
+def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
+    if not token:
+        return JSONResponse(
+            status_code=401,
+            content='Invalid access token'
+        )
+    decoded_uuid = dict_from_jwt(token).get('user_id', None)
+    if not decoded_uuid or uuid != decoded_uuid:
+        logging.warning(f"UUID: {uuid}, Decoded UUID: {decoded_uuid}")
+        return JSONResponse(
+            status_code=403,
+            content="Your access token doesn't permit request to this user"
+        )
+    else:
+        return None
 
 
 @router.get(
@@ -66,11 +85,8 @@ async def get_user_by_uuid(
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> UserResult | Response:
-    if not check_token(access_token):
-        return JSONResponse(
-            status_code=401,
-            content='Invalid access token'
-        )
+    if error := get_error_from_uuid(uuid, access_token):
+        return error
     response: dict = await service.get_user_by_uuid(uuid)
     if response['status_code'] == 200:
         return UserResult(
@@ -96,11 +112,8 @@ async def delete_user(
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    if not check_token(access_token):
-        return JSONResponse(
-            status_code=401,
-            content='Invalid access token'
-        )
+    if error := get_error_from_uuid(uuid, access_token):
+        return error
     response: dict = await service.remove_account(uuid)
     return JSONResponse(
         status_code=response['status_code'],
@@ -133,14 +146,14 @@ async def login_user(
             key="access_token",
             value=access,
             httponly=True,
-            expires=get_jwt_settings().access_token_expire_minutes*60
+            expires=get_jwt_settings().access_token_expire_minutes * 60
         )
 
         json_result.set_cookie(
             key="refresh_token",
             value=refresh,
             httponly=True,
-            expires=get_jwt_settings().refresh_token_expire_minutes*60
+            expires=get_jwt_settings().refresh_token_expire_minutes * 60
         )
         return json_result
     else:
@@ -163,11 +176,8 @@ async def update_user(
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    if not check_token(access_token):
-        return JSONResponse(
-            status_code=401,
-            content='Invalid access token'
-        )
+    if error := get_error_from_uuid(uuid, access_token):
+        return error
     response: dict = await service.update_profile(uuid, login, first_name, last_name)
     return JSONResponse(
         status_code=response['status_code'],
