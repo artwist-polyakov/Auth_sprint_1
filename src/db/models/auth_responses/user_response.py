@@ -8,4 +8,3 @@ class UserResponse(BaseResponse):
     login: str
     first_name: str = field(default='')
     last_name: str = field(default='')
-    is_verified: bool

@@ -1,15 +1,14 @@
 import logging
 
 from pydantic import BaseModel
-from sqlalchemy import select, text, update
+from sqlalchemy import insert, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from configs.settings import PostgresSettings
+from db.auth.refresh_token import RefreshToken
 from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
-from db.models.auth_db_requests.user_request import UserRequest
-from db.models.auth_db_requests.user_update_request import UserUpdateRequest
 
 
 class PostgresProvider(UserStorage):
@@ -33,28 +32,41 @@ class PostgresProvider(UserStorage):
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.create_all)
 
-    async def add_single_data(self, request: BaseModel) -> dict:
+    async def add_single_data(self, request: BaseModel, entity: str) -> dict:
         # INSERT запрос
         async with self._async_session() as session:
             try:
-                db_request = UserRequest(
-                    uuid=request.uuid,
-                    login=request.login,
-                    password=request.password,
-                    first_name=request.first_name,
-                    last_name=request.last_name,
-                    is_verified=request.is_verified
-                )
-                session.add(db_request)
+                match entity:
+                    case 'user':
+                        query = (
+                            insert(User)
+                            .values(
+                                uuid=request.uuid,
+                                login=request.login,
+                                password=request.password,
+                                first_name=request.first_name,
+                                last_name=request.last_name
+                            )
+                        )
+                    case 'refresh_token':
+                        query = (
+                            insert(RefreshToken)
+                            .values(
+                                uuid=request.refresh_id,
+                                user_id=request.user_id,
+                                active_till=request.active_till
+                            )
+                        )
+                await session.execute(query)
                 await session.commit()
-                return {'status_code': 201, 'content': 'user created'}
+                return {'status_code': 201, 'content': f'{entity} created'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
 
-    async def get_single_data(
+    async def get_single_user(
             self,
             field_name: str,
             field_value
@@ -97,24 +109,17 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
 
-    async def update_single_data(self, request: BaseModel) -> dict:
+    async def update_single_user(self, request: BaseModel) -> dict:
         # UPDATE запрос
         async with self._async_session() as session:
             try:
-                # todo м.б. можно лучше
-                db_request = UserUpdateRequest(
-                    uuid=request.uuid,
-                    login=request.login,
-                    first_name=request.first_name,
-                    last_name=request.last_name
-                )
                 query = (
                     update(User)
-                    .where(User.uuid == db_request.uuid)
+                    .where(User.uuid == request.uuid)
                     .values(
-                        login=db_request.login,
-                        first_name=db_request.first_name,
-                        last_name=db_request.last_name
+                        login=request.login,
+                        first_name=request.first_name,
+                        last_name=request.last_name
                     )
                 )
                 await session.execute(query)
@@ -125,3 +130,31 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
+
+    async def get_refresh_token(self, refresh_token: str):
+        async with self._async_session() as session:
+            try:
+                query = select(RefreshToken).where(RefreshToken.refresh_id == refresh_token)
+                result = await session.execute(query)
+                return result.scalar_one_or_none()
+
+            except Exception as e:
+                logging.error(type(e).__name__, e)
+                return None
+
+    async def update_refresh_token(self, new_refresh_token: RefreshToken):
+        async with self._async_session() as session:
+            try:
+                query = (
+                    update(RefreshToken)
+                    .where(RefreshToken.refresh_id == new_refresh_token.refresh_id)
+                    .values(active_till=new_refresh_token.active_till)
+                )
+                await session.execute(query)
+                await session.commit()
+                return True
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return False

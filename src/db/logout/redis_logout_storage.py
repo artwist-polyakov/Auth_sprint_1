@@ -1,8 +1,8 @@
 import time
 
 from configs.settings import RedisLogoutSettings
-from db.auth.access_token_container import AccessTokenContainer
 from db.logout.logout_storage import LogoutStorage
+from db.models.token_models.access_token_container import AccessTokenContainer
 from db.redis_core import RedisCore
 from utils.wrappers import backoff
 
