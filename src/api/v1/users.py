@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse, Response
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
+from services.role_service import RoleService, get_role_service
 from services.user_service import UserService, get_user_service
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
@@ -183,4 +184,38 @@ async def update_user(
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']
+    )
+
+
+@router.get(
+    path='/roles',
+    summary="Roles",
+    description="Get all roles"
+)
+async def get_roles(
+        service: RoleService = Depends(get_role_service)
+) -> Response:
+    response: dict = await service.get_roles()
+    return JSONResponse(
+        status_code=200,
+        content=response
+    )
+
+
+@router.post(
+    path='/add_role',
+    summary="Add Role",
+    description="Add role"
+)
+async def add_role(
+        role: str,
+        resource: str,
+        verb: str,
+        service: RoleService = Depends(get_role_service)
+) -> Response:
+    # todo дописать
+    response = await service.add_role(role, resource, verb)
+    return JSONResponse(
+        status_code=200,
+        content=''
     )

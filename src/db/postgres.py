@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from configs.settings import PostgresSettings
 from db.auth.refresh_token import RefreshToken
+from db.auth.role import Role
 from db.auth.user import Base, User
 from db.auth.user_storage import UserStorage
 
@@ -57,6 +58,15 @@ class PostgresProvider(UserStorage):
                                 active_till=request.active_till
                             )
                         )
+                    case 'role':
+                        query = (
+                            insert(Role)
+                            .values(
+                                role=request.role,
+                                resource=request.resource,
+                                verb=request.verb
+                            )
+                        )
                 await session.execute(query)
                 await session.commit()
                 return {'status_code': 201, 'content': f'{entity} created'}
@@ -94,7 +104,7 @@ class PostgresProvider(UserStorage):
         # DELETE запрос
         async with self._async_session() as session:
             try:
-                result: User | dict = await self.get_single_data(
+                result: User | dict = await self.get_single_user(
                     field_name='uuid',
                     field_value=uuid
                 )
@@ -132,6 +142,7 @@ class PostgresProvider(UserStorage):
                 return {'status_code': 500, 'content': 'error'}
 
     async def get_refresh_token(self, refresh_token: str):
+        # SELECT запрос
         async with self._async_session() as session:
             try:
                 query = select(RefreshToken).where(RefreshToken.refresh_id == refresh_token)
@@ -142,7 +153,8 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return None
 
-    async def update_refresh_token(self, new_refresh_token: RefreshToken):
+    async def update_refresh_token(self, new_refresh_token: RefreshToken) -> bool:
+        # UPDATE запрос
         async with self._async_session() as session:
             try:
                 query = (
@@ -158,3 +170,36 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return False
+
+    async def get_roles(self) -> dict:
+        # SELECT запрос
+        async with self._async_session() as session:
+            try:
+                query = select(Role)
+                roles = await session.execute(query)
+                await session.commit()
+
+                # todo converter
+                roles_result = dict()
+
+                roles = roles.all()
+                for role_instance in roles:
+                    role_instance = role_instance[0].__dict__
+                    role_name = role_instance['role']
+                    resource = role_instance['resource']
+                    verb = role_instance['verb']
+
+                    if role_name in roles_result:
+                        if resource in roles_result[role_name]:
+                            roles_result[role_name][resource].append(verb)
+                        else:
+                            roles_result[role_name][resource] = [verb]
+                    else:
+                        roles_result[role_name] = {resource: [verb]}
+
+                return roles_result
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {}
