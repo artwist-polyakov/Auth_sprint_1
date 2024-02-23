@@ -236,6 +236,7 @@ async def logout(
         content=response['content']
     )
 
+
 @router.post(
     path="/logout_all_devices",
     summary="Logout from all devices",

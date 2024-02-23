@@ -47,7 +47,11 @@ class RBACMiddleware(BaseHTTPMiddleware):
                     raise HTTPException(status_code=401, detail="Access token expired")
             if not role:
                 raise HTTPException(status_code=401, detail="Bad credentials")
-            if role != UNAUTHORIZED_ROLE and not has_permission(role, resource.split("/")[2], action):
+            if role != UNAUTHORIZED_ROLE and not has_permission(
+                    role,
+                    resource.split("/")[2],
+                    action
+            ):
                 raise HTTPException(status_code=403, detail="Insufficient permissions")
             logging.warning(f"Role: {role}")
         try:
@@ -58,4 +62,3 @@ class RBACMiddleware(BaseHTTPMiddleware):
                 status_code=exc.status_code,
                 content={"detail": exc.detail}
             )
-
