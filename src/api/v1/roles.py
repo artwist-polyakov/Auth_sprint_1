@@ -72,3 +72,20 @@ async def delete_role(
         status_code=response['status_code'],
         content=response['content']
     )
+
+
+@router.put(
+    path='/change_role',
+    summary="Change User Role",
+    description="Change user role"
+)
+async def change_user_role(
+        uuid: str,
+        new_role: str,
+        service: RoleService = Depends(get_role_service)
+) -> Response:
+    response: dict = await service.change_user_role(uuid, new_role)
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )

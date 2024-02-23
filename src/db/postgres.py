@@ -33,6 +33,19 @@ class PostgresProvider(UserStorage):
         async with self._engine.begin() as conn:
             await conn.run_sync(model.metadata.create_all)
 
+    async def load_default_roles(self, default_roles):
+        async with self._async_session() as session:
+            try:
+                for role_data in default_roles:
+                    role_instance = Role(**role_data)
+                    session.add(role_instance)
+                await session.commit()
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {'status_code': 500, 'content': 'error'}
+
     async def add_single_data(self, request: BaseModel, entity: str) -> dict:
         # INSERT запрос
         async with self._async_session() as session:
@@ -258,6 +271,7 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
 
+
     async def get_history(self, uuid) -> dict:
         # SELECT запрос
         async with self._async_session() as session:
@@ -286,3 +300,24 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return {}
+
+    async def update_user_role(self, uuid: str, new_role: str) -> dict:
+        # UPDATE запрос
+        async with self._async_session() as session:
+            try:
+                query = (
+                    update(User)
+                    .where(User.uuid == uuid)
+                    .values(
+                        role=new_role
+                    )
+                )
+                await session.execute(query)
+                await session.commit()
+                return {'status_code': 200, 'content': 'success'}
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {'status_code': 500, 'content': 'error'}
+
