@@ -18,7 +18,10 @@ class CheckLogoutMiddleware(BaseHTTPMiddleware):
                 **dict_from_jwt(token)
             )
             if await get_creator().get_logout_storage().is_blacklisted(token):
-                raise HTTPException(status_code=401, detail="Token is logout, please re-login")
+                return ORJSONResponse(
+                    status_code=401,
+                    content="Token is logout, please re-login"
+                )
         try:
             response = await call_next(request)
             return response
