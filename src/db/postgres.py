@@ -142,13 +142,25 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return None
 
-    async def update_refresh_token(self, new_refresh_token: RefreshToken):
+    async def update_refresh_token(
+            self,
+            new_refresh_token: RefreshToken,
+            old_refresh_token_id: str
+    ):
+        # todo обозначить типы возвращаемых значений
         async with self._async_session() as session:
             try:
                 query = (
-                    update(RefreshToken)
-                    .where(RefreshToken.refresh_id == new_refresh_token.refresh_id)
-                    .values(active_till=new_refresh_token.active_till)
+                    update(
+                        RefreshToken
+                    )
+                    .where(
+                        RefreshToken.refresh_id == old_refresh_token_id
+                    )
+                    .values(
+                        active_till=new_refresh_token.active_till,
+                        refresh_id=new_refresh_token.refresh_id
+                    )
                 )
                 await session.execute(query)
                 await session.commit()

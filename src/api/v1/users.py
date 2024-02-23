@@ -40,6 +40,37 @@ def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
         return None
 
 
+def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
+    if isinstance(response, AccessTokenContainer):
+        access = APIConvertor().map_token_container_to_access_token(response)
+        refresh = APIConvertor().map_token_container_to_refresh_token(response)
+        json_result = JSONResponse(
+            status_code=200,
+            content={"refresh_token": refresh,
+                     "access_token": access,
+                     "token_type": 'bearer'}
+        )
+        json_result.set_cookie(
+            key="access_token",
+            value=access,
+            httponly=True,
+            expires=get_jwt_settings().access_token_expire_minutes * 60
+        )
+
+        json_result.set_cookie(
+            key="refresh_token",
+            value=refresh,
+            httponly=True,
+            expires=get_jwt_settings().refresh_token_expire_minutes * 60
+        )
+        return json_result
+    else:
+        return JSONResponse(
+            status_code=response['status_code'],
+            content=response['content']
+        )
+
+
 @router.post(
     path='/sign_up',
     summary="Sign Up",
@@ -133,35 +164,7 @@ async def login_user(
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.authenticate(login, password)
-
-    if isinstance(response, AccessTokenContainer):
-        access = APIConvertor().map_token_container_to_access_token(response)
-        refresh = APIConvertor().map_token_container_to_refresh_token(response)
-        json_result = JSONResponse(
-            status_code=200,
-            content={"refresh_token": access,
-                     "access_token": refresh,
-                     "token_type": 'bearer'}
-        )
-        json_result.set_cookie(
-            key="access_token",
-            value=access,
-            httponly=True,
-            expires=get_jwt_settings().access_token_expire_minutes * 60
-        )
-
-        json_result.set_cookie(
-            key="refresh_token",
-            value=refresh,
-            httponly=True,
-            expires=get_jwt_settings().refresh_token_expire_minutes * 60
-        )
-        return json_result
-    else:
-        return JSONResponse(
-            status_code=response['status_code'],
-            content=response['content']
-        )
+    return get_tokens_response(response)
 
 
 @router.post(
@@ -183,4 +186,30 @@ async def update_user(
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']
+    )
+
+
+@router.post(
+    path='/refresh',
+    summary="Refresh access token via refresh token",
+    description="Emits new access token if refresh token is valid"
+)
+async def refresh_access_token(
+        refresh_token: str = Cookie(None),
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    if refresh_token is None:
+        return JSONResponse(
+            status_code=401,
+            content='Invalid refresh token'
+        )
+
+    response: dict = await service.refresh_access_token(
+        *APIConvertor.refresh_token_to_tuple(
+            refresh_token
+        )
+    )
+    return get_tokens_response(response) if response else JSONResponse(
+        status_code=401,
+        content='Invalid refresh token'
     )

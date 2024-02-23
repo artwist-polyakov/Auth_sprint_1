@@ -16,7 +16,7 @@ from db.models.search_responses.persons.films_brief_result import \
 from db.models.search_responses.persons.person_work_result import \
     PersonWorkResult
 from db.models.token_models.access_token_container import AccessTokenContainer
-from utils.jwt_toolkit import dict_to_jwt, get_jwt_settings
+from utils.jwt_toolkit import dict_from_jwt, dict_to_jwt, get_jwt_settings
 
 
 class APIConvertor:
@@ -211,3 +211,10 @@ class APIConvertor:
                             get_jwt_settings().refresh_token_expire_minutes),
         }
         return dict_to_jwt(result)
+
+    @staticmethod
+    def refresh_token_to_tuple(refresh_token: str) -> tuple[str, str, int] | None:
+        result = dict_from_jwt(refresh_token)
+        if not result:
+            return None
+        return result.get('refresh_id'), result.get('user_id'), result.get('active_till')
