@@ -9,6 +9,7 @@ from db.auth.refresh_token import RefreshToken
 from db.auth.role import Role
 from db.auth.user import User
 from db.postgres import PostgresProvider
+from db.roles.default_roles import default_roles
 from middlewares.logout_processor import CheckLogoutMiddleware
 from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
@@ -34,6 +35,7 @@ async def startup():
     await postgres.create_database(model=User)
     await postgres.create_database(model=Role)
     await postgres.create_database(model=RefreshToken)
+    await postgres.load_default_roles(default_roles=default_roles)
 
 
 @app.on_event('shutdown')
