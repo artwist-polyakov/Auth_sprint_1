@@ -11,6 +11,10 @@ from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
 
 router = APIRouter()
+USER_ID_KEY = 'user_id'
+ROLE_KEY = 'role'
+IS_SUPERUSER_KEY = 'is_superuser'
+ADMIN_ROLE = 'admin'
 
 
 def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
@@ -19,7 +23,13 @@ def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
             status_code=401,
             content='Invalid access token'
         )
-    decoded_uuid = dict_from_jwt(token).get('user_id', None)
+    decoded_uuid = dict_from_jwt(token).get(USER_ID_KEY, None)
+
+    decoded_role = dict_from_jwt(token).get(ROLE_KEY, None)
+    superuser = dict_from_jwt(token).get(IS_SUPERUSER_KEY, None)
+
+    if superuser or decoded_role == ADMIN_ROLE:
+        return None
     if not decoded_uuid or uuid != decoded_uuid:
         logging.warning(f"UUID: {uuid}, Decoded UUID: {decoded_uuid}")
         return JSONResponse(
@@ -28,15 +38,6 @@ def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
         )
     else:
         return None
-
-
-@router.get(
-    path='/check',
-    summary="Check access token",
-    description="Check access token"
-)
-async def check_token(token: str) -> dict:
-    return {'is_valid': 'login' in (dict_from_jwt(token).keys())}
 
 
 @router.post(
