@@ -16,7 +16,7 @@ from db.models.search_responses.persons.films_brief_result import \
 from db.models.search_responses.persons.person_work_result import \
     PersonWorkResult
 from db.models.token_models.access_token_container import AccessTokenContainer
-from utils.jwt_toolkit import dict_to_jwt, get_jwt_settings, dict_from_jwt
+from utils.jwt_toolkit import dict_from_jwt, dict_to_jwt, get_jwt_settings
 
 
 class APIConvertor:
