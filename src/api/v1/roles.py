@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, Response
-
+from configs.rbac_conf import clear_rbac_conf_cache
 from services.role_service import RoleService, get_role_service
 
 router = APIRouter()
@@ -33,6 +33,7 @@ async def add_role(
         service: RoleService = Depends(get_role_service)
 ) -> Response:
     response = await service.add_role(role, resource, verb)
+    await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=200,
         content={'uuid': response}
@@ -52,6 +53,7 @@ async def update_role(
         service: RoleService = Depends(get_role_service)
 ) -> Response:
     response: dict = await service.update_role(uuid, role, resource, verb)
+    await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']
@@ -68,6 +70,7 @@ async def delete_role(
         service: RoleService = Depends(get_role_service)
 ) -> Response:
     response: dict = await service.remove_role(uuid)
+    await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']
