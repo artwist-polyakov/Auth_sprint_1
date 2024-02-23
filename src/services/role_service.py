@@ -1,3 +1,4 @@
+import uuid
 from functools import lru_cache
 
 from db.models.auth_requests.role_request import RoleRequest
@@ -17,14 +18,46 @@ class RoleService:
             role: str,
             resource: str,
             verb: str
-    ) -> None:
+    ) -> str:
         request = RoleRequest(
+            uuid=uuid.uuid4(),
             role=role,
             resource=resource,
             verb=verb
         )
         await self._postgres.add_single_data(request, 'role')
-        return None
+        return request.uuid
+
+    async def update_role(
+            self,
+            uuid: str,
+            role: str = '',
+            resource: str = '',
+            verb: str = ''
+    ) -> dict:
+        role_item = await self._postgres.get_single_role(uuid)
+
+        if isinstance(role_item, dict):
+            return {
+                'status_code': 404,
+                'content': 'Role not found'
+            }
+
+        if not role:
+            role = role_item.role
+        if not resource:
+            resource = role_item.resource
+        if not verb:
+            verb = role_item.verb
+
+        request = RoleRequest(
+            uuid=uuid,
+            role=role,
+            resource=resource,
+            verb=verb
+        )
+        response: dict = await self._postgres.update_role(request)
+        return response
 
 
 @lru_cache

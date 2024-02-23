@@ -32,9 +32,27 @@ async def add_role(
         verb: str,
         service: RoleService = Depends(get_role_service)
 ) -> Response:
-    # todo дописать
-    await service.add_role(role, resource, verb)
+    response = await service.add_role(role, resource, verb)
     return JSONResponse(
         status_code=200,
-        content=''
+        content={'uuid': response}
+    )
+
+
+@router.put(
+    path='/update_role',
+    summary="Update Role",
+    description="Update role"
+)
+async def update_role(
+        uuid: str,
+        role: str = '',
+        resource: str = '',
+        verb: str = '',
+        service: RoleService = Depends(get_role_service)
+) -> Response:
+    response: dict = await service.update_role(uuid, role, resource, verb)
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
     )

@@ -214,3 +214,41 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return {}
+
+    async def get_single_role(self, uuid: str) -> Role | dict:
+        # SELECT запрос
+        async with self._async_session() as session:
+            try:
+                query = select(Role).where(Role.uuid == uuid)
+                query_result = await session.execute(query)
+                role = query_result.scalar_one_or_none()
+                if not role:
+                    return {'status_code': 404, 'content': 'role not found'}
+                return role
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {'status_code': 500, 'content': 'error'}
+
+    async def update_role(self, request: BaseModel) -> dict:
+        # UPDATE запрос
+        async with self._async_session() as session:
+            try:
+                query = (
+                    update(Role)
+                    .where(Role.uuid == request.uuid)
+                    .values(
+                        role=request.role,
+                        resource=request.resource,
+                        verb=request.verb
+                    )
+                )
+                await session.execute(query)
+                await session.commit()
+                return {'status_code': 200, 'content': 'success'}
+
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {'status_code': 500, 'content': 'error'}
