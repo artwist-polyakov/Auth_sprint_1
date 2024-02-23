@@ -106,7 +106,6 @@ class UserService:
             user_id=str(user.uuid),
             active_till=int((datetime.now() + timedelta(
                 minutes=settings.refresh_token_expire_minutes)).timestamp())
-            # todo добавить в базу данные о дате создания рефреша
         )
         await self._postgres.add_single_data(refresh_token, 'refresh_token')
 
@@ -214,6 +213,10 @@ class UserService:
             'status_code': 200,
             'content': 'Logout successfully'
         }
+
+    async def get_login_history(self, user_id: str) -> dict:
+        history = await self._postgres.get_history(user_id)
+        return history
 
 
 @lru_cache
