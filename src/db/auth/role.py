@@ -25,9 +25,11 @@ class Role(Base):
     verb = Column(String(255), nullable=False)
 
     def __init__(self,
+                 uuid: str,
                  role: str,
                  resource: str,
                  verb: str) -> None:
+        self.uuid = uuid
         self.role = role
         self.resource = resource
         self.verb = verb
