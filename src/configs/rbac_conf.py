@@ -1,4 +1,4 @@
-from aiocache import cached, Cache
+from aiocache import Cache, cached
 from aiocache.serializers import JsonSerializer
 
 from services.role_service import get_role_service
