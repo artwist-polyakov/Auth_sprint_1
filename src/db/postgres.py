@@ -53,7 +53,7 @@ class PostgresProvider(UserStorage):
                         query = (
                             insert(RefreshToken)
                             .values(
-                                uuid=request.refresh_id,
+                                uuid=request.uuid,
                                 user_id=request.user_id,
                                 active_till=request.active_till
                             )
@@ -257,3 +257,32 @@ class PostgresProvider(UserStorage):
                 await session.rollback()
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
+
+    async def get_history(self, uuid) -> dict:
+        # SELECT запрос
+        async with self._async_session() as session:
+            try:
+                query = select(RefreshToken).where(
+                    RefreshToken.user_id == str(uuid)
+                )
+                tokens = await session.execute(query)
+                await session.commit()
+                history = {}
+                tokens = tokens.all()
+                logging.warning(tokens)
+                for token_instance in tokens:
+                    token_instance = token_instance[0].__dict__
+                    created_at = token_instance['created_at']
+                    active_till = token_instance['active_till']
+                    token_uuid = token_instance['uuid']
+                    user_id = token_instance['user_id']
+                    history[str(token_uuid)] = {
+                        'created_at': created_at.isoformat(),
+                        'active_till': active_till,
+                        'user_id': str(user_id)
+                    }
+                return history
+            except Exception as e:
+                await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {}
