@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 
 from configs.settings import settings
 
@@ -25,6 +25,8 @@ class User(Base):
     last_name = Column(String(50))
     is_verified = Column(Boolean, default=0, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    refresh_tokens = relationship('RefreshToken', back_populates='user',
+                                  cascade="all, delete-orphan")
 
     def __init__(self,
                  login: str,

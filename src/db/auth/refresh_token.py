@@ -1,10 +1,11 @@
-from sqlalchemy import BigInteger, Column
+from sqlalchemy import BigInteger, Column, DateTime
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+from datetime import datetime
 
 from configs.settings import settings
-
-Base = declarative_base()
+from db.auth.user import Base
 
 
 class RefreshToken(Base):
@@ -17,8 +18,10 @@ class RefreshToken(Base):
         unique=True,
         nullable=False
     )
-    user_id = relationship('User', foreign_keys='user.uuid')
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.users.uuid'), nullable=False)
     active_till = Column(BigInteger, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    user = relationship('User', back_populates='refresh_tokens')
 
     def __init__(self,
                  uuid: str,
