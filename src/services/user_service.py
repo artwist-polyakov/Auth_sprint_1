@@ -29,8 +29,6 @@ class UserService:
             first_name: str = '',
             last_name: str = ''
     ) -> dict:
-        # todo проверка валидности полей
-
         model = SignupModel(
             login=login,
             password=password,
@@ -38,7 +36,6 @@ class UserService:
             last_name=last_name,
             email=None
         )
-
         exists: User | dict = await self._postgres.get_single_user(
             field_name='login',
             field_value=model.login
@@ -54,8 +51,7 @@ class UserService:
             login=model.login,
             password=password_hash,
             first_name=model.first_name,
-            last_name=model.last_name,
-            is_verified=True  # аккаунт всегда подтвержден !! НАОБОРОТ по дефолту не !!
+            last_name=model.last_name
         )
         response: dict = await self._postgres.add_single_data(request, 'user')
         match response['status_code']:
@@ -89,7 +85,7 @@ class UserService:
         }
 
     async def remove_account(self, uuid: str) -> dict:
-        response: dict = await self._postgres.delete_single_data(uuid)
+        response: dict = await self._postgres.delete_single_data(uuid, 'user')
         return response
 
     # todo сделаеть обёртку для ошибок или raise (я бы выбрал raise)

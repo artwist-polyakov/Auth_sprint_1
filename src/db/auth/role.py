@@ -20,14 +20,17 @@ class Role(Base):
         unique=True,
         nullable=False
     )
-    name = Column(String(255), unique=True, nullable=False)
-    is_verified = Column(Boolean, default=0, nullable=False)
+    role = Column(String(255), nullable=False)
+    resource = Column(String(255), nullable=False)
+    verb = Column(String(255), nullable=False)
 
     def __init__(self,
-                 name: str,
-                 is_verified: bool) -> None:
-        self.name = name
-        self.is_verified = is_verified
+                 role: str,
+                 resource: str,
+                 verb: str) -> None:
+        self.role = role
+        self.resource = resource
+        self.verb = verb
 
     def __repr__(self) -> str:
-        return f'<Role {self.name}>'
+        return f'<Role {self.role}>'

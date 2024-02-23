@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films, genres, persons, users
+from api.v1 import films, genres, persons, users, roles
 from configs.settings import Settings
 from core.logger import LOGGING
 from db.auth.refresh_token import RefreshToken
@@ -49,6 +49,7 @@ app.include_router(films.router, prefix='/api/v1/films', tags=['Films'])
 app.include_router(genres.router, prefix='/api/v1/genres', tags=['Genres'])
 app.include_router(persons.router, prefix='/api/v1/persons', tags=['Persons'])
 app.include_router(users.router, prefix='/api/v1/users', tags=['Users'])
+app.include_router(roles.router, prefix='/api/v1/roles', tags=['Roles'])
 
 if __name__ == '__main__':
     uvicorn.run(
