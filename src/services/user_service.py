@@ -57,26 +57,8 @@ class UserService:
         response: dict = await self._postgres.add_single_data(request, 'user')
         match response['status_code']:
             case 201:
-                access_token = AccessTokenContainer(
-                    user_id=str(request.uuid),
-                    role="user",
-                    verified=True,
-                    subscribed=False,
-                    subscription_till=0,
-                    created_at=int(datetime.utcnow().timestamp()),
-                    refresh_id=str(uuid.uuid4()),
-                )
-                refresh_token = RefreshToken(
-                    uuid=str(access_token.refresh_id),
-                    user_id=str(request.uuid),
-                    active_till=int((datetime.now() + timedelta(
-                        minutes=settings.refresh_token_expire_minutes)).timestamp())
-                )
-                await self._postgres.add_single_data(refresh_token, 'refresh_token')
                 content = {
                     'uuid': str(request.uuid),
-                    'access_token': access_token,
-                    'refresh_token': str(refresh_token.uuid)
                 }
             case _:
                 content = response['content']
