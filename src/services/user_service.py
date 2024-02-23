@@ -163,7 +163,7 @@ class UserService:
             first_name=model.first_name,
             last_name=model.last_name
         )
-        result: dict = await self._postgres.update_single_data(request)
+        result: dict = await self._postgres.update_single_user(request)
         return result
 
     async def update_tokens(self, refresh_token: str):

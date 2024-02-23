@@ -29,8 +29,8 @@ async def check_token(token: str) -> dict:
 async def sign_up(
         login: str,
         password: str,
-        first_name: str,
-        last_name: str,
+        first_name: str = '',
+        last_name: str = '',
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.sign_up(
@@ -174,8 +174,8 @@ async def login_user(
 async def update_user(
         uuid: str,
         login: str,
-        first_name: str,
-        last_name: str,
+        first_name: str = '',
+        last_name: str = '',
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
