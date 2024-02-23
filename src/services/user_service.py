@@ -6,6 +6,7 @@ import bcrypt
 
 from configs.settings import settings
 from db.auth.user import User
+from db.logout.logout_storage import LogoutStorage
 from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
@@ -13,11 +14,13 @@ from db.models.token_models.access_token_container import AccessTokenContainer
 from db.models.token_models.refresh_token import RefreshToken
 from db.postgres import PostgresProvider
 from services.models.signup import ProfileModel, SignupModel
+from utils.creator_provider import get_creator
 
 
 class UserService:
-    def __init__(self, instance: PostgresProvider):
+    def __init__(self, instance: PostgresProvider, enters_storage: LogoutStorage):
         self._postgres = instance
+        self._enters_storage = enters_storage
 
     async def sign_up(
             self,
@@ -170,10 +173,6 @@ class UserService:
             'content': 'Password changed successfully'
         }
 
-    async def logout(self):
-        # todo
-        pass
-
     async def refresh_access_token(self, refresh_id: str, user_id: str, active_till: int):
         if active_till < int(datetime.now().timestamp()):
             return {
@@ -202,8 +201,23 @@ class UserService:
         )
         return result
 
+    async def logout_session(self, token_container: AccessTokenContainer):
+        await self._enters_storage.logout_current_session(token_container)
+        return {
+            'status_code': 200,
+            'content': 'Logout successfully'
+        }
+
+    async def logout_all_sessions(self, token_container: AccessTokenContainer):
+        await self._enters_storage.logout_all_sessions(token_container)
+        return {
+            'status_code': 200,
+            'content': 'Logout successfully'
+        }
+
 
 @lru_cache
 def get_user_service():
     postgres = PostgresProvider()
-    return UserService(postgres)
+    logout = get_creator().get_logout_storage()
+    return UserService(postgres, logout)

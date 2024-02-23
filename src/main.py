@@ -2,13 +2,14 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films, genres, persons, users, roles
+from api.v1 import films, genres, persons, roles, users
 from configs.settings import Settings
 from core.logger import LOGGING
 from db.auth.refresh_token import RefreshToken
 from db.auth.role import Role
 from db.auth.user import User
 from db.postgres import PostgresProvider
+from middlewares.logout_processor import CheckLogoutMiddleware
 from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
 
@@ -24,6 +25,7 @@ app = FastAPI(
 )
 
 app.add_middleware(RBACMiddleware)
+app.add_middleware(CheckLogoutMiddleware)
 
 
 @app.on_event('startup')

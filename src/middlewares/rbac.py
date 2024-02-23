@@ -7,6 +7,12 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from configs.rbac_conf import EXСLUDED_PATHS, RBAC_CONF
 from utils.jwt_toolkit import dict_from_jwt
 
+ACCESS_TOKEN_KEY = "access_token"
+REFRESH_TOKEN_KEY = "refresh_token"
+UNAUTHORIZED_ROLE = "unauthorized"
+ROLE_KEY = "role"
+LOGIN_HANDLE = "user"
+
 
 def translate_method_to_action(method: str) -> str:
     method_permission_mapping = {
@@ -31,19 +37,21 @@ class RBACMiddleware(BaseHTTPMiddleware):
         action = translate_method_to_action(request_method)
         resource = request.url.path[1:]
         if resource not in EXСLUDED_PATHS:
-            logging.warning(f"Resource: {resource}, Action: {action}")
-            token = request.cookies.get("access_token")
-            role = 'unauthorized'
+            token = request.cookies.get(ACCESS_TOKEN_KEY)
+            role = UNAUTHORIZED_ROLE
             if token:
-                role = dict_from_jwt(token).get('role', None)
-                logging.warning(f"Role: {dict_from_jwt(token)}")
+                role = dict_from_jwt(token).get(ROLE_KEY, None)
             else:
-                refresh_token = request.cookies.get("refresh_token")
-                if refresh_token and not ('user' in resource):
+                refresh_token = request.cookies.get(REFRESH_TOKEN_KEY)
+                if refresh_token and not (LOGIN_HANDLE in resource):
                     raise HTTPException(status_code=401, detail="Access token expired")
             if not role:
                 raise HTTPException(status_code=401, detail="Bad credentials")
-            if role != 'unauthorized' and not has_permission(role, resource.split("/")[2], action):
+            if role != UNAUTHORIZED_ROLE and not has_permission(
+                    role,
+                    resource.split("/")[2],
+                    action
+            ):
                 raise HTTPException(status_code=403, detail="Insufficient permissions")
             logging.warning(f"Role: {role}")
         try:

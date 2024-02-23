@@ -175,7 +175,7 @@ class PostgresProvider(UserStorage):
                     )
                     .values(
                         active_till=new_refresh_token.active_till,
-                        refresh_id=new_refresh_token.refresh_id
+                        uuid=new_refresh_token.refresh_id
                     )
                 )
                 await session.execute(query)

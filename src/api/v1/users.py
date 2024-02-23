@@ -213,3 +213,44 @@ async def refresh_access_token(
         status_code=401,
         content='Invalid refresh token'
     )
+
+
+@router.post(
+    path='/logout',
+    summary="Logout from current session",
+    description="Terminate all sessions correspondend with current refresh token"
+)
+async def logout(
+        access_token: str = Cookie(None),
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    token = AccessTokenContainer(
+        **dict_from_jwt(access_token)
+    )
+    response: dict = await service.logout_session(
+        token
+    )
+
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
+
+
+@router.post(
+    path="/logout_all_devices",
+    summary="Logout from all devices",
+    description="Terminate all sessions correspondend with current user_id"
+)
+async def logout_all_devices(
+        access_token: str = Cookie(None),
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    token = AccessTokenContainer(
+        **dict_from_jwt(access_token)
+    )
+    response: dict = await service.logout_all_sessions(token)
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
