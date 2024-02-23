@@ -192,10 +192,12 @@ class APIConvertor:
             'is_superuser': token_container.is_superuser,
             'verified': token_container.verified,
             'subscribed': token_container.subscribed,
+            'created_at': token_container.created_at,
             'subscribed_till': token_container.subscribed_till,
             'active_till': (token_container.created_at +
                             get_jwt_settings().access_token_expire_minutes),
             'refresh_id': token_container.refresh_id,
+            'refreshed_at': token_container.refreshed_at
         }
 
         return dict_to_jwt(result)

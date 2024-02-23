@@ -129,7 +129,7 @@ class UserService:
         )
         await self._postgres.add_single_data(refresh_token, 'refresh_token')
 
-        reuslt = AccessTokenContainer(
+        result = AccessTokenContainer(
             user_id=str(user.uuid),
             role="user",
             is_superuser=False,
@@ -139,7 +139,7 @@ class UserService:
             refresh_id=str(refresh_token.uuid),
             refreshed_at=int(datetime.now().timestamp())
         )
-        return reuslt
+        return result
 
     async def update_profile(
             self,
