@@ -1,14 +1,6 @@
-import uuid
-from datetime import datetime, timedelta
 from functools import lru_cache
 
-import bcrypt
-from pydantic import BaseModel
-
-from configs.settings import settings
 from db.models.auth_requests.role_request import RoleRequest
-from db.models.token_models.access_token_container import AccessTokenContainer
-from db.models.token_models.refresh_token import RefreshToken
 from db.postgres import PostgresProvider
 
 
