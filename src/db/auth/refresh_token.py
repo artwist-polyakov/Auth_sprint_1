@@ -1,8 +1,8 @@
-from sqlalchemy import BigInteger, Column, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
 from datetime import datetime
+
+from sqlalchemy import BigInteger, Column, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from configs.settings import settings
 from db.auth.user import Base
