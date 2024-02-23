@@ -100,14 +100,19 @@ class PostgresProvider(UserStorage):
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
 
-    async def delete_single_data(self, uuid) -> dict:
+    async def delete_single_data(self, uuid: str, entity: str) -> dict:
         # DELETE запрос
         async with self._async_session() as session:
             try:
-                result: User | dict = await self.get_single_user(
-                    field_name='uuid',
-                    field_value=uuid
-                )
+                match entity:
+                    case 'user':
+                        result: User | dict = await self.get_single_user(
+                            field_name='uuid',
+                            field_value=uuid
+                        )
+                    case 'role':
+                        result: Role | dict = await self.get_single_role(uuid)
+
                 if isinstance(result, dict):
                     return result
                 await session.delete(result)

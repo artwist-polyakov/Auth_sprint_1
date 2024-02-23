@@ -82,7 +82,7 @@ class UserService:
         }
 
     async def remove_account(self, uuid: str) -> dict:
-        response: dict = await self._postgres.delete_single_data(uuid)
+        response: dict = await self._postgres.delete_single_data(uuid, 'user')
         return response
 
     # todo сделаеть обёртку для ошибок или raise (я бы выбрал raise)

@@ -59,6 +59,10 @@ class RoleService:
         response: dict = await self._postgres.update_role(request)
         return response
 
+    async def remove_role(self, uuid: str) -> dict:
+        response: dict = await self._postgres.delete_single_data(uuid, 'role')
+        return response
+
 
 @lru_cache
 def get_role_service():

@@ -22,7 +22,7 @@ async def get_roles(
 
 
 @router.post(
-    path='/add_role',
+    path='/add',
     summary="Add Role",
     description="Add role"
 )
@@ -40,7 +40,7 @@ async def add_role(
 
 
 @router.put(
-    path='/update_role',
+    path='/update',
     summary="Update Role",
     description="Update role"
 )
@@ -52,6 +52,22 @@ async def update_role(
         service: RoleService = Depends(get_role_service)
 ) -> Response:
     response: dict = await service.update_role(uuid, role, resource, verb)
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
+
+
+@router.delete(
+    path='/delete',
+    summary="Delete User by UUID",
+    description="Delete one user with current uuid if exists"
+)
+async def delete_role(
+        uuid: str,
+        service: RoleService = Depends(get_role_service)
+) -> Response:
+    response: dict = await service.remove_role(uuid)
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']
