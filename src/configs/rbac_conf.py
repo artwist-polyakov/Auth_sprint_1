@@ -13,4 +13,9 @@ RBAC_CONF = {
     }
 }
 
-EXСLUDED_PATHS = ['docs', 'openapi.json']
+EXСLUDED_PATHS = ['docs', 'openapi.json', 'api/openapi', 'api/openapi.json']
+
+# cхема базы
+# uuid, admin , films, read
+# uuid, admin , films, write
+# uuid, admin , films, delete

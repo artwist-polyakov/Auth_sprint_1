@@ -25,7 +25,7 @@ def translate_method_to_action(method: str) -> str:
     method_permission_mapping = {
         'GET': 'read',
         'POST': 'write',
-        'PUT': 'delete',
+        'PUT': 'write',
         'DELETE': 'delete',
     }
     return method_permission_mapping.get(method.upper(), 'read')
@@ -43,22 +43,22 @@ class RBACMiddleware(BaseHTTPMiddleware):
         request_method = str(request.method).upper()
         action = translate_method_to_action(request_method)
         resource = request.url.path[1:]
-        logging.warning(f"Resource: {resource}, Action: {action}")
-        token = request.cookies.get("access_token")
-        role = 'unauthorized'
-        if token:
-            role = dict_from_jwt(token).get('role', None)
-            logging.warning(f"Role: {dict_from_jwt(token)}")
-        else:
-            refresh_token = request.cookies.get("refresh_token")
-            if refresh_token:
-                raise HTTPException(status_code=401, detail="Access token expired")
-        if not role:
-            raise HTTPException(status_code=401, detail="Bad credentials")
         if resource not in EXСLUDED_PATHS:
+            logging.warning(f"Resource: {resource}, Action: {action}")
+            token = request.cookies.get("access_token")
+            role = 'unauthorized'
+            if token:
+                role = dict_from_jwt(token).get('role', None)
+                logging.warning(f"Role: {dict_from_jwt(token)}")
+            else:
+                refresh_token = request.cookies.get("refresh_token")
+                if refresh_token and not ('refresh' in resource or 'login' in resource):
+                    raise HTTPException(status_code=401, detail="Access token expired")
+            if not role:
+                raise HTTPException(status_code=401, detail="Bad credentials")
             if role != 'unauthorized' and not has_permission(role, resource.split("/")[2], action):
                 raise HTTPException(status_code=403, detail="Insufficient permissions")
-        logging.warning(f"Role: {role}")
+            logging.warning(f"Role: {role}")
         try:
             response = await call_next(request)
             return response
