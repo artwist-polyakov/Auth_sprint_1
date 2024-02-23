@@ -4,7 +4,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from configs.rbac_conf import EXСLUDED_PATHS, RBAC_CONF
+from configs.rbac_conf import EXСLUDED_PATHS, RBAC_CONF, get_rbac_conf
 from utils.jwt_toolkit import dict_from_jwt
 
 ACCESS_TOKEN_KEY = "access_token"
@@ -24,8 +24,11 @@ def translate_method_to_action(method: str) -> str:
     return method_permission_mapping.get(method.upper(), 'read')
 
 
-# CHeck if permission granted or not
-def has_permission(user_role, resource_name, required_permission):
+async def has_permission(user_role, resource_name, required_permission):
+
+    logging.warning(f"RBAC_CONF: {RBAC_CONF}")
+    logging.warning(f"DB_conf: {await get_rbac_conf()}")
+
     if user_role in RBAC_CONF and resource_name in RBAC_CONF[user_role]:
         return required_permission in RBAC_CONF[user_role][resource_name]
     return False
@@ -47,7 +50,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
                     raise HTTPException(status_code=401, detail="Access token expired")
             if not role:
                 raise HTTPException(status_code=401, detail="Bad credentials")
-            if role != UNAUTHORIZED_ROLE and not has_permission(
+            if role != UNAUTHORIZED_ROLE and not await has_permission(
                     role,
                     resource.split("/")[2],
                     action

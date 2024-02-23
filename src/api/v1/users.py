@@ -254,3 +254,27 @@ async def logout_all_devices(
         status_code=response['status_code'],
         content=response['content']
     )
+
+
+@router.get(
+    path="/history",
+    summary="Get login history",
+    description="Get login history for current user"
+)
+async def get_login_history(
+        access_token: str = Cookie(None),
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    if not access_token:
+        return JSONResponse(
+            status_code=401,
+            content='Invalid access token'
+        )
+    token = AccessTokenContainer(
+        **dict_from_jwt(access_token)
+    )
+    response: dict = await service.get_login_history(token.user_id)
+    return JSONResponse(
+        status_code=200,
+        content=response
+    )
