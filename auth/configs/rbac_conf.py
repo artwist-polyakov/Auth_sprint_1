@@ -1,4 +1,4 @@
-from aiocache import cached
+from aiocache import Cache, cached
 from aiocache.serializers import JsonSerializer
 from services.role_service import get_role_service
 
@@ -24,3 +24,8 @@ async def get_rbac_conf():
 
 
 EXСLUDED_PATHS = ['docs', 'openapi.json', 'auth/openapi', 'auth/openapi.json']
+cache = Cache()  # Создаём экземпляр кэша
+
+
+async def clear_rbac_conf_cache():
+    await cache.delete('get_rbac_conf()')

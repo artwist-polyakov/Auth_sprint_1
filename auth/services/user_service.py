@@ -111,7 +111,7 @@ class UserService:
         result = AccessTokenContainer(
             user_id=str(user.uuid),
             role="user",
-            is_superuser=False,
+            is_superuser=user.is_superuser,
             verified=True,
             subscribed=False,
             created_at=int(datetime.now().timestamp()),
