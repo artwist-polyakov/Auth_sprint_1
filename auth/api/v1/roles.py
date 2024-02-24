@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get(
-    path='/roles',
+    path='/all',
     summary="Roles",
     description="Get all roles"
 )

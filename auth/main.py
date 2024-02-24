@@ -2,13 +2,21 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films, genres, persons
+from api.v1 import roles, users
 from configs.settings import Settings
 from core.logger import LOGGING
+from db.auth.refresh_token import RefreshToken
+from db.auth.role import Role
+from db.auth.user import User
+from db.postgres import PostgresProvider
+from db.roles.default_roles import default_roles
+from middlewares.logout_processor import CheckLogoutMiddleware
+from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
 
 settings = Settings()
 creator = get_creator()
+postgres = PostgresProvider()
 
 app = FastAPI(
     title=settings.project_name,
@@ -17,19 +25,29 @@ app = FastAPI(
     default_response_class=ORJSONResponse
 )
 
+app.add_middleware(RBACMiddleware)
+app.add_middleware(CheckLogoutMiddleware)
+
+
+@app.on_event('startup')
+async def startup():
+    await postgres.create_schema(schema_name=settings.postgres_schema_2)
+    await postgres.create_database(model=User)
+    await postgres.create_database(model=Role)
+    await postgres.create_database(model=RefreshToken)
+    await postgres.load_default_roles(default_roles=default_roles)
+
 
 @app.on_event('shutdown')
 async def shutdown():
     # Отключаемся от баз при выключении сервера
     await creator.get_cache_storage().close()
-    await creator.get_search_storage().close()
 
 
 # Подключаем роутер к серверу, указав префикс /v1/films
 # Теги указываем для удобства навигации по документации
-app.include_router(films.router, prefix='/api/v1/films', tags=['Films'])
-app.include_router(genres.router, prefix='/api/v1/genres', tags=['Genres'])
-app.include_router(persons.router, prefix='/api/v1/persons', tags=['Persons'])
+app.include_router(users.router, prefix='/api/v1/users', tags=['Users'])
+app.include_router(roles.router, prefix='/api/v1/roles', tags=['Roles'])
 
 if __name__ == '__main__':
     uvicorn.run(

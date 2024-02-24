@@ -25,4 +25,4 @@ wait_for_elastic_node_2() {
 wait_for_elastic_node_1
 wait_for_elastic_node_2
 
-uvicorn main:app --proxy-headers --host $UVICORN_HOST --port $UVICORN_PORT
+uvicorn main:app --proxy-headers --host $MOVIES_HOST --port $MOVIES_PORT

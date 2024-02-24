@@ -17,14 +17,16 @@ class Settings(BaseSettings):
     redis_host: str = ...
     redis_port: int = 6379
 
-    elastic_host: str = ...
-    elastic_port: int = 9200
-
     postgres_host: str = ...
     postgres_port: int = ...
     postgres_name: str = ...
     postgres_user: str = ...
     postgres_password: str = ...
+
+    postgres_schema_2: str = ...
+
+    access_token_expire_minutes: int = 60
+    refresh_token_expire_minutes: int = 60 * 24 * 7
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
@@ -46,17 +48,10 @@ class RedisCacheSettings(RedisSettings):
     db: int = 0
 
 
-class ElasticDsn(BaseSettings):
-    scheme: str = 'http'
-    host: str = settings.elastic_host
-    port: int = settings.elastic_port
-
-
-class ElasticSettings(BaseSettings):
-    hosts: list[ElasticDsn] = [ElasticDsn()]
-    timeout: int = 60
-    max_retries: int = 10
-    retry_on_timeout: bool = True
+class RedisLogoutSettings(RedisSettings):
+    db: int = 1
+    access_lifetime: int = settings.access_token_expire_minutes * 60
+    refresh_lifetime: int = settings.refresh_token_expire_minutes * 60
 
 
 class PostgresSettings(BaseSettings):
