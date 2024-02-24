@@ -9,16 +9,16 @@ services:
      - static_volume:/var/www/static
      - media_volume:/var/www/media
    depends_on:
-     - uvicorn
+     - movies
    ports:
      - "8000:80"
      - "443:443"
 
 
 
-  uvicorn:
-    container_name: uvicorn
-    build: ./src
+  movies:
+    container_name: movies
+    build: ./movies
     expose:
       - "8000"
     env_file:
