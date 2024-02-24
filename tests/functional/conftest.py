@@ -1,11 +1,10 @@
 import pytest
+from configs.test_settings import settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from testdata.testdata_genres import genres_data
 from testdata.testdata_movies import movies_data
 from testdata.testdata_persons import persons_data
-
-from configs.test_settings import settings
 
 
 def get_es_bulk_query() -> tuple((list[str], list[str])):

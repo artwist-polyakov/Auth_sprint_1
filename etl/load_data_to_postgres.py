@@ -8,9 +8,9 @@ from models.postgres_models import (PostgreFilmWork, PostgreGenre,
                                     PostgrePersonFilmWork)
 from psycopg2.extensions import cursor
 from psycopg2.extras import DictCursor
+from utils.utils import configure_logger
 
 from core import config
-from utils.utils import configure_logger
 
 
 class PGClient:

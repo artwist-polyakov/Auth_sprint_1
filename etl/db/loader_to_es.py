@@ -1,9 +1,8 @@
 import abc
 import logging
 
-from elasticsearch import Elasticsearch, helpers
-
 from configs.settings import ElasticSettings
+from elasticsearch import Elasticsearch, helpers
 from utils.utils import backoff
 
 
