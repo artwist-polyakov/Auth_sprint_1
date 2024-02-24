@@ -35,8 +35,7 @@ def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
             status_code=403,
             content="Your access token doesn't permit request to this user"
         )
-    else:
-        return None
+    return None
 
 
 def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
@@ -63,11 +62,10 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
             expires=get_jwt_settings().refresh_token_expire_minutes * 60
         )
         return json_result
-    else:
-        return JSONResponse(
-            status_code=response['status_code'],
-            content=response['content']
-        )
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
 
 
 @router.post(
@@ -98,11 +96,10 @@ async def sign_up(
         )
 
         return json_response
-    else:
-        return JSONResponse(
-            status_code=response['status_code'],
-            content=response['content']
-        )
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
 
 
 @router.get(
@@ -126,11 +123,10 @@ async def get_user_by_uuid(
             first_name=response['content']['first_name'],
             last_name=response['content']['last_name']
         )
-    else:
-        return JSONResponse(
-            status_code=response['status_code'],
-            content=response['content']
-        )
+    return JSONResponse(
+        status_code=response['status_code'],
+        content=response['content']
+    )
 
 
 @router.delete(

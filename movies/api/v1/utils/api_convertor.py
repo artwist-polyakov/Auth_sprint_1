@@ -132,15 +132,14 @@ class APIConvertor:
                 uuid=person.id,
                 full_name=person.full_name
             )
-        else:
-            return PersonFilms(
-                uuid=person.id,
-                full_name=person.full_name,
-                films=[WorkRecord(
-                    uuid=film.id,
-                    roles=film.roles
-                ) for film in person.films]
-            )
+        return PersonFilms(
+            uuid=person.id,
+            full_name=person.full_name,
+            films=[WorkRecord(
+                uuid=film.id,
+                roles=film.roles
+            ) for film in person.films]
+        )
 
     @staticmethod
     def _parse_persons(
@@ -164,13 +163,12 @@ class APIConvertor:
                 pages=persons.pages,
                 per_page=persons.per_page,
                 results=result)
-        else:
-            return PaginatedOutput[PersonFilms](
-                total=persons.total,
-                page=persons.page,
-                pages=persons.pages,
-                per_page=persons.per_page,
-                results=result)
+        return PaginatedOutput[PersonFilms](
+            total=persons.total,
+            page=persons.page,
+            pages=persons.pages,
+            per_page=persons.per_page,
+            results=result)
 
     @staticmethod
     def _parse_person_participation(films: ListFilmBriefResult, params: str) -> list[FilmBrief]:
