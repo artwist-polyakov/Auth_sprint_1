@@ -58,7 +58,9 @@ class PostgresProvider(UserStorage):
                                 login=request.login,
                                 password=request.password,
                                 first_name=request.first_name,
-                                last_name=request.last_name
+                                last_name=request.last_name,
+                                is_superuser=request.is_superuser,
+                                is_verified=request.is_verified
                             )
                         )
                     case 'refresh_token':
