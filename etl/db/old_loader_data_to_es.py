@@ -1,12 +1,11 @@
 import logging
 import os
 
+from configs.elastic_shemas_config import MOVIES_INDEX_SCHEMA
+from configs.settings import ElasticSettings
 from elasticsearch import Elasticsearch, helpers
 from models.elastic_models import (DataclassForElastic, GenreElement,
                                    PersonIdName)
-
-from configs.elastic_shemas_config import MOVIES_INDEX_SCHEMA
-from configs.settings import ElasticSettings
 from utils.utils import backoff
 
 

@@ -1,7 +1,6 @@
-from models.elastic_models import GenreDataForElastic
-
 from configs.elastic_shemas_config import GENRES_INDEX_SCHEMA
 from db.loader_to_es import ElasticLoader
+from models.elastic_models import GenreDataForElastic
 
 
 class GenresLoader(ElasticLoader):

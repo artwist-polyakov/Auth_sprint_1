@@ -1,11 +1,10 @@
 import logging
 
-from fastapi import APIRouter, Cookie, Depends
-from fastapi.responses import JSONResponse, Response
-
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
+from fastapi import APIRouter, Cookie, Depends
+from fastapi.responses import JSONResponse, Response
 from services.user_service import UserService, get_user_service
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
@@ -134,7 +133,7 @@ async def get_user_by_uuid(
         )
 
 
-@router.post(
+@router.delete(
     path='/delete',
     summary="Delete User by UUID",
     description="Delete one user with current uuid if exists"
@@ -167,7 +166,7 @@ async def login_user(
     return get_tokens_response(response)
 
 
-@router.post(
+@router.put(
     path='/update',
     summary="Update Profile Data",
     description="Update profile data except password"

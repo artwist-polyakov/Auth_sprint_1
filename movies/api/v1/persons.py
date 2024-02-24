@@ -1,13 +1,12 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-
 from api.v1.models.paginated_output import PaginatedOutput
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.persons.film_brief import FilmBrief
 from api.v1.models.persons.person import Person
 from api.v1.models.persons.person_films import PersonFilms
 from api.v1.utils.api_convertor import APIConvertor
+from fastapi import APIRouter, Depends, HTTPException, Query
 from services.person_service import PersonService, get_person_service
 
 router = APIRouter()

@@ -1,9 +1,8 @@
 from abc import ABC
 from functools import wraps
 
-from redis.asyncio import Redis
-
 from configs.settings import RedisSettings
+from redis.asyncio import Redis
 
 
 class RedisCore(ABC):

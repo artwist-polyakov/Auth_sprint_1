@@ -1,9 +1,8 @@
 from abc import ABC
 
-from elasticsearch import AsyncElasticsearch
-
 from db.cache.cache_storage import CacheStorage
 from db.search.search_storage import SearchStorage
+from elasticsearch import AsyncElasticsearch
 
 
 class BaseService(ABC):

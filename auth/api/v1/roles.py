@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, Response
-
 from services.role_service import RoleService, get_role_service
 
 router = APIRouter()

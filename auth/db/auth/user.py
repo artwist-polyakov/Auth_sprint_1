@@ -1,10 +1,9 @@
 from datetime import datetime
 
+from configs.settings import settings
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base, relationship
-
-from configs.settings import settings
 
 Base = declarative_base()
 

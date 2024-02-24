@@ -1,8 +1,7 @@
-from models.elastic_models import (DataclassForElastic, GenreElement,
-                                   PersonIdName)
-
 from configs.elastic_shemas_config import MOVIES_INDEX_SCHEMA
 from db.loader_to_es import ElasticLoader
+from models.elastic_models import (DataclassForElastic, GenreElement,
+                                   PersonIdName)
 
 
 class FilmsLoader(ElasticLoader):

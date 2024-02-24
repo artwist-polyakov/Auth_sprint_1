@@ -1,13 +1,12 @@
 from enum import Enum
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-
 from api.v1.models.films.detailed_film import DetailedFilm
 from api.v1.models.films.film import Film
 from api.v1.models.paginated_output import PaginatedOutput
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.utils.api_convertor import APIConvertor
+from fastapi import APIRouter, Depends, HTTPException, Query
 from services.film_service import FilmService, get_film_service
 
 router = APIRouter()

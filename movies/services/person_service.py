@@ -1,8 +1,5 @@
 from functools import lru_cache
 
-from elasticsearch import AsyncElasticsearch
-from fastapi import Depends
-
 from db.cache.cache_storage import CacheStorage
 from db.models.search_requests.persons.all_persons_request import \
     AllPersonsRequest
@@ -19,6 +16,8 @@ from db.models.search_responses.persons.films_brief_result import \
     ListFilmBriefResult
 from db.models.search_responses.persons.person_work_result import \
     PersonWorkResult
+from elasticsearch import AsyncElasticsearch
+from fastapi import Depends
 from services.base_service import BaseService
 from utils.creator_provider import get_creator
 from utils.wrappers import cached

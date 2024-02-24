@@ -1,8 +1,7 @@
 from functools import lru_cache, wraps
 
-from jose import JWTError, jwt
-
 from configs.security_settings import JWTSecuritySettings
+from jose import JWTError, jwt
 
 
 @lru_cache()

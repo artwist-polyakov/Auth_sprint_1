@@ -1,6 +1,5 @@
 from aiocache import cached
 from aiocache.serializers import JsonSerializer
-
 from services.role_service import get_role_service
 
 RBAC_CONF = {
@@ -24,4 +23,4 @@ async def get_rbac_conf():
     return await get_role_service().get_roles()
 
 
-EXСLUDED_PATHS = ['docs', 'openapi.json', 'api/openapi', 'api/openapi.json']
+EXСLUDED_PATHS = ['docs', 'openapi.json', 'auth/openapi', 'auth/openapi.json']

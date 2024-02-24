@@ -1,8 +1,7 @@
+from db.models.token_models.access_token_container import AccessTokenContainer
 from fastapi import HTTPException, Request
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-
-from db.models.token_models.access_token_container import AccessTokenContainer
 from utils.creator_provider import get_creator
 from utils.jwt_toolkit import dict_from_jwt
 

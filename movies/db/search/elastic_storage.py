@@ -1,9 +1,5 @@
 from functools import wraps
 
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match, MultiMatch, Q
-
 from configs.settings import ElasticSettings
 from db.models.search_requests.base_request import BaseRequest
 from db.models.search_requests.films.search_all_films_request import \
@@ -28,6 +24,9 @@ from db.models.search_requests.persons.single_person_request import \
     SinglePersonRequest
 from db.models.search_responses.base_response import BaseResponse
 from db.search.search_storage import SearchStorage
+from elasticsearch import AsyncElasticsearch, NotFoundError
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.query import Match, MultiMatch, Q
 
 
 class ElasticStorage(SearchStorage):

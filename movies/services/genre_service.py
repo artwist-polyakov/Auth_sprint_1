@@ -1,7 +1,5 @@
 from functools import lru_cache
 
-from fastapi import Depends
-
 from db.cache.cache_storage import CacheStorage
 from db.models.search_requests.genres.all_genres_request import \
     AllGenresRequest
@@ -10,6 +8,7 @@ from db.models.search_requests.genres.single_genre_request import \
 from db.models.search_responses.genres.genre_result import GenreResult
 from db.models.search_responses.paginated_result import PaginatedResult
 from db.search.search_storage import SearchStorage
+from fastapi import Depends
 from services.base_service import BaseService
 from utils.creator_provider import get_creator
 from utils.wrappers import cached

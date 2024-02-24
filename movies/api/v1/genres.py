@@ -1,12 +1,11 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-
 from api.v1.models.genres.detailed_genre import DetailedGenre
 from api.v1.models.genres.genre import Genre
 from api.v1.models.paginated_output import PaginatedOutput
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.utils.api_convertor import APIConvertor
+from fastapi import APIRouter, Depends, HTTPException
 from services.genre_service import GenreService, get_genre_service
 
 router = APIRouter()

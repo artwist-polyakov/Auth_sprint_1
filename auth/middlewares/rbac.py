@@ -1,10 +1,9 @@
 import logging
 
+from configs.rbac_conf import EXСLUDED_PATHS, RBAC_CONF, get_rbac_conf
 from fastapi import HTTPException, Request
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-
-from configs.rbac_conf import EXСLUDED_PATHS, RBAC_CONF, get_rbac_conf
 from utils.jwt_toolkit import dict_from_jwt
 
 ACCESS_TOKEN_KEY = "access_token"
