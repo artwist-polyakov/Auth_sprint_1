@@ -80,7 +80,7 @@ async def sign_up(
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.sign_up(
-        login=auth_data.login,
+        email=auth_data.email,
         password=auth_data.password,
         first_name=auth_data.first_name,
         last_name=auth_data.last_name
@@ -152,15 +152,15 @@ async def delete_user(
     description="Login by login and password"
 )
 async def login_user(
-        login: str,
+        email: str,
         password: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    response: dict = await service.authenticate(login, password)
+    response: dict = await service.authenticate(email, password)
     return get_tokens_response(response)
 
 
-@router.put(
+@router.patch(
     path='/update',
     summary="Update Profile Data",
     description="Update profile data except password"
@@ -175,7 +175,7 @@ async def update_user(
         return error
     response: dict = await service.update_profile(
         uuid,
-        update_data.login,
+        update_data.email,
         update_data.first_name,
         update_data.last_name
     )
