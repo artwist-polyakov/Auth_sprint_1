@@ -7,3 +7,5 @@ class UserRequest(BaseRequest):
     password: str
     first_name: str
     last_name: str
+    is_superuser: bool = False
+    is_verified: bool = False
