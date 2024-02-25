@@ -1,6 +1,7 @@
 import logging
 
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
+from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
@@ -259,6 +260,7 @@ async def logout_all_devices(
     description="Get login history for current user"
 )
 async def get_login_history(
+        pagination: PaginatedParams = Depends(),
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
@@ -270,10 +272,21 @@ async def get_login_history(
     token = AccessTokenContainer(
         **dict_from_jwt(access_token)
     )
-    response: dict = await service.get_login_history(token.user_id)
+    response: dict = await service.get_login_history(
+        user_id=token.user_id,
+        page=pagination.page,
+        size=pagination.size
+    )
+    result = {
+        'page': pagination.page,
+        'pages': response['total'] // pagination.size + 1,
+        'per_page': pagination.size,
+        'total': response['total'],
+        'results': response['history']
+    }
     return JSONResponse(
         status_code=200,
-        content=response
+        content=result
     )
 
 
