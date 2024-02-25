@@ -1,11 +1,13 @@
 import logging
 
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
+from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
 from fastapi import APIRouter, Cookie, Depends
 from fastapi.responses import JSONResponse, Response
+from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
@@ -258,6 +260,7 @@ async def logout_all_devices(
     description="Get login history for current user"
 )
 async def get_login_history(
+        pagination: PaginatedParams = Depends(),
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
@@ -269,7 +272,49 @@ async def get_login_history(
     token = AccessTokenContainer(
         **dict_from_jwt(access_token)
     )
-    response: dict = await service.get_login_history(token.user_id)
+    response: dict = await service.get_login_history(
+        user_id=token.user_id,
+        page=pagination.page,
+        size=pagination.size
+    )
+    result = {
+        'page': pagination.page,
+        'pages': response['total'] // pagination.size + 1,
+        'per_page': pagination.size,
+        'total': response['total'],
+        'results': response['history']
+    }
+    return JSONResponse(
+        status_code=200,
+        content=result
+    )
+
+
+@router.get(
+    path="/check_permissions",
+    summary="Check permissions",
+    description="Check permissions for current user"
+)
+async def check_permissions(
+        resource: str,
+        verb: str,
+        access_token: str = Cookie(None),
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    if not access_token:
+        return JSONResponse(
+            status_code=401,
+            content='Invalid access token'
+        )
+    token = AccessTokenContainer(
+        **dict_from_jwt(access_token)
+    )
+    rbac = RBACInfo(
+        role=token.role,
+        resource=resource,
+        verb=verb
+    )
+    response: bool = await service.check_permissions(token, rbac)
     return JSONResponse(
         status_code=200,
         content=response

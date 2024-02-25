@@ -12,8 +12,12 @@ from db.models.auth_responses.user_response import UserResponse
 from db.models.token_models.access_token_container import AccessTokenContainer
 from db.models.token_models.refresh_token import RefreshToken
 from db.postgres import PostgresInterface
+from middlewares.rbac import has_permission
+from services.models.permissions import RBACInfo
 from services.models.signup import ProfileModel, SignupModel
 from utils.creator_provider import get_creator
+
+PAGE_SIZE = 10
 
 
 class UserService:
@@ -212,9 +216,26 @@ class UserService:
             'content': 'Logout successfully'
         }
 
-    async def get_login_history(self, user_id: str) -> dict:
-        history = await self._postgres.get_history(user_id)
+    async def get_login_history(
+            self,
+            user_id: str,
+            page: int = 1,
+            size: int = PAGE_SIZE
+    ) -> dict:
+        history = await self._postgres.get_history(
+            user_id,
+            size,
+            (page - 1) * size
+        )
         return history
+
+    async def check_permissions(self,
+                                logout_info: AccessTokenContainer,
+                                rbac: RBACInfo
+                                ) -> bool:
+        is_blacklisted = await self._enters_storage.is_blacklisted(logout_info)
+        has_permissions = await has_permission(rbac.role, rbac.resource, rbac.verb)
+        return not is_blacklisted and has_permissions
 
 
 @lru_cache

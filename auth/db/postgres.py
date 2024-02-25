@@ -6,6 +6,7 @@ from db.auth.role import Role
 from db.auth.user import User
 from db.auth.user_storage import UserStorage
 from pydantic import BaseModel
+
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -249,16 +250,35 @@ class PostgresInterface(UserStorage):
                 logging.error(type(e).__name__, e)
                 return {'status_code': 500, 'content': 'error'}
 
-    async def get_history(self, uuid) -> dict:
+    async def get_history(
+            self,
+            uuid,
+            limit,
+            offset
+    ) -> dict:
         # SELECT запрос
         async with self._async_session() as session:
             try:
-                query = select(RefreshToken).where(
+                count_query = select(func.count()).select_from(RefreshToken).where(
                     RefreshToken.user_id == str(uuid)
                 )
+                count = await session.execute(count_query)
+                count = count.scalar_one()
+                if offset >= count:
+                    return {
+                        'status_code': 200,
+                        'content': 'no history',
+                        'total': count,
+                        'history': {},
+                        'limit': limit,
+                        'page': 1 + offset // limit,
+                    }
+                query = select(RefreshToken).where(
+                    RefreshToken.user_id == str(uuid)
+                ).limit(limit).offset(offset)
                 tokens = await session.execute(query)
                 await session.commit()
-                history = {}
+                history = []
                 tokens = tokens.all()
                 logging.warning(tokens)
                 for token_instance in tokens:
@@ -267,16 +287,24 @@ class PostgresInterface(UserStorage):
                     active_till = token_instance['active_till']
                     token_uuid = token_instance['uuid']
                     user_id = token_instance['user_id']
-                    history[str(token_uuid)] = {
+                    history.append({
+                        'token_id': str(token_uuid),
                         'created_at': created_at.isoformat(),
                         'active_till': active_till,
                         'user_id': str(user_id)
-                    }
-                return history
+                    })
+                return {
+                    'status_code': 200,
+                    'content': 'success',
+                    'total': count,
+                    'history': history,
+                    'limit': limit,
+                    'page': 1 + offset // limit,
+                }
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {}
+                return {'status_code': 500, 'content': 'error', 'total': 0}
 
     async def update_user_role(self, uuid: str, new_role: str) -> dict:
         # UPDATE запрос
