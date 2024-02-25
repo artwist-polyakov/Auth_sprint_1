@@ -11,13 +11,13 @@ from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.models.token_models.access_token_container import AccessTokenContainer
 from db.models.token_models.refresh_token import RefreshToken
-from db.postgres import PostgresProvider
+from db.postgres import PostgresInterface
 from services.models.signup import ProfileModel, SignupModel
 from utils.creator_provider import get_creator
 
 
 class UserService:
-    def __init__(self, instance: PostgresProvider, enters_storage: LogoutStorage):
+    def __init__(self, instance: PostgresInterface, enters_storage: LogoutStorage):
         self._postgres = instance
         self._enters_storage = enters_storage
 
@@ -219,6 +219,6 @@ class UserService:
 
 @lru_cache
 def get_user_service():
-    postgres = PostgresProvider()
+    postgres = PostgresInterface()
     logout = get_creator().get_logout_storage()
     return UserService(postgres, logout)

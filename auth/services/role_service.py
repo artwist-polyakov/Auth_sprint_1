@@ -2,11 +2,11 @@ import uuid
 from functools import lru_cache
 
 from db.models.auth_requests.role_request import RoleRequest
-from db.postgres import PostgresProvider
+from db.postgres import PostgresInterface
 
 
 class RoleService:
-    def __init__(self, instance: PostgresProvider):
+    def __init__(self, instance: PostgresInterface):
         self._postgres = instance
 
     async def get_roles(self) -> dict:
@@ -83,5 +83,5 @@ class RoleService:
 
 @lru_cache
 def get_role_service():
-    postgres = PostgresProvider()
+    postgres = PostgresInterface()
     return RoleService(postgres)

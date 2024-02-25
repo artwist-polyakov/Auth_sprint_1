@@ -1,7 +1,7 @@
 import uvicorn
 from configs.settings import Settings
 from core.logger import LOGGING
-from db.postgres import PostgresProvider
+from db.postgres import PostgresInterface
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from middlewares.logout_processor import CheckLogoutMiddleware
@@ -12,7 +12,7 @@ from api.v1 import roles, users
 
 settings = Settings()
 creator = get_creator()
-postgres = PostgresProvider()
+postgres = PostgresInterface()
 
 app = FastAPI(
     title='Auth Service',

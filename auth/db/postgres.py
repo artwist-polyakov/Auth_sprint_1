@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 
-class PostgresProvider(UserStorage):
+class PostgresInterface(UserStorage):
     def __init__(self):
         self._dsn = pstg_dsn
         self._engine = create_async_engine(self._dsn, echo=True, future=True)

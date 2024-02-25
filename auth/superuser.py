@@ -4,14 +4,14 @@ import uuid
 import bcrypt
 import typer
 from db.models.auth_requests.user_request import UserRequest
-from db.postgres import PostgresProvider
+from db.postgres import PostgresInterface
 from services.models.signup import SignupModel
 
 app = typer.Typer()
 
 
 async def create_superuser(email: str, password: str):
-    postgres = PostgresProvider()
+    postgres = PostgresInterface()
     try:
         model = SignupModel(
             password=password,
