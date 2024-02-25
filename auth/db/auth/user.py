@@ -3,9 +3,9 @@ from datetime import datetime
 from configs.settings import settings
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+from db.auth.base import Base
 
 
 class User(Base):

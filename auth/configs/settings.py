@@ -60,3 +60,15 @@ class PostgresSettings(BaseSettings):
     password: str = settings.postgres_password
     host: str = settings.postgres_host
     port: int = settings.postgres_port
+
+
+pstg = PostgresSettings()
+
+
+class PostgresDSN(BaseSettings):
+    dsn: str = (f'postgresql+asyncpg://'
+                f'{pstg.user}:{pstg.password}@{pstg.host}:'
+                f'{pstg.port}/{pstg.db}')
+
+
+pstg_dsn = PostgresDSN().dsn

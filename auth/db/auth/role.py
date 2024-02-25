@@ -3,9 +3,8 @@ import uuid
 from configs.settings import settings
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base
 
-Base = declarative_base()
+from db.auth.base import Base
 
 
 class Role(Base):

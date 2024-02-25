@@ -1,10 +1,11 @@
 from datetime import datetime
 
 from configs.settings import settings
-from db.auth.user import Base
 from sqlalchemy import BigInteger, Column, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
+from db.auth.base import Base
 
 
 class RefreshToken(Base):
