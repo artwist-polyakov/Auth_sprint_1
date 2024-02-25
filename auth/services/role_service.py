@@ -1,5 +1,6 @@
 import uuid
 from functools import lru_cache
+from http import HTTPStatus
 
 from db.models.auth_requests.role_request import RoleRequest
 from db.postgres import PostgresInterface
@@ -39,7 +40,7 @@ class RoleService:
 
         if isinstance(role_item, dict):
             return {
-                'status_code': 404,
+                'status_code': HTTPStatus.NOT_FOUND,
                 'content': 'Role not found'
             }
 
@@ -73,7 +74,7 @@ class RoleService:
 
         if isinstance(role_item, dict):
             return {
-                'status_code': 404,
+                'status_code': HTTPStatus.NOT_FOUND,
                 'content': 'User not found'
             }
 

@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from configs.settings import pstg_dsn
 from db.auth.refresh_token import RefreshToken
@@ -61,12 +62,12 @@ class PostgresInterface(UserStorage):
                         )
                 await session.execute(query)
                 await session.commit()
-                return {'status_code': 201, 'content': f'{entity} created'}
+                return {'status_code': HTTPStatus.CREATED, 'content': f'{entity} created'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
 
     async def get_single_user(
             self,
@@ -84,13 +85,13 @@ class PostgresInterface(UserStorage):
                 query_result = await session.execute(query)
                 user = query_result.scalar_one_or_none()
                 if not user:
-                    return {'status_code': 404, 'content': 'user not found'}
+                    return {'status_code': HTTPStatus.NOT_FOUND, 'content': 'user not found'}
                 return user
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
 
     async def delete_single_data(self, uuid: str, entity: str) -> dict:
         # DELETE запрос
@@ -109,12 +110,12 @@ class PostgresInterface(UserStorage):
                     return result
                 await session.delete(result)
                 await session.commit()
-                return {'status_code': 200, 'content': 'success'}
+                return {'status_code': HTTPStatus.OK, 'content': 'success'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
 
     async def update_single_user(self, request: BaseModel) -> dict:
         # UPDATE запрос
@@ -131,12 +132,12 @@ class PostgresInterface(UserStorage):
                 )
                 await session.execute(query)
                 await session.commit()
-                return {'status_code': 200, 'content': 'success'}
+                return {'status_code': HTTPStatus.OK, 'content': 'success'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
 
     async def get_refresh_token(self, refresh_token: str):
         # SELECT запрос
@@ -154,8 +155,7 @@ class PostgresInterface(UserStorage):
             self,
             new_refresh_token: RefreshToken,
             old_refresh_token_id: str
-    ):
-        # todo обозначить типы возвращаемых значений
+    ) -> bool:
         async with self._async_session() as session:
             try:
                 query = (
@@ -220,13 +220,13 @@ class PostgresInterface(UserStorage):
                 query_result = await session.execute(query)
                 role = query_result.scalar_one_or_none()
                 if not role:
-                    return {'status_code': 404, 'content': 'role not found'}
+                    return {'status_code': HTTPStatus.NOT_FOUND, 'content': 'role not found'}
                 return role
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
 
     async def update_role(self, request: BaseModel) -> dict:
         # UPDATE запрос
@@ -243,12 +243,12 @@ class PostgresInterface(UserStorage):
                 )
                 await session.execute(query)
                 await session.commit()
-                return {'status_code': 200, 'content': 'success'}
+                return {'status_code': HTTPStatus.OK, 'content': 'success'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
 
     async def get_history(
             self,
@@ -294,7 +294,7 @@ class PostgresInterface(UserStorage):
                         'user_id': str(user_id)
                     })
                 return {
-                    'status_code': 200,
+                    'status_code': HTTPStatus.OK,
                     'content': 'success',
                     'total': count,
                     'history': history,
@@ -304,7 +304,9 @@ class PostgresInterface(UserStorage):
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error', 'total': 0}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'content': 'error',
+                        'total': 0}
 
     async def update_user_role(self, uuid: str, new_role: str) -> dict:
         # UPDATE запрос
@@ -319,9 +321,9 @@ class PostgresInterface(UserStorage):
                 )
                 await session.execute(query)
                 await session.commit()
-                return {'status_code': 200, 'content': 'success'}
+                return {'status_code': HTTPStatus.OK, 'content': 'success'}
 
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
