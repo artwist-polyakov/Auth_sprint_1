@@ -21,27 +21,6 @@ class PostgresProvider(UserStorage):
             expire_on_commit=False
         )
 
-    # async def create_schema(self, schema_name: str) -> None:
-    #     async with self._engine.begin() as conn:
-    #         await conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name};"))
-    #
-    # async def create_database(self, model: Base) -> None:
-    #     async with self._engine.begin() as conn:
-    #         await conn.run_sync(model.metadata.create_all)
-    #
-    # async def load_default_roles(self, default_roles):
-    #     async with self._async_session() as session:
-    #         try:
-    #             for role_data in default_roles:
-    #                 role_instance = Role(**role_data)
-    #                 session.add(role_instance)
-    #             await session.commit()
-    #
-    #         except Exception as e:
-    #             await session.rollback()
-    #             logging.error(type(e).__name__, e)
-    #             return {'status_code': 500, 'content': 'error'}
-
     async def add_single_data(self, request: BaseModel, entity: str) -> dict:
         # INSERT запрос
         async with self._async_session() as session:
