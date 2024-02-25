@@ -7,9 +7,8 @@ Create Date: 2024-02-25 15:33:39.153422
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 from migrations.roles.default_roles import default_roles
 
 # revision identifiers, used by Alembic.
@@ -44,4 +43,3 @@ def downgrade() -> None:
                 sa.bindparam('uuid', value=str(role['uuid']))
             )
         )
-

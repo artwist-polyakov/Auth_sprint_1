@@ -3,10 +3,10 @@ import logging
 from configs.settings import pstg_dsn
 from db.auth.refresh_token import RefreshToken
 from db.auth.role import Role
-from db.auth.user import Base, User
+from db.auth.user import User
 from db.auth.user_storage import UserStorage
 from pydantic import BaseModel
-from sqlalchemy import insert, select, text, update
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 

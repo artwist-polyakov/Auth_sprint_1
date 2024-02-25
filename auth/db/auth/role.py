@@ -1,10 +1,9 @@
 import uuid
 
 from configs.settings import settings
+from db.auth.base import Base
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID
-
-from db.auth.base import Base
 
 
 class Role(Base):

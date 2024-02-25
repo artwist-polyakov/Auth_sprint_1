@@ -1,4 +1,5 @@
 import uvicorn
+from api.v1 import roles, users
 from configs.settings import Settings
 from core.logger import LOGGING
 from db.postgres import PostgresInterface
@@ -7,8 +8,6 @@ from fastapi.responses import ORJSONResponse
 from middlewares.logout_processor import CheckLogoutMiddleware
 from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
-
-from api.v1 import roles, users
 
 settings = Settings()
 creator = get_creator()
