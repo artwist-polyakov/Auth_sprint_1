@@ -13,6 +13,7 @@ from psycopg2.extras import DictCursor
 from utils.mappers import (GenresPostgresDataMapper, PersonsPostgresDataMapper,
                            PostgresDataMapper)
 from utils.redis_companion import RedisCompanion
+
 from utils.utils import configure_logger
 
 BATCH_SIZE = 100

@@ -1,10 +1,11 @@
 import uvicorn
-from api.v1 import films, genres, persons
 from configs.settings import Settings
 from core.logger import LOGGING
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from utils.creator_provider import get_creator
+
+from api.v1 import films, genres, persons
 
 settings = Settings()
 creator = get_creator()

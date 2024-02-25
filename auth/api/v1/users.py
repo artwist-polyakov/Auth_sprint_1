@@ -173,7 +173,12 @@ async def update_user(
 ) -> Response:
     if error := get_error_from_uuid(uuid, access_token):
         return error
-    response: dict = await service.update_profile(uuid, input.login, input.first_name, input.last_name)
+    response: dict = await service.update_profile(
+        uuid,
+        input.login,
+        input.first_name,
+        input.last_name
+    )
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']
