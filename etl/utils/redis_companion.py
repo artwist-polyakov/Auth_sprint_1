@@ -56,8 +56,7 @@ class RedisCompanion:
         """Получить длину очереди"""
         if self.is_queue_exists():
             return self.redis_connection.llen(self._queue_key)
-        else:
-            return -1
+        return -1
 
     def get_from_queue(self, count: int) -> list:
         """Получить N элементов из очереди"""
