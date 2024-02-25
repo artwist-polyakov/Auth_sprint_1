@@ -1,4 +1,3 @@
-import logging
 import uuid
 from datetime import datetime, timedelta
 from functools import lru_cache
@@ -224,9 +223,7 @@ class UserService:
                                 rbac: RBACInfo
                                 ) -> bool:
         is_blacklisted = await self._enters_storage.is_blacklisted(logout_info)
-        logging.warning(f"Is blacklisted: {is_blacklisted}")
         has_permissions = await has_permission(rbac.role, rbac.resource, rbac.verb)
-        logging.warning(f"Has permissions: {has_permissions}")
         return not is_blacklisted and has_permissions
 
 
