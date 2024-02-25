@@ -1,5 +1,6 @@
 import logging
 
+from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
@@ -75,17 +76,14 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
 )
 @value_error_handler()
 async def sign_up(
-        email: str,
-        password: str,
-        first_name: str = '',
-        last_name: str = '',
+        auth_data: AuthSchema = Depends(),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.sign_up(
-        email=email,
-        password=password,
-        first_name=first_name,
-        last_name=last_name
+        email=auth_data.email,
+        password=auth_data.password,
+        first_name=auth_data.first_name,
+        last_name=auth_data.last_name
     )
     if response['status_code'] == 201:
         uuid = response['content']['uuid']
@@ -150,7 +148,7 @@ async def delete_user(
 
 @router.get(
     path='/login',
-    summary="login",
+    summary="Login",
     description="Login by email and password"
 )
 async def login_user(
@@ -162,22 +160,25 @@ async def login_user(
     return get_tokens_response(response)
 
 
-@router.put(
+@router.patch(
     path='/update',
     summary="Update Profile Data",
     description="Update profile data except password"
 )
 async def update_user(
         uuid: str,
-        email: str,
-        first_name: str = '',
-        last_name: str = '',
+        update_data: UpdateSchema = Depends(),
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     if error := get_error_from_uuid(uuid, access_token):
         return error
-    response: dict = await service.update_profile(uuid, email, first_name, last_name)
+    response: dict = await service.update_profile(
+        uuid,
+        update_data.email,
+        update_data.first_name,
+        update_data.last_name
+    )
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']

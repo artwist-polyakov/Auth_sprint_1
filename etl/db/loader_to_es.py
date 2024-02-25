@@ -3,6 +3,7 @@ import logging
 
 from configs.settings import ElasticSettings
 from elasticsearch import Elasticsearch, helpers
+
 from utils.utils import backoff
 
 

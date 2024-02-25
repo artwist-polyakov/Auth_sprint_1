@@ -14,7 +14,6 @@ async def create_superuser(email: str, password: str):
     postgres = PostgresProvider()
     try:
         model = SignupModel(
-            login=email,
             password=password,
             first_name='',
             last_name='',
@@ -23,7 +22,7 @@ async def create_superuser(email: str, password: str):
         password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
         request = UserRequest(
             uuid=str(uuid.uuid4()),
-            login=model.login,
+            email=model.email,
             password=password_hash,
             first_name=model.first_name,
             last_name=model.last_name,

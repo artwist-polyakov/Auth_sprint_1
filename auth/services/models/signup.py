@@ -18,6 +18,16 @@ NameStr = constr(
 )
 
 
+class ValidateEmail(EmailStr):
+    @classmethod
+    def validate(cls, value):
+        try:
+            cls._validate(value)
+        except ValueError:
+            raise ValueError("Email is not valid")
+        return value
+
+
 class CustomValueError(Exception):
     def __init__(self, message: str):
         self.message = message
@@ -43,12 +53,16 @@ class PasswordModel(BaseModel):
         return value
 
 
-# class LoginModel(BaseModel):
-#     login: str = LoginStr
-
-
 class EmailModel(BaseModel):
-    email: EmailStr | None
+    email: str
+
+    @field_validator("email")
+    def check_email(cls, value):
+        try:
+            ValidateEmail.validate(value)
+        except ValueError:
+            raise CustomValueError("Email is not valid")
+        return value
 
 
 class SignupModel(EmailModel, PasswordModel):

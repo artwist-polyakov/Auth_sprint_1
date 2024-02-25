@@ -1,3 +1,4 @@
+from api.v1.models.roles_schema import RoleSchema
 from configs.rbac_conf import clear_rbac_conf_cache
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, Response
@@ -27,12 +28,10 @@ async def get_roles(
     description="Add role"
 )
 async def add_role(
-        role: str,
-        resource: str,
-        verb: str,
+        role_data: RoleSchema = Depends(),
         service: RoleService = Depends(get_role_service)
 ) -> Response:
-    response = await service.add_role(role, resource, verb)
+    response = await service.add_role(role_data.role, role_data.resource, role_data.verb)
     await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=200,
@@ -47,12 +46,15 @@ async def add_role(
 )
 async def update_role(
         uuid: str,
-        role: str = '',
-        resource: str = '',
-        verb: str = '',
+        role_data: RoleSchema = Depends(),
         service: RoleService = Depends(get_role_service)
 ) -> Response:
-    response: dict = await service.update_role(uuid, role, resource, verb)
+    response: dict = await service.update_role(
+        uuid,
+        role_data.role,
+        role_data.resource,
+        role_data.verb
+    )
     await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=response['status_code'],
