@@ -75,14 +75,14 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
 )
 @value_error_handler()
 async def sign_up(
-        login: str,
+        email: str,
         password: str,
         first_name: str = '',
         last_name: str = '',
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.sign_up(
-        login=login,
+        email=email,
         password=password,
         first_name=first_name,
         last_name=last_name
@@ -119,7 +119,7 @@ async def get_user_by_uuid(
     if response['status_code'] == 200:
         return UserResult(
             uuid=str(response['content']['uuid']),
-            login=response['content']['login'],
+            email=response['content']['email'],
             first_name=response['content']['first_name'],
             last_name=response['content']['last_name']
         )
@@ -150,15 +150,15 @@ async def delete_user(
 
 @router.get(
     path='/login',
-    summary="Login",
-    description="Login by login and password"
+    summary="login",
+    description="Login by email and password"
 )
 async def login_user(
-        login: str,
+        email: str,
         password: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    response: dict = await service.authenticate(login, password)
+    response: dict = await service.authenticate(email, password)
     return get_tokens_response(response)
 
 
@@ -169,7 +169,7 @@ async def login_user(
 )
 async def update_user(
         uuid: str,
-        login: str,
+        email: str,
         first_name: str = '',
         last_name: str = '',
         access_token: str = Cookie(None),
@@ -177,7 +177,7 @@ async def update_user(
 ) -> Response:
     if error := get_error_from_uuid(uuid, access_token):
         return error
-    response: dict = await service.update_profile(uuid, login, first_name, last_name)
+    response: dict = await service.update_profile(uuid, email, first_name, last_name)
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']

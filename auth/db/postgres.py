@@ -55,7 +55,7 @@ class PostgresProvider(UserStorage):
                             insert(User)
                             .values(
                                 uuid=request.uuid,
-                                login=request.login,
+                                email=request.email,
                                 password=request.password,
                                 first_name=request.first_name,
                                 last_name=request.last_name,
@@ -100,8 +100,8 @@ class PostgresProvider(UserStorage):
             try:
                 if field_name == 'uuid':
                     query = select(User).where(User.uuid == field_value)
-                elif field_name == 'login':
-                    query = select(User).where(User.login == field_value)
+                elif field_name == 'email':
+                    query = select(User).where(User.email == field_value)
 
                 query_result = await session.execute(query)
                 user = query_result.scalar_one_or_none()
@@ -146,7 +146,7 @@ class PostgresProvider(UserStorage):
                     update(User)
                     .where(User.uuid == request.uuid)
                     .values(
-                        login=request.login,
+                        email=request.email,
                         first_name=request.first_name,
                         last_name=request.last_name
                     )
