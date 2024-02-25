@@ -304,7 +304,9 @@ class PostgresInterface(UserStorage):
             except Exception as e:
                 await session.rollback()
                 logging.error(type(e).__name__, e)
-                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error', 'total': 0}
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'content': 'error',
+                        'total': 0}
 
     async def update_user_role(self, uuid: str, new_role: str) -> dict:
         # UPDATE запрос
