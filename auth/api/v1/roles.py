@@ -28,10 +28,10 @@ async def get_roles(
     description="Add role"
 )
 async def add_role(
-        input: RoleSchema = Depends(),
+        role_data: RoleSchema = Depends(),
         service: RoleService = Depends(get_role_service)
 ) -> Response:
-    response = await service.add_role(input.role, input.resource, input.verb)
+    response = await service.add_role(role_data.role, role_data.resource, role_data.verb)
     await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=200,
@@ -46,10 +46,10 @@ async def add_role(
 )
 async def update_role(
         uuid: str,
-        input: RoleSchema = Depends(),
+        role_data: RoleSchema = Depends(),
         service: RoleService = Depends(get_role_service)
 ) -> Response:
-    response: dict = await service.update_role(uuid, input.role, input.resource, input.verb)
+    response: dict = await service.update_role(uuid, role_data.role, role_data.resource, role_data.verb)
     await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=response['status_code'],

@@ -76,14 +76,14 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
 )
 @value_error_handler()
 async def sign_up(
-        input: AuthSchema = Depends(),
+        auth_data: AuthSchema = Depends(),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.sign_up(
-        login=input.login,
-        password=input.password,
-        first_name=input.first_name,
-        last_name=input.last_name
+        login=auth_data.login,
+        password=auth_data.password,
+        first_name=auth_data.first_name,
+        last_name=auth_data.last_name
     )
     if response['status_code'] == 201:
         uuid = response['content']['uuid']
@@ -167,7 +167,7 @@ async def login_user(
 )
 async def update_user(
         uuid: str,
-        input: UpdateSchema = Depends(),
+        update_data: UpdateSchema = Depends(),
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
@@ -175,9 +175,9 @@ async def update_user(
         return error
     response: dict = await service.update_profile(
         uuid,
-        input.login,
-        input.first_name,
-        input.last_name
+        update_data.login,
+        update_data.first_name,
+        update_data.last_name
     )
     return JSONResponse(
         status_code=response['status_code'],
