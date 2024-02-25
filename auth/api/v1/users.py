@@ -1,5 +1,6 @@
 import logging
 
+from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
@@ -75,17 +76,14 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
 )
 @value_error_handler()
 async def sign_up(
-        login: str,
-        password: str,
-        first_name: str = '',
-        last_name: str = '',
+        input: AuthSchema = Depends(),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.sign_up(
-        login=login,
-        password=password,
-        first_name=first_name,
-        last_name=last_name
+        login=input.login,
+        password=input.password,
+        first_name=input.first_name,
+        last_name=input.last_name
     )
     if response['status_code'] == 201:
         uuid = response['content']['uuid']
@@ -169,15 +167,13 @@ async def login_user(
 )
 async def update_user(
         uuid: str,
-        login: str,
-        first_name: str = '',
-        last_name: str = '',
+        input: UpdateSchema = Depends(),
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     if error := get_error_from_uuid(uuid, access_token):
         return error
-    response: dict = await service.update_profile(uuid, login, first_name, last_name)
+    response: dict = await service.update_profile(uuid, input.login, input.first_name, input.last_name)
     return JSONResponse(
         status_code=response['status_code'],
         content=response['content']
