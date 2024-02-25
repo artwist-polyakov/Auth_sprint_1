@@ -49,7 +49,12 @@ async def update_role(
         role_data: RoleSchema = Depends(),
         service: RoleService = Depends(get_role_service)
 ) -> Response:
-    response: dict = await service.update_role(uuid, role_data.role, role_data.resource, role_data.verb)
+    response: dict = await service.update_role(
+        uuid,
+        role_data.role,
+        role_data.resource,
+        role_data.verb
+    )
     await clear_rbac_conf_cache()
     return JSONResponse(
         status_code=response['status_code'],
