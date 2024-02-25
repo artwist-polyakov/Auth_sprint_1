@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from api.v1.models.roles_schema import RoleSchema
 from configs.rbac_conf import clear_rbac_conf_cache
 from fastapi import APIRouter, Depends
@@ -17,7 +19,7 @@ async def get_roles(
 ) -> Response:
     response: dict = await service.get_roles()
     return JSONResponse(
-        status_code=200,
+        status_code=HTTPStatus.OK,
         content=response
     )
 
@@ -34,7 +36,7 @@ async def add_role(
     response = await service.add_role(role_data.role, role_data.resource, role_data.verb)
     await clear_rbac_conf_cache()
     return JSONResponse(
-        status_code=200,
+        status_code=HTTPStatus.OK,
         content={'uuid': response}
     )
 

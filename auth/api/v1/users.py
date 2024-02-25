@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
@@ -22,7 +23,7 @@ ADMIN_ROLE = 'admin'
 def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
     if not token:
         return JSONResponse(
-            status_code=401,
+            status_code=HTTPStatus.UNAUTHORIZED,
             content='Invalid access token'
         )
     decoded_uuid = dict_from_jwt(token).get(USER_ID_KEY, None)
@@ -35,7 +36,7 @@ def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
     if not decoded_uuid or uuid != decoded_uuid:
         logging.warning(f"UUID: {uuid}, Decoded UUID: {decoded_uuid}")
         return JSONResponse(
-            status_code=403,
+            status_code=HTTPStatus.FORBIDDEN,
             content="Your access token doesn't permit request to this user"
         )
     return None
@@ -46,7 +47,7 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
         access = APIConvertor().map_token_container_to_access_token(response)
         refresh = APIConvertor().map_token_container_to_refresh_token(response)
         json_result = JSONResponse(
-            status_code=200,
+            status_code=HTTPStatus.OK,
             content={"refresh_token": refresh,
                      "access_token": access,
                      "token_type": 'bearer'}
@@ -87,7 +88,7 @@ async def sign_up(
         first_name=auth_data.first_name,
         last_name=auth_data.last_name
     )
-    if response['status_code'] == 201:
+    if response['status_code'] == HTTPStatus.CREATED:
         uuid = response['content']['uuid']
 
         json_response = JSONResponse(
@@ -116,7 +117,7 @@ async def get_user_by_uuid(
     if error := get_error_from_uuid(uuid, access_token):
         return error
     response: dict = await service.get_user_by_uuid(uuid)
-    if response['status_code'] == 200:
+    if response['status_code'] == HTTPStatus.OK:
         return UserResult(
             uuid=str(response['content']['uuid']),
             email=response['content']['email'],
@@ -198,7 +199,7 @@ async def refresh_access_token(
 ) -> Response:
     if refresh_token is None:
         return JSONResponse(
-            status_code=401,
+            status_code=HTTPStatus.UNAUTHORIZED,
             content='Invalid refresh token'
         )
 
@@ -208,7 +209,7 @@ async def refresh_access_token(
         )
     )
     return get_tokens_response(response) if response else JSONResponse(
-        status_code=401,
+        status_code=HTTPStatus.UNAUTHORIZED,
         content='Invalid refresh token'
     )
 
@@ -266,7 +267,7 @@ async def get_login_history(
 ) -> Response:
     if not access_token:
         return JSONResponse(
-            status_code=401,
+            status_code=HTTPStatus.UNAUTHORIZED,
             content='Invalid access token'
         )
     token = AccessTokenContainer(
@@ -285,7 +286,7 @@ async def get_login_history(
         'results': response['history']
     }
     return JSONResponse(
-        status_code=200,
+        status_code=HTTPStatus.OK,
         content=result
     )
 
@@ -303,7 +304,7 @@ async def check_permissions(
 ) -> Response:
     if not access_token:
         return JSONResponse(
-            status_code=401,
+            status_code=HTTPStatus.UNAUTHORIZED,
             content='Invalid access token'
         )
     token = AccessTokenContainer(
@@ -316,6 +317,6 @@ async def check_permissions(
     )
     response: bool = await service.check_permissions(token, rbac)
     return JSONResponse(
-        status_code=200,
+        status_code=HTTPStatus.OK,
         content=response
     )

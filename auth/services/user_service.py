@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timedelta
 from functools import lru_cache
+from http import HTTPStatus
 
 import bcrypt
 from configs.settings import settings
@@ -44,7 +45,7 @@ class UserService:
         )
         if isinstance(exists, User):
             return {
-                'status_code': 409,
+                'status_code': HTTPStatus.CONFLICT,
                 'content': 'user with this email already exists'
             }
         password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
@@ -57,7 +58,7 @@ class UserService:
         )
         response: dict = await self._postgres.add_single_data(request, 'user')
         match response['status_code']:
-            case 201:
+            case HTTPStatus.CREATED:
                 content = {
                     'uuid': str(request.uuid),
                 }
@@ -82,7 +83,7 @@ class UserService:
             last_name=result.last_name
         )
         return {
-            'status_code': 200,
+            'status_code': HTTPStatus.OK,
             'content': response.model_dump()
         }
 
@@ -101,7 +102,7 @@ class UserService:
 
         valid = bcrypt.checkpw(password.encode(), user.password.encode())
         if not valid:
-            return {'status_code': 400, 'content': 'password is incorrect'}
+            return {'status_code': HTTPStatus.BAD_REQUEST, 'content': 'password is incorrect'}
 
         refresh_token = RefreshToken(
             uuid=str(uuid.uuid4()),
@@ -153,7 +154,7 @@ class UserService:
         user = await self._postgres.get_single_user('uuid', user_id)
         if isinstance(user, dict):
             return {
-                'status_code': 404,
+                'status_code': HTTPStatus.NOT_FOUND,
                 'content': 'User not found'
             }
 
@@ -161,7 +162,7 @@ class UserService:
         valid_password = bcrypt.checkpw(old_password.encode(), user.password.encode())
         if not valid_password:
             return {
-                'status_code': 400,
+                'status_code': HTTPStatus.BAD_REQUEST,
                 'content': 'Incorrect password'
             }
 
@@ -170,14 +171,14 @@ class UserService:
         user.password = new_password_hash
         await self._postgres.update_single_user(user)
         return {
-            'status_code': 200,
+            'status_code': HTTPStatus.OK,
             'content': 'Password changed successfully'
         }
 
     async def refresh_access_token(self, refresh_id: str, user_id: str, active_till: int):
         if active_till < int(datetime.now().timestamp()):
             return {
-                'status_code': 401,
+                'status_code': HTTPStatus.UNAUTHORIZED,
                 'content': 'Refresh token has expired'
             }
         new_refresh_token = RefreshToken(
@@ -205,14 +206,14 @@ class UserService:
     async def logout_session(self, token_container: AccessTokenContainer):
         await self._enters_storage.logout_current_session(token_container)
         return {
-            'status_code': 200,
+            'status_code': HTTPStatus.OK,
             'content': 'Logout successfully'
         }
 
     async def logout_all_sessions(self, token_container: AccessTokenContainer):
         await self._enters_storage.logout_all_sessions(token_container)
         return {
-            'status_code': 200,
+            'status_code': HTTPStatus.OK,
             'content': 'Logout successfully'
         }
 
