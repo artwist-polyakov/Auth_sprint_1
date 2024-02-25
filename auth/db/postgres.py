@@ -7,7 +7,7 @@ from db.auth.user import User
 from db.auth.user_storage import UserStorage
 from pydantic import BaseModel
 
-from sqlalchemy import insert, select, update
+from sqlalchemy import insert, select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
