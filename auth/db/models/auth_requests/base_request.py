@@ -1,13 +1,5 @@
-from orjson import orjson
-from pydantic import BaseModel
+from core.base_orjson_model import BaseORJSONModel
 
 
-def orjson_dumps(v, *, default):
-    return orjson.dumps(v, default=default).decode()
-
-
-class BaseRequest(BaseModel):
-    class Config:
-        # Заменяем стандартную работу с json на более быструю
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
+class BaseRequest(BaseORJSONModel):
+    pass
