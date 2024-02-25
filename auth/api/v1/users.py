@@ -117,7 +117,7 @@ async def get_user_by_uuid(
     if response['status_code'] == 200:
         return UserResult(
             uuid=str(response['content']['uuid']),
-            login=response['content']['login'],
+            email=response['content']['email'],
             first_name=response['content']['first_name'],
             last_name=response['content']['last_name']
         )
@@ -149,7 +149,7 @@ async def delete_user(
 @router.get(
     path='/login',
     summary="Login",
-    description="Login by login and password"
+    description="Login by email and password"
 )
 async def login_user(
         email: str,
