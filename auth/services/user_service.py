@@ -23,31 +23,30 @@ class UserService:
 
     async def sign_up(
             self,
-            login: str,
+            email: str,
             password: str,
             first_name: str = '',
             last_name: str = ''
     ) -> dict:
         model = SignupModel(
-            login=login,
+            email=email,
             password=password,
             first_name=first_name,
-            last_name=last_name,
-            email=None
+            last_name=last_name
         )
         exists: User | dict = await self._postgres.get_single_user(
-            field_name='login',
-            field_value=model.login
+            field_name='email',
+            field_value=model.email
         )
         if isinstance(exists, User):
             return {
                 'status_code': 409,
-                'content': 'user with this login already exists'
+                'content': 'user with this email already exists'
             }
         password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
         request = UserRequest(
             uuid=str(uuid.uuid4()),
-            login=model.login,
+            email=model.email,
             password=password_hash,
             first_name=model.first_name,
             last_name=model.last_name
@@ -74,7 +73,7 @@ class UserService:
             return result
         response = UserResponse(
             uuid=str(result.uuid),
-            login=result.login,
+            email=result.email,
             first_name=result.first_name,
             last_name=result.last_name
         )
@@ -88,10 +87,10 @@ class UserService:
         return response
 
     # todo сделаеть обёртку для ошибок или raise (я бы выбрал raise)
-    async def authenticate(self, login: str, password: str) -> AccessTokenContainer | dict:
+    async def authenticate(self, email: str, password: str) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
-            field_name='login',
-            field_value=login
+            field_name='email',
+            field_value=email
         )
         if isinstance(user, dict):
             return user
@@ -123,13 +122,13 @@ class UserService:
     async def update_profile(
             self,
             uuid: str,
-            login: str,
+            email: str,
             first_name: str,
             last_name: str
     ) -> dict:
 
         model = ProfileModel(
-            login=login,
+            email=email,
             uuid=uuid,
             first_name=first_name,
             last_name=last_name
@@ -138,7 +137,7 @@ class UserService:
         # поменять логин и другие данные, кроме пароля
         request: UserUpdateRequest = UserUpdateRequest(
             uuid=model.uuid,
-            login=model.login,
+            email=model.email,
             first_name=model.first_name,
             last_name=model.last_name
         )

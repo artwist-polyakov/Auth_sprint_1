@@ -43,20 +43,20 @@ class PasswordModel(BaseModel):
         return value
 
 
-class LoginModel(BaseModel):
-    login: str = LoginStr
+# class LoginModel(BaseModel):
+#     login: str = LoginStr
 
 
 class EmailModel(BaseModel):
     email: EmailStr | None
 
 
-class SignupModel(LoginModel, EmailModel, PasswordModel):
+class SignupModel(EmailModel, PasswordModel):
     first_name: str = NameStr
     last_name: str = NameStr
 
 
-class ProfileModel(LoginModel):
+class ProfileModel(EmailModel):
     first_name: str = NameStr
     last_name: str = NameStr
     uuid: str

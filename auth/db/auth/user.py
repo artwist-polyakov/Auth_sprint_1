@@ -18,7 +18,7 @@ class User(Base):
         unique=True,
         nullable=False
     )
-    login = Column(String(255), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     first_name = Column(String(50))
     last_name = Column(String(50))
@@ -30,14 +30,14 @@ class User(Base):
                                   cascade="all, delete-orphan")
 
     def __init__(self,
-                 login: str,
+                 email: str,
                  password: str,
                  first_name: str,
                  last_name: str) -> None:
-        self.login = login
+        self.email = email
         self.password = password
         self.first_name = first_name
         self.last_name = last_name
 
     def __repr__(self) -> str:
-        return f'<User {self.login}>'
+        return f'<User {self.email}>'
