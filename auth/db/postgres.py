@@ -59,6 +59,7 @@ class PostgresProvider(UserStorage):
                                 password=request.password,
                                 first_name=request.first_name,
                                 last_name=request.last_name,
+                                role=request.role,
                                 is_superuser=request.is_superuser,
                                 is_verified=request.is_verified
                             )
