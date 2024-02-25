@@ -17,6 +17,8 @@ from services.models.permissions import RBACInfo
 from services.models.signup import ProfileModel, SignupModel
 from utils.creator_provider import get_creator
 
+PAGE_SIZE = 10
+
 
 class UserService:
     def __init__(self, instance: PostgresProvider, enters_storage: LogoutStorage):
@@ -214,8 +216,17 @@ class UserService:
             'content': 'Logout successfully'
         }
 
-    async def get_login_history(self, user_id: str) -> dict:
-        history = await self._postgres.get_history(user_id)
+    async def get_login_history(
+            self,
+            user_id: str,
+            page: int = 1,
+            size: int = PAGE_SIZE
+    ) -> dict:
+        history = await self._postgres.get_history(
+            user_id,
+            size,
+            (page - 1) * size
+        )
         return history
 
     async def check_permissions(self,
