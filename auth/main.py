@@ -1,22 +1,17 @@
 import uvicorn
+from api.v1 import roles, users
 from configs.settings import Settings
 from core.logger import LOGGING
-from db.auth.refresh_token import RefreshToken
-from db.auth.role import Role
-from db.auth.user import User
-from db.postgres import PostgresProvider
-from db.roles.default_roles import default_roles
+from db.postgres import PostgresInterface
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from middlewares.logout_processor import CheckLogoutMiddleware
 from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
 
-from api.v1 import roles, users
-
 settings = Settings()
 creator = get_creator()
-postgres = PostgresProvider()
+postgres = PostgresInterface()
 
 app = FastAPI(
     title='Auth Service',
@@ -27,15 +22,6 @@ app = FastAPI(
 
 app.add_middleware(RBACMiddleware)
 app.add_middleware(CheckLogoutMiddleware)
-
-
-@app.on_event('startup')
-async def startup():
-    await postgres.create_schema(schema_name=settings.postgres_schema_2)
-    await postgres.create_database(model=User)
-    await postgres.create_database(model=Role)
-    await postgres.create_database(model=RefreshToken)
-    await postgres.load_default_roles(default_roles=default_roles)
 
 
 @app.on_event('shutdown')

@@ -1,49 +1,26 @@
 import logging
 
-from configs.settings import PostgresSettings
+from configs.settings import pstg_dsn
 from db.auth.refresh_token import RefreshToken
 from db.auth.role import Role
-from db.auth.user import Base, User
+from db.auth.user import User
 from db.auth.user_storage import UserStorage
 from pydantic import BaseModel
-from sqlalchemy import func, insert, select, text, update
+
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 
-class PostgresProvider(UserStorage):
+class PostgresInterface(UserStorage):
     def __init__(self):
-        self._pstg = PostgresSettings()
-        self._dsn = (f'postgresql+asyncpg://'
-                     f'{self._pstg.user}:{self._pstg.password}@{self._pstg.host}:'
-                     f'{self._pstg.port}/{self._pstg.db}')
+        self._dsn = pstg_dsn
         self._engine = create_async_engine(self._dsn, echo=True, future=True)
         self._async_session = sessionmaker(
             self._engine,
             class_=AsyncSession,
             expire_on_commit=False
         )
-
-    async def create_schema(self, schema_name: str) -> None:
-        async with self._engine.begin() as conn:
-            await conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name};"))
-
-    async def create_database(self, model: Base) -> None:
-        async with self._engine.begin() as conn:
-            await conn.run_sync(model.metadata.create_all)
-
-    async def load_default_roles(self, default_roles):
-        async with self._async_session() as session:
-            try:
-                for role_data in default_roles:
-                    role_instance = Role(**role_data)
-                    session.add(role_instance)
-                await session.commit()
-
-            except Exception as e:
-                await session.rollback()
-                logging.error(type(e).__name__, e)
-                return {'status_code': 500, 'content': 'error'}
 
     async def add_single_data(self, request: BaseModel, entity: str) -> dict:
         # INSERT запрос

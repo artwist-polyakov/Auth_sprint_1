@@ -110,3 +110,68 @@ openssl x509 -req -sha256 -days 1024 -in localhost.csr -CA RootCA.pem -CAkey Roo
 
 4. Копируем созданные сертификаты `localhost.crt` и `localhost.key` в папку `./nginx/ssl`
 5. Делаем сертификат `RootCA.crt` доверенным в браузере
+
+
+## Ручное применение существующих миграций
+
+На данный момент миграции выполняются автоматически. При необходимости делать это вручную:
+
+1. Установить библиотеку: 
+```shell
+pip install alembic==1.13.1
+```
+
+2. Если требуется, поменять роли по умолчанию в файле `cd ./migrations/roles/default_roles.py`
+
+3. В `./migrations/.env` поменять хост на localhost
+
+4. Применить миграции (контейнеры запускать не нужно):
+```shell
+cd ./auth/
+alembic upgrade head
+```
+
+## Инструкция по работе с миграциями (alembic)
+
+1. Установка библиотеки: 
+```shell
+pip install alembic==1.13.1
+```
+
+2. Создание миграции:
+```shell
+alembic revision --autogenerate
+```
+`--autogenerate` обеспечивает сравнение моделей в коде и состояния базы данных
+
+_Внимание_. На всем пути работы `alembic` не должно быть импортов settings (включая файлы с моделями `./auth/db/auth`). 
+Это связано с тем, что скрипт alembic не сможет прочитать .env, который находится в корне проекта `cd .`
+
+Чтобы добавить постфикс к имени миграции, добавьте `-m`:
+```shell
+alembic revision --autogenerate -m "migration_name"
+```
+
+3. Применить все миграции из `./auth/migrations/versions/` к базе данных
+```shell
+alembic upgrade head
+```
+Чтобы применить все миграции до конкретной миграции, нужно указать ее название
+```shell
+alembic upgrade <revision_name>
+```
+
+4. Откатить все миграции
+```shell
+alembic downgrade base
+```
+Чтобы откатиться до какой-то ревизии, необходимо использовать ее `revision`
+```shell
+alembic downgrade <revision_name>
+```
+
+5. Создать пользовательскую миграцию (миграция для редактирования)
+```shell
+alembic revision
+```
+_Внимание_. Чтобы избежать ошибки DuplicateObjectError, необходимо заполнять не только `def upgrade()`, но и `def downgrade()` (запрос `DELETE`)
