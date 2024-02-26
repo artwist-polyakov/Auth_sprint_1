@@ -74,18 +74,6 @@ cd ./tests/functional
 README.md
 ```
 
-## Первая версия функциональных тестов
-
-потребуется библиотека requests
-```shell
-pip install requests
-```
-
-запуск тестов
-```shell
-python tests_simple/test_es_query.py    
-```
-
 ## Генерация собственного сертификата
 
 1. Создать корневой сертификат
