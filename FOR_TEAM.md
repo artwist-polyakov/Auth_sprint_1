@@ -121,9 +121,9 @@ openssl x509 -req -sha256 -days 1024 -in localhost.csr -CA RootCA.pem -CAkey Roo
 pip install alembic==1.13.1
 ```
 
-2. Если требуется, поменять роли по умолчанию в файле `cd ./migrations/roles/default_roles.py`
+2. Если требуется, поменять роли по умолчанию в файле `cd ./auth/migrations/roles/default_roles.py`
 
-3. В `./migrations/.env` поменять хост на localhost
+3. В `./auth/migrations/.env` поменять хост на localhost
 
 4. Применить миграции (контейнеры запускать не нужно):
 ```shell
