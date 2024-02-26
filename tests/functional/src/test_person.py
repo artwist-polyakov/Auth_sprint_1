@@ -49,7 +49,7 @@ async def test_search_persons(es_write_data):
     ]
     """
 
-    url = settings.service_url + '/persons/search/'
+    url = settings.movies_url + '/persons/search/'
     params = {'query': 'writer', 'per_page': 10, 'page': 1}
     body, status = await get_response(url, params)
 
@@ -81,7 +81,7 @@ async def test_person_uuid(es_write_data):
     }
     """
 
-    url = settings.service_url + '/persons/d1cf010d-5941-4877-a22b-c137a642370c'
+    url = settings.movies_url + '/persons/d1cf010d-5941-4877-a22b-c137a642370c'
     body, status = await get_response(url, {})
 
     assert status == HTTPStatus.OK
@@ -103,7 +103,7 @@ async def test_person_uuid_film(es_write_data):
         ...
     ]
     """
-    url = (settings.service_url +
+    url = (settings.movies_url +
            '/persons/d1cf010d-5941-4877-a22b-c137a642370c/film')
     body, status = await get_response(url, {})
 
@@ -121,7 +121,7 @@ async def test_person_wrong_uuid(es_write_data):
     возвращается ошибка 404
     """
 
-    url = settings.service_url + '/persons/000'
+    url = settings.movies_url + '/persons/000'
     body, status = await get_response(url, {})
     assert status == HTTPStatus.NOT_FOUND
 
@@ -142,7 +142,7 @@ async def test_persons(es_write_data):
         ...
     ]
     """
-    url = settings.service_url + '/persons/'
+    url = settings.movies_url + '/persons/'
     params = {'per_page': 10, 'page': 1}
     body, status = await get_response(url, params)
 

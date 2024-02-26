@@ -22,7 +22,7 @@ async def test_genres(es_write_data):
         ...
     ]
     """
-    url = settings.service_url + '/genres/'
+    url = settings.movies_url + '/genres/'
     params = {'per_page': 10, 'page': 1}
     body, status = await get_response(url, params)
 
@@ -49,7 +49,7 @@ async def test_genre_uuid(es_write_data):
     "description": "str"
     }
     """
-    url = settings.service_url + '/genres/69717732-0b46-4290-8727-7a5db7d1ea9d'
+    url = settings.movies_url + '/genres/69717732-0b46-4290-8727-7a5db7d1ea9d'
     doc, status = await get_response(url, {})
 
     assert status == HTTPStatus.OK
@@ -70,6 +70,6 @@ async def test_genre_wrong_uuid(es_write_data):
     где uuid указывает на несуществующий документ,
     возвращается ошибка 404
     """
-    url = settings.service_url + '/genres/000'
+    url = settings.movies_url + '/genres/000'
     body, status = await get_response(url, {})
     assert status == HTTPStatus.NOT_FOUND

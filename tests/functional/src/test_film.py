@@ -41,7 +41,7 @@ async def test_films_rating(es_write_data):
     ]
     3) фильмы отсортированы по убыванию рейтинга
     """
-    url = settings.service_url + '/films/'
+    url = settings.movies_url + '/films/'
     params = {'per_page': 10, 'page': 1, 'sort': '-imdb_rating'}
     body, status = await get_response(url, params)
 
@@ -77,7 +77,7 @@ async def test_search_films(es_write_data):
     3) результаты содержат query в title или description
     """
 
-    url = settings.service_url + '/films/search/'
+    url = settings.movies_url + '/films/search/'
     params = {'query': 'love', 'per_page': 10, 'page': 1}
     body, status = await get_response(url, params)
 
@@ -128,7 +128,7 @@ async def test_film_uuid(es_write_data):
         ],
     }
     """
-    url = settings.service_url + '/films/8a3bf41b-1cb4-4c3f-9bf1-b31d513e2003'
+    url = settings.movies_url + '/films/8a3bf41b-1cb4-4c3f-9bf1-b31d513e2003'
     body, status = await get_response(url, {})
 
     assert status == HTTPStatus.OK
@@ -172,7 +172,7 @@ async def test_wrong_uuid(es_write_data):
     где uuid указывает на несуществующий документ,
     возвращается ошибка 404
     """
-    url = settings.service_url + '/films/000'
+    url = settings.movies_url + '/films/000'
     body, status = await get_response(url, {})
     assert status == HTTPStatus.NOT_FOUND
 
@@ -197,7 +197,7 @@ async def test_films_rating_genre(es_write_data):
     4) фильмы относятся к жанру Romance (таких фильмов 2)
     """
 
-    url = settings.service_url + '/films/'
+    url = settings.movies_url + '/films/'
     params = {'sort': '-imdb_rating',
               'genres': 'a36c826b-b2b0-4e96-9f88-4b8e09c4b120',  # Romance
               'per_page': 10,
@@ -225,7 +225,7 @@ async def test_wrong_genre_uuid(es_write_data):
     где uuid жанра указывает на несуществующий жанр,
     возвращается 0 документов
     """
-    url = settings.service_url + '/films/'
+    url = settings.movies_url + '/films/'
     params = {'sort': '-imdb_rating',
               'genres': '000',
               'per_page': 10,
