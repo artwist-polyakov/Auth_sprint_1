@@ -91,7 +91,6 @@ class UserService:
         response: dict = await self._postgres.delete_single_data(uuid, 'user')
         return response
 
-    # todo сделаеть обёртку для ошибок или raise (я бы выбрал raise)
     async def authenticate(self, email: str, password: str) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
             field_name='email',
