@@ -8,7 +8,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - fastapi-tests
+      - movies
+      - auth
       - elasticsearch-node1
       - elasticsearch-node2
       - redis
@@ -18,13 +19,26 @@ services:
     expose:
       - ${TESTS_PORT}
 
-  fastapi-tests:
-    container_name: fastapi-tests
-    build: ../../src
+  movies:
+    container_name: movies
+    build: ../../movies
     env_file:
       - ../../.env
-    ports:
-      - ${FASTAPI_PORTS}
+    expose:
+      - "8000"
+    depends_on:
+      - elasticsearch-node1
+      - elasticsearch-node2
+      - redis
+      - postgres
+
+  auth:
+    container_name: auth
+    build: ../../auth
+    env_file:
+      - ../../.env
+    expose:
+      - "8000"
     depends_on:
       - elasticsearch-node1
       - elasticsearch-node2
@@ -90,3 +104,16 @@ services:
       - ./etl/core/postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
+
+  nginx:
+   container_name: nginx
+   build: ../../nginx
+   volumes:
+     - ../../static_volume:/var/www/static
+     - ../../media_volume:/var/www/media
+   depends_on:
+     - movies
+     - auth
+   ports:
+     - "8000:80"
+     - "443:443"
