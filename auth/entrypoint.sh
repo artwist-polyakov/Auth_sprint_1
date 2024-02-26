@@ -8,6 +8,8 @@ wait_for_postgres() {
    echo "Postgres is ready!"
 }
 
+wait_for_postgres
+
 export PYTHONPATH=$PYTHONPATH:/.
 # команда: alembic upgrade head
 # для вывода логов:

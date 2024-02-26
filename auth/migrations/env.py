@@ -6,6 +6,8 @@ from db.auth.base import Base
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
+from utils.wrappers import backoff
+
 config = context.config
 
 if config.config_file_name is not None:
