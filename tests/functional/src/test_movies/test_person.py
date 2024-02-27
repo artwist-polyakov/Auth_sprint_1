@@ -6,6 +6,9 @@ from src.test_movies.test_film import check_films_data
 from src.tests_basic_functions import check_pagination, get_response
 
 
+MOVIES_URL = settings.movies_url
+
+
 def check_person(doc):
     assert isinstance(doc, dict)
     assert 'uuid' in doc
@@ -49,7 +52,7 @@ async def test_search_persons(es_write_data):
     ]
     """
 
-    url = settings.movies_url + '/persons/search/'
+    url = MOVIES_URL + '/persons/search/'
     params = {'query': 'writer', 'per_page': 10, 'page': 1}
     body, status = await get_response(url, params)
 
@@ -81,7 +84,7 @@ async def test_person_uuid(es_write_data):
     }
     """
 
-    url = settings.movies_url + '/persons/d1cf010d-5941-4877-a22b-c137a642370c'
+    url = MOVIES_URL + '/persons/d1cf010d-5941-4877-a22b-c137a642370c'
     body, status = await get_response(url, {})
 
     assert status == HTTPStatus.OK
@@ -121,7 +124,7 @@ async def test_person_wrong_uuid(es_write_data):
     возвращается ошибка 404
     """
 
-    url = settings.movies_url + '/persons/000'
+    url = MOVIES_URL + '/persons/000'
     body, status = await get_response(url, {})
     assert status == HTTPStatus.NOT_FOUND
 
@@ -142,7 +145,7 @@ async def test_persons(es_write_data):
         ...
     ]
     """
-    url = settings.movies_url + '/persons/'
+    url = MOVIES_URL + '/persons/'
     params = {'per_page': 10, 'page': 1}
     body, status = await get_response(url, params)
 
