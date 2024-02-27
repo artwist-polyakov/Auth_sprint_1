@@ -39,8 +39,8 @@ async def test_roles_add(add_and_login_user):
     )
 
     assert response.status_code == HTTPStatus.CREATED
-    body = response.json()
 
+    body = response.json()['content']
     assert isinstance(body, dict)
     assert 'uuid' in body
     assert isinstance(body['uuid'], str)

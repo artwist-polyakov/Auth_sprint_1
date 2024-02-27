@@ -61,8 +61,8 @@ async def add_and_login_user():
     email = f'starfish{random_five_digit_number}@mail.ru'
     password = 'Aa123'
 
-    url_add = f'{settings.auth_url}/sign_up'
-    url_login = (f'{settings.auth_url}/login'
+    url_add = f'{settings.auth_url}/users/sign_up'
+    url_login = (f'{settings.auth_url}/users/login'
                  f'?email={email}&password={password}')
 
     await get_pg_response(
