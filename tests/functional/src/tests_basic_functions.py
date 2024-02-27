@@ -27,12 +27,10 @@ def check_pagination(data):
         "data['results'] должен быть list"
 
 
-async def get_pg_response(method: str, url: str, params: dict, cookies: dict = {}):
-    async with httpx.AsyncClient(headers={"Content-Type": "application/json"}) as client:
-        response = await getattr(client, method.lower())(
-            url=url,
-            params=params,
-            cookies=cookies
-        )
+async def get_pg_response(method: str, url: str, data=None):
+    async with httpx.AsyncClient() as client:
+        if data:
+            response = await getattr(client, method.lower())(url=url, **data)
+        else:
+            response = await getattr(client, method.lower())(url=url)
     return response
-

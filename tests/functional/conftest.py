@@ -9,6 +9,8 @@ import pytest
 from configs.test_settings import settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+
+from src.tests_basic_functions import get_pg_response
 from testdata.testdata_genres import genres_data
 from testdata.testdata_movies import movies_data
 from testdata.testdata_persons import persons_data
@@ -53,23 +55,26 @@ async def es_write_data(es_client):
 
 
 @pytest.fixture(scope='module')
+@pytest.mark.asyncio
 async def add_and_login_user():
     random_five_digit_number = random.randint(10000, 99999)
     email = f'starfish{random_five_digit_number}@mail.ru'
     password = 'Aa123'
 
-    host_add = f'http://{settings.postgres_host}:{settings.postgres_port}/sign_up'
-    host_login = f'http://{settings.postgres_host}:{settings.postgres_port}/login'
+    url_add = f'{settings.auth_url}/sign_up'
+    url_login = (f'{settings.auth_url}/login'
+                 f'?email={email}&password={password}')
 
-    async with httpx.AsyncClient(headers={"Content-Type": "application/json"}) as client:
-        for host in [host_add, host_login]:
-            response = await client.post(
-                url=host,
-                data={'email': email, 'password': password},
-                headers={"Content-Type": "application/json"}
-            )
-            if response.status_code != HTTPStatus.CREATED or HTTPStatus.OK:
-                raise Exception('Ошибка sign up & login')
+    await get_pg_response(
+        method='POST',
+        url=url_add,
+        data={'params': {'email': email, 'password': password}}
+    )
+
+    response = await get_pg_response(
+        method='GET',
+        url=url_login
+    )
 
     parsed_response = response.json()
     return parsed_response

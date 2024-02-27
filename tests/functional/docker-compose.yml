@@ -13,7 +13,6 @@ services:
       - elasticsearch-node1
       - elasticsearch-node2
       - redis
-      - postgres
     ports:
       - ${TESTS_PORTS}
     expose:
@@ -101,7 +100,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./etl/core/postgres/:/docker-entrypoint-initdb.d/
+      - ../../etl/core/postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
 

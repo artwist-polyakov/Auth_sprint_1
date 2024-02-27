@@ -1,3 +1,4 @@
+import asyncio
 from http import HTTPStatus
 
 import httpx
@@ -22,13 +23,17 @@ async def test_roles_add(add_and_login_user):
 
     url = ROLES_URL + '/add/'
     params = {'verb': 'master', 'resource': 'films', 'role': 'read'}
-    access_token = (await add_and_login_user)['access_token']
+    result = asyncio.run(add_and_login_user)
+    access_token = result['access_token']
+
+    assert isinstance(access_token, str)
+
+    data = {'params': params, 'cookies': {'access_token': access_token}}
 
     response = await get_pg_response(
         method='POST',
         url=url,
-        params=params,
-        cookies={'access_token': access_token}
+        data=data
     )
 
     assert response.status_code == HTTPStatus.CREATED
