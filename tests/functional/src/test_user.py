@@ -25,6 +25,9 @@ from configs.test_settings import settings
 # Update Profile Data
 
 
+USERS_URL = settings.auth_url + '/users'
+
+
 @pytest.mark.asyncio
 async def test_sign_up_correct():
     """
@@ -38,7 +41,7 @@ async def test_sign_up_correct():
     2) возвращается HTTPStatus.CREATED,
     3) token_type содержит "cookie-jwt"
     """
-    url = settings.auth_url + '/sign_up/'
+    url = USERS_URL + '/sign_up/'
 
 
 @pytest.mark.asyncio
@@ -50,7 +53,7 @@ async def test_sign_up_repeated():
         "user with this email already exists"
     2) возвращается HTTPStatus.CONFLICT
     """
-    url = settings.auth_url + '/sign_up/'
+    url = USERS_URL + '/sign_up/'
 
 
 @pytest.mark.asyncio
@@ -65,7 +68,7 @@ async def test_sign_up_incorrect_email():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = settings.auth_url + '/sign_up/'
+    url = USERS_URL + '/sign_up/'
 
 
 @pytest.mark.asyncio
@@ -80,7 +83,7 @@ async def test_sign_up_incorrect_password():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = settings.auth_url + '/sign_up/'
+    url = USERS_URL + '/sign_up/'
 
 
 @pytest.mark.asyncio
@@ -97,7 +100,7 @@ async def test_login_correct():
     2) возвращается HTTPStatus.OK,
     3) token_type содержит "bearer"
     """
-    url = settings.auth_url + '/login/'
+    url = USERS_URL + '/login/'
 
 
 @pytest.mark.asyncio
@@ -108,7 +111,7 @@ async def test_login_incorrect_password():
     1) возвращается "password is incorrect"
     2) возвращается HTTPStatus.BAD_REQUEST
     """
-    url = settings.auth_url + '/login/'
+    url = USERS_URL + '/login/'
 
     # todo мб можно проверить, созданы ли токены
 
@@ -128,7 +131,7 @@ async def test_user_correct():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = settings.auth_url + '/user/'
+    url = USERS_URL + '/user/'
 
 
 @pytest.mark.asyncio
@@ -139,7 +142,7 @@ async def test_user_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = settings.auth_url + '/user/'
+    url = USERS_URL + '/user/'
 
 
 @pytest.mark.asyncio
@@ -150,7 +153,7 @@ async def test_user_no_token_incorrect_uuid():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = settings.auth_url + '/user/'
+    url = USERS_URL + '/user/'
 
 
 @pytest.mark.asyncio
@@ -161,7 +164,7 @@ async def test_user_correct_token_another_uuid():
     1) возвращается "Your access token doesn't permit request to this user"
     2) возвращается HTTPStatus.FORBIDDEN
     """
-    url = settings.auth_url + '/user/'
+    url = USERS_URL + '/user/'
 
 
 @pytest.mark.asyncio
@@ -172,7 +175,7 @@ async def test_update_wrong_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = settings.auth_url + '/update/'
+    url = USERS_URL + '/update/'
 
 
 @pytest.mark.asyncio
@@ -184,7 +187,7 @@ async def test_update_correct():
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
-    url = settings.auth_url + '/update/'
+    url = USERS_URL + '/update/'
 
 
 @pytest.mark.asyncio
@@ -195,7 +198,7 @@ async def test_delete_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = settings.auth_url + '/delete/'
+    url = USERS_URL + '/delete/'
 
 
 @pytest.mark.asyncio
@@ -206,7 +209,7 @@ async def test_delete_incorrect_uuid():
     1) возвращается "Your access token doesn't permit request to this user"
     2) возвращается HTTPStatus.FORBIDDEN
     """
-    url = settings.auth_url + '/delete/'
+    url = USERS_URL + '/delete/'
 
 
 @pytest.mark.asyncio
@@ -218,4 +221,4 @@ async def test_delete_correct():
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
-    url = settings.auth_url + '/delete/'
+    url = USERS_URL + '/delete/'

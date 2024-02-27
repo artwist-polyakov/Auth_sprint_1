@@ -21,7 +21,7 @@ class RoleService:
             verb: str
     ) -> str:
         request = RoleRequest(
-            uuid=uuid.uuid4(),
+            uuid=str(uuid.uuid4()),
             role=role,
             resource=resource,
             verb=verb
@@ -52,7 +52,7 @@ class RoleService:
             verb = role_item.verb
 
         request = RoleRequest(
-            uuid=uuid,
+            uuid=str(uuid),
             role=role,
             resource=resource,
             verb=verb
@@ -71,6 +71,9 @@ class RoleService:
     ) -> dict:
         role_item = await self._postgres.get_single_user(
             field_name='uuid', field_value=uuid)
+
+        # todo проверить, что такая роль существует
+        # todo сделать под это тест
 
         if isinstance(role_item, dict):
             return {

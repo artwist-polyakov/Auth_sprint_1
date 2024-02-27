@@ -55,6 +55,7 @@ class PostgresInterface(UserStorage):
                         query = (
                             insert(Role)
                             .values(
+                                uuid=request.uuid,
                                 role=request.role,
                                 resource=request.resource,
                                 verb=request.verb

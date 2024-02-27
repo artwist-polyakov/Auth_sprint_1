@@ -25,3 +25,104 @@ from configs.test_settings import settings
 # Change User Role
 
 
+ROLES_URL = settings.auth_url + '/roles'
+
+
+@pytest.mark.asyncio
+async def test_roles_add():
+    """
+    Тест проверяет, что на запрос
+    POST auth/v1/roles/add?verb=master&resource=films&role=read
+    1) возвращается словарь вида
+        {
+          "uuid": "uuid"
+        }
+    2) возвращается HTTPStatus.CREATED
+    """
+    url = ROLES_URL + '/add/'
+
+
+@pytest.mark.asyncio
+async def test_roles_all():
+    """
+    Тест проверяет, что на запрос
+    GET /auth/v1/roles/all
+    1) возвращается словарь вида
+        {
+          "admin": {
+            "films": [
+              "read",
+              "write",
+              "delete"
+            ], ...
+          }, ...
+        }
+    2) возвращается HTTPStatus.OK
+    """
+    url = ROLES_URL + '/all/'
+
+
+@pytest.mark.asyncio
+async def test_roles_update_wrong():
+    """
+    Тест проверяет, что на запрос
+    PUT /auth/v1/roles/update?uuid=<wrong_uuid>&verb=master&resource=person&role=read
+    1) возвращается "Role not found"
+    2) возвращается HTTPStatus.NOT_FOUND
+    """
+    url = ROLES_URL + '/update/'
+
+
+@pytest.mark.asyncio
+async def test_roles_update_correct():
+    """
+    Тест проверяет, что на запрос
+    PUT /auth/v1/roles/update?uuid=<uuid>&verb=master&resource=person&role=read
+    1) возвращается "success"
+    2) возвращается HTTPStatus.OK
+    """
+    url = ROLES_URL + '/update/'
+
+
+@pytest.mark.asyncio
+async def test_roles_delete_wrong():
+    """
+    Тест проверяет, что на запрос
+    DELETE /auth/v1/roles/delete?uuid=<wrong_uuid>
+    1) возвращается "Role not found"
+    2) возвращается HTTPStatus.NOT_FOUND
+    """
+    url = ROLES_URL + '/delete/'
+
+
+@pytest.mark.asyncio
+async def test_roles_delete_correct():
+    """
+    Тест проверяет, что на запрос
+    DELETE /auth/v1/roles/delete?uuid=<uuid>
+    1) возвращается "success"
+    2) возвращается HTTPStatus.OK
+    """
+    url = ROLES_URL + '/delete/'
+
+
+@pytest.mark.asyncio
+async def test_change_role_wrong():
+    """
+    Тест проверяет, что на запрос
+    PUT /auth/v1/roles/change_role?uuid=<wrong_uuid>&new_role=mmmmmaster
+    1) возвращается "User not found"
+    2) возвращается HTTPStatus.NOT_FOUND
+    """
+    url = ROLES_URL + '/change_role/'
+
+
+@pytest.mark.asyncio
+async def test_change_role_correct():
+    """
+    Тест проверяет, что на запрос
+    PUT /auth/v1/roles/change_role?uuid=<uuid>&new_role=mmmmmaster
+    1) возвращается "success"
+    2) возвращается HTTPStatus.OK
+    """
+    url = ROLES_URL + '/change_role/'
