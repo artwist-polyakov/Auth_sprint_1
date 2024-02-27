@@ -76,5 +76,4 @@ async def add_and_login_user():
         url=url_login
     )
 
-    parsed_response = response.json()
-    return parsed_response
+    return response.cookies

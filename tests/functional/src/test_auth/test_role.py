@@ -23,8 +23,10 @@ async def test_roles_add(add_and_login_user):
 
     url = ROLES_URL + '/add/'
     params = {'verb': 'master', 'resource': 'films', 'role': 'read'}
-    result = asyncio.run(add_and_login_user)
-    access_token = result['access_token']
+    cookies = add_and_login_user
+    access_token = cookies['access_token']
+
+    # assert
 
     assert isinstance(access_token, str)
 
