@@ -106,7 +106,7 @@ async def test_person_uuid_film(es_write_data):
         ...
     ]
     """
-    url = (settings.movies_url +
+    url = (MOVIES_URL +
            '/persons/d1cf010d-5941-4877-a22b-c137a642370c/film')
     body, status = await get_response(url, {})
 
