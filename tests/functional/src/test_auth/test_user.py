@@ -4,48 +4,6 @@ import pytest
 from configs.test_settings import settings
 
 
-# POST
-# /auth/v1/users/sign_up
-# Sign Up
-
-# GET
-# /auth/v1/users/user
-# Get User by UUID
-
-# DELETE
-# /auth/v1/users/delete
-# Delete User by UUID
-
-# GET
-# /auth/v1/users/login
-# Login
-
-# PATCH
-# /auth/v1/users/update
-# Update Profile Data
-
-# -----------------
-
-# POST
-# /auth/v1/users/refresh
-# Refresh access token via refresh token
-
-# POST
-# /auth/v1/users/logout
-# Logout from current session
-
-# POST
-# /auth/v1/users/logout_all_devices
-# Logout from all devices
-
-# GET
-# /auth/v1/users/history
-# Get login history
-
-# GET
-# /auth/v1/users/check_permissions
-# Check permissions
-
 USERS_URL = settings.auth_url + '/users'
 
 

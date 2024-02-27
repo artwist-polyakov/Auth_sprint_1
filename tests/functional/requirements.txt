@@ -6,3 +6,4 @@ elasticsearch[async]==8.11.1
 elasticsearch-dsl==8.11.0
 python-dotenv==1.0.0
 pydantic-settings==2.1.0
+httpx==0.27.0

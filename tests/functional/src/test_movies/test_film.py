@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 from configs.test_settings import settings
-from src.tests_basic_functions import check_pagination, get_response
+from src.tests_basic_functions import check_pagination, get_es_response
 
 
 MOVIES_URL = settings.movies_url
@@ -46,7 +46,7 @@ async def test_films_rating(es_write_data):
     """
     url = MOVIES_URL + '/films/'
     params = {'per_page': 10, 'page': 1, 'sort': '-imdb_rating'}
-    body, status = await get_response(url, params)
+    body, status = await get_es_response(url, params)
 
     assert status == HTTPStatus.OK
 
@@ -82,7 +82,7 @@ async def test_search_films(es_write_data):
 
     url = MOVIES_URL + '/films/search/'
     params = {'query': 'love', 'per_page': 10, 'page': 1}
-    body, status = await get_response(url, params)
+    body, status = await get_es_response(url, params)
 
     assert status == HTTPStatus.OK
     print(f'body: {body}')
@@ -132,7 +132,7 @@ async def test_film_uuid(es_write_data):
     }
     """
     url = MOVIES_URL + '/films/8a3bf41b-1cb4-4c3f-9bf1-b31d513e2003'
-    body, status = await get_response(url, {})
+    body, status = await get_es_response(url, {})
 
     assert status == HTTPStatus.OK
 
@@ -176,7 +176,7 @@ async def test_wrong_uuid(es_write_data):
     возвращается ошибка 404
     """
     url = MOVIES_URL + '/films/000'
-    body, status = await get_response(url, {})
+    body, status = await get_es_response(url, {})
     assert status == HTTPStatus.NOT_FOUND
 
 
@@ -206,7 +206,7 @@ async def test_films_rating_genre(es_write_data):
               'per_page': 10,
               'page': 1}
 
-    body, status = await get_response(url, params)
+    body, status = await get_es_response(url, params)
 
     assert status == HTTPStatus.OK
     assert len(body['results']) == 2, "Должно быть найдено 2 документа"
@@ -233,7 +233,7 @@ async def test_wrong_genre_uuid(es_write_data):
               'genres': '000',
               'per_page': 10,
               'page': 1}
-    body, status = await get_response(url, params)
+    body, status = await get_es_response(url, params)
     assert status == HTTPStatus.OK
     assert len(body['results']) == 0, "Нет документов в с таким uuid"
 

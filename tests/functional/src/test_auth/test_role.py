@@ -1,35 +1,15 @@
 from http import HTTPStatus
 
+import httpx
 import pytest
 from configs.test_settings import settings
-
-
-# GET
-# /auth/v1/roles/all
-# Roles
-
-# POST
-# /auth/v1/roles/add
-# Add Role
-
-# PUT
-# /auth/v1/roles/update
-# Update Role
-
-# DELETE
-# /auth/v1/roles/delete
-# Delete User by UUID
-
-# PUT
-# /auth/v1/roles/change_role
-# Change User Role
-
+from src.tests_basic_functions import get_pg_response
 
 ROLES_URL = settings.auth_url + '/roles'
 
 
 @pytest.mark.asyncio
-async def test_roles_add():
+async def test_roles_add(add_and_login_user):
     """
     Тест проверяет, что на запрос
     POST auth/v1/roles/add?verb=master&resource=films&role=read
@@ -39,7 +19,24 @@ async def test_roles_add():
         }
     2) возвращается HTTPStatus.CREATED
     """
+
     url = ROLES_URL + '/add/'
+    params = {'verb': 'master', 'resource': 'films', 'role': 'read'}
+    access_token = (await add_and_login_user)['access_token']
+
+    response = await get_pg_response(
+        method='POST',
+        url=url,
+        params=params,
+        cookies={'access_token': access_token}
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    body = response.json()
+
+    assert isinstance(body, dict)
+    assert 'uuid' in body
+    assert isinstance(body['uuid'], str)
 
 
 @pytest.mark.asyncio

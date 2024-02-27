@@ -1,4 +1,11 @@
+import random
+from http import HTTPStatus
+from http.client import HTTPException
+
+import httpx
+
 import pytest
+
 from configs.test_settings import settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
@@ -43,3 +50,26 @@ async def es_write_data(es_client):
     for item in index_names:
         await es_client.indices.refresh(index=item)
     yield True
+
+
+@pytest.fixture(scope='module')
+async def add_and_login_user():
+    random_five_digit_number = random.randint(10000, 99999)
+    email = f'starfish{random_five_digit_number}@mail.ru'
+    password = 'Aa123'
+
+    host_add = f'http://{settings.postgres_host}:{settings.postgres_port}/sign_up'
+    host_login = f'http://{settings.postgres_host}:{settings.postgres_port}/login'
+
+    async with httpx.AsyncClient(headers={"Content-Type": "application/json"}) as client:
+        for host in [host_add, host_login]:
+            response = await client.post(
+                url=host,
+                data={'email': email, 'password': password},
+                headers={"Content-Type": "application/json"}
+            )
+            if response.status_code != HTTPStatus.CREATED or HTTPStatus.OK:
+                raise Exception('Ошибка sign up & login')
+
+    parsed_response = response.json()
+    return parsed_response

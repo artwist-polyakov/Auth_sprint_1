@@ -1,7 +1,8 @@
 import aiohttp
+import httpx
 
 
-async def get_response(url: str, params: dict):
+async def get_es_response(url: str, params: dict):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, params=params) as response:
             body = await response.json()
@@ -24,3 +25,14 @@ def check_pagination(data):
 
     assert isinstance(data['results'], list), \
         "data['results'] должен быть list"
+
+
+async def get_pg_response(method: str, url: str, params: dict, cookies: dict = {}):
+    async with httpx.AsyncClient(headers={"Content-Type": "application/json"}) as client:
+        response = await getattr(client, method.lower())(
+            url=url,
+            params=params,
+            cookies=cookies
+        )
+    return response
+
