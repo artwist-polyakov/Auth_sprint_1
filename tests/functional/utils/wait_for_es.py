@@ -1,7 +1,8 @@
 import logging
 
-from configs.test_settings import settings
 from elasticsearch import Elasticsearch
+
+from configs.test_settings import settings
 from utils.wrappers import backoff, ping_service
 
 logging.getLogger('elastic_transport').setLevel(logging.ERROR)
