@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import pytest
 from configs.test_settings import settings
-from src.tests_basic_functions import create_user
+from src.tests_basic_functions import create_user, get_response
 
 USERS_URL = settings.auth_url + '/users'
 
@@ -33,7 +33,10 @@ async def test_sign_up_correct():
 
     assert status == HTTPStatus.CREATED
     assert isinstance(body, dict)
+    assert 'uuid' in body, "'uuid' должен быть в ответе"
+    assert 'token_type' in body, "'token_type' должен быть в ответе"
     assert isinstance(body['uuid'], str)
+    assert isinstance(body['token_type'], str)
     assert body['token_type'] == 'cookie-jwt'
 
 
@@ -52,6 +55,7 @@ async def test_sign_up_repeated():
     body, status, _, _ = await create_user(email=email)
 
     assert status == HTTPStatus.CONFLICT
+    assert isinstance(body, str)
     assert body == 'user with this email already exists'
 
 
@@ -72,6 +76,9 @@ async def test_sign_up_incorrect_email():
 
     assert status == HTTPStatus.OK
     assert isinstance(body, dict)
+    assert 'status_code' in body, "'status_code' должен быть в ответе"
+    assert 'content' in body, "'content' должен быть в ответе"
+    assert body['status_code'] == 422
     assert body['content'] == 'Email is not valid'
 
 
@@ -92,6 +99,9 @@ async def test_sign_up_incorrect_password():
 
     assert status == HTTPStatus.OK
     assert isinstance(body, dict)
+    assert 'status_code' in body, "'status_code' должен быть в ответе"
+    assert 'content' in body, "'content' должен быть в ответе"
+    assert body['status_code'] == 422
     assert body['content'] == 'Password must have at least 5 characters'
 
 
@@ -99,7 +109,7 @@ async def test_sign_up_incorrect_password():
 async def test_login_correct():
     """
     Тест проверяет, что на запрос
-    /auth/v1/users/login?email=<email>&password=Aa123
+    GET /auth/v1/users/login?email=<email>&password=Aa123
     1) возвращается словарь вида
         {
           "refresh_token": "str",
@@ -109,20 +119,47 @@ async def test_login_correct():
     2) возвращается HTTPStatus.OK,
     3) token_type содержит "bearer"
     """
+    _, _, email, password = await create_user()
     url = USERS_URL + '/login'
+    body, status = await get_response(
+        method='GET',
+        url=url,
+        params={'email': email, 'password': password}
+    )
+
+    assert status == HTTPStatus.OK
+    assert isinstance(body, dict)
+    assert 'refresh_token' in body, "'refresh_token' должен быть в ответе"
+    assert 'access_token' in body, "'access_token' должен быть в ответе"
+    assert 'token_type' in body, "'token_type' должен быть в ответе"
+    assert isinstance(body['refresh_token'], str), "refresh_token должен быть строкой"
+    assert isinstance(body['access_token'], str), "access_token должен быть строкой"
+    assert isinstance(body['token_type'], str), "token_type должен быть строкой"
+    assert body['refresh_token'] != ''
+    assert body['access_token'] != ''
+    assert body['token_type'] == 'bearer'
 
 
 @pytest.mark.asyncio
 async def test_login_incorrect_password():
     """
     Тест проверяет, что на запрос
-    POST /auth/v1/users/sign_up?email=<email>&password=aa
+    GET /auth/v1/users/sign_up?email=<email>&password=aa
     1) возвращается "password is incorrect"
     2) возвращается HTTPStatus.BAD_REQUEST
     """
+    # todo проверить, созданы ли токены
+    _, _, email, _ = await create_user()
     url = USERS_URL + '/login'
+    body, status = await get_response(
+        method='GET',
+        url=url,
+        params={'email': email, 'password': 'aa'}
+    )
 
-    # todo мб можно проверить, созданы ли токены
+    assert status == HTTPStatus.BAD_REQUEST
+    assert isinstance(body, str)
+    assert body == 'password is incorrect'
 
 
 @pytest.mark.asyncio
