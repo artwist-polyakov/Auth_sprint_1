@@ -62,7 +62,7 @@ class EmailModel(BaseModel):
             ValidateEmail.validate(value)
         except ValueError:
             raise CustomValueError("Email is not valid")
-        return value
+        return value.lower()
 
 
 class SignupModel(EmailModel, PasswordModel):
