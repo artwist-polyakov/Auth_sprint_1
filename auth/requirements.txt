@@ -1,0 +1,17 @@
+redis==5.0.1
+fastapi==0.109.0
+orjson==3.9.12
+pydantic==2.5.3
+pydantic-settings==2.1.0
+uvicorn==0.12.2
+uvloop==0.17.0 ; sys_platform != "win32" and implementation_name == "cpython"
+psycopg2-binary==2.9.9
+python-dotenv==1.0.0
+sqlalchemy[asyncio]==2.0.27
+asyncpg==0.29.0
+bcrypt==4.1.2
+python-jose[cryptography]==3.3.0
+email-validator==2.1.0.post1
+aiocache==0.12.2
+typer[all]==0.9.0
+alembic==1.13.1

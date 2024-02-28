@@ -9,6 +9,8 @@ wait_for_postgres() {
    echo "Postgres is ready!"
 }
 
+wait_for_postgres
+
 # Без экспорта pythonpath не импортируются другие модули проекта
 export PYTHONPATH=$PYTHONPATH:/.
 python3 ./utils/wait_for_es.py

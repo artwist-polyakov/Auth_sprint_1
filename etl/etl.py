@@ -3,14 +3,13 @@ import time
 from contextlib import contextmanager
 
 import psycopg2
-from psycopg2.extras import DictCursor
-
 from configs.settings import PostgresSettings
 from db.extractor_from_pg import PostgresExtractor
 from db.loader_films_to_es import FilmsLoader
 from db.loader_genres_to_es import GenresLoader
 from db.loader_persons_to_es import PersonsLoader
 from db.loader_to_es import ElasticLoader
+from psycopg2.extras import DictCursor
 from utils.mappers import (GenresPostgresDataMapper, PersonsPostgresDataMapper,
                            PostgresDataMapper)
 from utils.redis_companion import RedisCompanion

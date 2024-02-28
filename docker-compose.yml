@@ -9,16 +9,17 @@ services:
      - static_volume:/var/www/static
      - media_volume:/var/www/media
    depends_on:
-     - uvicorn
+     - movies
+     - auth
    ports:
      - "8000:80"
      - "443:443"
 
 
 
-  uvicorn:
-    container_name: uvicorn
-    build: ./src
+  movies:
+    container_name: movies
+    build: ./movies
     expose:
       - "8000"
     env_file:
@@ -29,6 +30,17 @@ services:
       - elasticsearch-node2
       - redis
 
+
+  auth:
+    container_name: auth
+    build: ./auth
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
 
 
   etl:

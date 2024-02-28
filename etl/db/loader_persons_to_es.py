@@ -1,7 +1,6 @@
-from models.elastic_models import PersonDataForElastic
-
 from configs.elastic_shemas_config import PERSONS_INDEX_SCHEMA
 from db.loader_to_es import ElasticLoader
+from models.elastic_models import PersonDataForElastic
 
 
 class PersonsLoader(ElasticLoader):

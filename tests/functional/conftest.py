@@ -1,11 +1,11 @@
 import pytest
+from configs.test_settings import settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+from src.tests_basic_functions import create_user, get_response
 from testdata.testdata_genres import genres_data
 from testdata.testdata_movies import movies_data
 from testdata.testdata_persons import persons_data
-
-from configs.test_settings import settings
 
 
 def get_es_bulk_query() -> tuple((list[str], list[str])):
@@ -44,3 +44,16 @@ async def es_write_data(es_client):
     for item in index_names:
         await es_client.indices.refresh(index=item)
     yield True
+
+
+@pytest.fixture(scope='function')
+async def login_user():
+    body, status, email, password = await create_user()
+    user_uuid = body['uuid']
+    url_login = (f'{settings.auth_url}/users/login'
+                 f'?email={email}&password={password}')
+    body, status = await get_response(
+        method='GET',
+        url=url_login
+    )
+    return body, user_uuid, email, password

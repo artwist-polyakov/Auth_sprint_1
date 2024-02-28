@@ -19,7 +19,15 @@ class TestSettings(BaseSettings):
     es_1_host: str = ...
     es_2_host: str = ...
     elastic_port: int = ...
-    service_url: str = ...
+
+    movies_url: str = ...
+    auth_url: str = ...
+
+    postgres_host: str = ...
+    postgres_port: int = ...
+    postgres_name: str = ...
+    postgres_user: str = ...
+    postgres_password: str = ...
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
@@ -33,3 +41,23 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+
+class PostgresSettings(BaseSettings):
+    db: str = settings.postgres_name
+    user: str = settings.postgres_user
+    password: str = settings.postgres_password
+    host: str = settings.postgres_host
+    port: int = settings.postgres_port
+
+
+pstg = PostgresSettings()
+
+
+class PostgresDSN(BaseSettings):
+    dsn: str = (f'postgresql+asyncpg://'
+                f'{pstg.user}:{pstg.password}@{pstg.host}:'
+                f'{pstg.port}/{pstg.db}')
+
+
+pstg_dsn = PostgresDSN().dsn

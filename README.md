@@ -8,37 +8,24 @@
 4. корневой папке проекта разместите файл `.env` с переменными окружения. Пример файла находится в `.env.example`.
 5. В папке /nginx/ssl разместите файлы сертификатов скачанных в п.2
 6. Запустите проект командой `docker-compose up -d --build`
-7. Приложение будет доступно по адресу http://localhost:8000/api/openapi или https://localhost/api/openapi если установили сертивикаты
+7. Приложение будет доступно по адресам: 
+
+- http://localhost:8000/auth/openapi http://localhost:8000/api/openapi если не нужен SSL
+- https://localhost/auth/openapi https://localhost/api/openapi если установили сертификаты
+
 Необходмо согласиться с недостоверным сертификатом или добавить самоподписанный сертификат по инструкции в файле `FOR_TEAM.md`
 
 ## РАБОТА С РОЛЯМИ
 
 Упрялять ролями могут только суперпользователи.
-Назначить суперпользователем можно только через доступ  базу данных
-
-1. Подключаемся к базе:
+Для создания суперпользователя используйте команду:
 
 ```shell
 
-docker-compose exec postgres psql -U app -d movies       
+docker exec -it auth python superuser.py <email> <pass>
 
 ```
 
-2. Смотрим свой uuid:
-
-```shell
-
-select * from users.users;
-
-```
-
-3. Устанавливаем своему uuid суперпользователя:
-
-```shell
-UPDATE users.users
-SET is_superuser = True
-WHERE uuid = '<YOUR-UUID>';
-```
 
 # Проектная работа 6 спринта
 

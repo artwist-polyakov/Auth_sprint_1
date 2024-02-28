@@ -8,7 +8,6 @@ from typing import TypeVar
 from models.postgres_models import (BatchUpdate, FilmworkToTransform,
                                     FilmWorkUpdate, GenreUpdate, PersonUpdate)
 from psycopg2.extensions import connection as _connection
-
 from utils.redis_companion import RedisCompanion
 from utils.utils import backoff
 
@@ -152,8 +151,7 @@ class PostgresExtractor:
             for item in data[self._batch_size:]:
                 self._redis_companion.save_to_queue(item)
             return data[:self._batch_size]
-        else:
-            return data
+        return data
 
     def _process_filmwork_updates(self, filmwork_updates: list[FilmWorkUpdate]):
         for fw in filmwork_updates:
