@@ -94,7 +94,7 @@ class UserService:
     async def authenticate(self, email: str, password: str) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
             field_name='email',
-            field_value=email
+            field_value=email.lower()
         )
         if isinstance(user, dict):
             return user
