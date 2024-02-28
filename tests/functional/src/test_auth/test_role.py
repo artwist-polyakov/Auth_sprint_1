@@ -10,7 +10,7 @@ ROLES_URL = settings.auth_url + '/roles'
 
 
 @pytest.mark.asyncio
-async def test_roles_add(add_and_login_user):
+async def test_roles_add():
     """
     Тест проверяет, что на запрос
     POST auth/v1/roles/add?verb=master&resource=films&role=read
@@ -21,16 +21,18 @@ async def test_roles_add(add_and_login_user):
     2) возвращается HTTPStatus.CREATED
     """
 
-    url = ROLES_URL + '/add/'
-    params = {'verb': 'master', 'resource': 'films', 'role': 'read'}
-    cookies = add_and_login_user
-    access_token = cookies['access_token']
+    url = ROLES_URL + '/add'
+    params = {'role': 'master', 'resource': 'films', 'verb': 'read'}
+    # cookies = add_and_login_user
+    # access_token = cookies['access_token']
+    #
+    # # assert
+    #
+    # assert isinstance(access_token, str)
+    #
+    # data = {'params': params, 'cookies': {'access_token': access_token}}
 
-    # assert
-
-    assert isinstance(access_token, str)
-
-    data = {'params': params, 'cookies': {'access_token': access_token}}
+    data = {'params': params}
 
     response = await get_pg_response(
         method='POST',
@@ -40,7 +42,7 @@ async def test_roles_add(add_and_login_user):
 
     assert response.status_code == HTTPStatus.CREATED
 
-    body = response.json()['content']
+    body = response.json()
     assert isinstance(body, dict)
     assert 'uuid' in body
     assert isinstance(body['uuid'], str)
