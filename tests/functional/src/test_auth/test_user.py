@@ -4,7 +4,8 @@ from http import HTTPStatus
 
 import pytest
 from configs.test_settings import settings
-from src.tests_basic_functions import create_user, get_response, check_pagination
+from src.tests_basic_functions import (check_pagination, create_user,
+                                       get_response)
 
 USERS_URL = settings.auth_url + '/users'
 

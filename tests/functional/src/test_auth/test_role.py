@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 import pytest
 from configs.test_settings import settings
-from src.tests_basic_functions import get_response, create_user
+from src.tests_basic_functions import create_user, get_response
 
 ROLES_URL = settings.auth_url + '/roles'
 
