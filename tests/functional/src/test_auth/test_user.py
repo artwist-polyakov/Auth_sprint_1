@@ -1,10 +1,11 @@
 import random
 import uuid
+from datetime import datetime
 from http import HTTPStatus
 
 import pytest
 from configs.test_settings import settings
-from src.tests_basic_functions import create_user, get_response
+from src.tests_basic_functions import create_user, get_response, check_pagination
 
 USERS_URL = settings.auth_url + '/users'
 
@@ -335,10 +336,11 @@ async def test_update_wrong_uuid():
 
 
 @pytest.mark.asyncio
-async def test_delete_no_token():
+async def test_delete_no_access():
     """
     Тест проверяет, что на запрос
     DELETE /auth/v1/users/delete?uuid=<uuid>
+    без access_token
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
@@ -407,7 +409,7 @@ async def test_tokens_refresh_no_refresh():
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/refresh
-    с некорректным refresh_token_cookie
+    без refresh_token
     1) возвращается "Invalid refresh token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
@@ -436,7 +438,7 @@ async def test_tokens_refresh_old_refresh():
 
 
 @pytest.mark.asyncio
-async def test_tokens_refresh_correct_refresh(login_user):
+async def test_tokens_refresh_correct(login_user):
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/refresh
@@ -470,6 +472,26 @@ async def test_tokens_refresh_correct_refresh(login_user):
 
 
 @pytest.mark.asyncio
+async def test_history_no_access():
+    """
+    Тест проверяет, что на запрос
+    GET /auth/v1/users/history
+    без access_token_cookie
+    1) возвращается "Invalid access token"
+    2) возвращается HTTPStatus.UNAUTHORIZED
+    """
+    url = USERS_URL + '/history'
+
+    body, status = await get_response(
+        method='GET',
+        url=url
+    )
+
+    assert status == HTTPStatus.UNAUTHORIZED
+    assert body == 'Invalid access token'
+
+
+@pytest.mark.asyncio
 async def test_history_wrong_access():
     """
     Тест проверяет, что на запрос
@@ -479,10 +501,11 @@ async def test_history_wrong_access():
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
     url = USERS_URL + '/history'
+    # todo
 
 
 @pytest.mark.asyncio
-async def test_history_correct_access():
+async def test_history_correct_access(login_user):
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/history
@@ -492,7 +515,7 @@ async def test_history_correct_access():
      [
          {
           "token_id": "uuid",
-          "created_at": "datetime",
+          "created_at": "str",
           "active_till": int,
           "user_id": "uuid"
          },
@@ -500,7 +523,31 @@ async def test_history_correct_access():
      ]
     3) возвращается HTTPStatus.OK
     """
+    body, _, _, _ = login_user
     url = USERS_URL + '/history'
+    cookies = {'access_token': body['access_token']}
+
+    body, status = await get_response(
+        method='GET',
+        url=url,
+        cookies=cookies
+    )
+
+    results = body['results']
+    item = results[0]
+
+    assert status == HTTPStatus.OK
+    check_pagination(body)
+    assert isinstance(results, list)
+    assert isinstance(item, dict)
+    assert 'token_id' in item
+    assert 'created_at' in item
+    assert 'active_till' in item
+    assert 'user_id' in item
+    assert isinstance(item['token_id'], str)
+    assert isinstance(item['created_at'], str)
+    assert isinstance(item['active_till'], int)
+    assert isinstance(item['user_id'], str)
 
 
 @pytest.mark.asyncio
