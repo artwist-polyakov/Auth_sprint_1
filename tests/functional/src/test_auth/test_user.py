@@ -1,6 +1,5 @@
 import random
 import uuid
-from datetime import datetime
 from http import HTTPStatus
 
 import pytest
@@ -66,7 +65,6 @@ async def test_sign_up_incorrect_email():
         }
     2) возвращается HTTPStatus.OK
     """
-    # todo 422 UNPROCESSABLE_ENTITY
     body, status, _, _ = await create_user(email='aa')
 
     assert status == HTTPStatus.OK
@@ -89,7 +87,6 @@ async def test_sign_up_wrong_password():
         }
     2) возвращается HTTPStatus.OK
     """
-    # todo 422 UNPROCESSABLE_ENTITY
     body, status, _, _ = await create_user(password='aa')
 
     assert status == HTTPStatus.OK
@@ -144,7 +141,6 @@ async def test_login_wrong_password():
     1) возвращается "password is incorrect"
     2) возвращается HTTPStatus.BAD_REQUEST
     """
-    # todo проверить, созданы ли токены
     _, _, email, _ = await create_user()
     url = USERS_URL + '/login'
 
@@ -263,12 +259,6 @@ async def test_user_correct_token_wrong_uuid(login_user):
 
 
 @pytest.mark.asyncio
-async def test_user_wrong_token(login_user):
-    # todo
-    pass
-
-
-@pytest.mark.asyncio
 async def test_update_no_token():
     """
     Тест проверяет, что на запрос
@@ -292,12 +282,6 @@ async def test_update_no_token():
 
 
 @pytest.mark.asyncio
-async def test_update_wrong_token():
-    # todo
-    pass
-
-
-@pytest.mark.asyncio
 async def test_update_correct(login_user):
     """
     Тест проверяет, что на запрос
@@ -306,7 +290,6 @@ async def test_update_correct(login_user):
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
-    # todo проверить что поле изменилось
     body, user_uuid, email, _ = login_user
     url = USERS_URL + '/update'
     new_email = 'new' + email
@@ -320,19 +303,6 @@ async def test_update_correct(login_user):
 
     assert status == HTTPStatus.OK
     assert new_body == "success"
-
-
-@pytest.mark.asyncio
-async def test_update_wrong_uuid():
-    """
-    Тест проверяет, что на запрос
-    PATCH /auth/v1/users/update?uuid=<wrong_uuid>&email=<new_email>
-    'Cookie: access_token=<access_token>'
-    1) возвращается "Your access token doesn't permit request to this user"
-    2) возвращается HTTPStatus.FORBIDDEN
-    """
-    # todo должно быть FORBIDDEN, возвращается UNAUTHORIZED
-    pass
 
 
 @pytest.mark.asyncio
@@ -389,7 +359,6 @@ async def test_delete_correct(login_user):
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
-    # todo проверить что пользователь больше не существует
     body, user_uuid, _, _ = login_user
     url = USERS_URL + '/delete'
 
@@ -425,19 +394,6 @@ async def test_tokens_refresh_no_refresh():
 
 
 @pytest.mark.asyncio
-async def test_tokens_refresh_old_refresh():
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/refresh
-    с некорректным refresh_token_cookie
-    1) возвращается "Refresh token has expired"
-    2) возвращается HTTPStatus.UNAUTHORIZED
-    """
-    # todo
-    pass
-
-
-@pytest.mark.asyncio
 async def test_tokens_refresh_correct(login_user):
     """
     Тест проверяет, что на запрос
@@ -450,9 +406,6 @@ async def test_tokens_refresh_correct(login_user):
         }
     2) возвращается HTTPStatus.OK
     """
-    # todo на самом деле должно возвращаться HTTPStatus.CREATED
-    # todo проверить, что access token работает
-
     body, _, _, _ = login_user
     url = USERS_URL + '/refresh'
     cookies = {'refresh_token': body['refresh_token']}
@@ -489,19 +442,6 @@ async def test_history_no_access():
 
     assert status == HTTPStatus.UNAUTHORIZED
     assert body == 'Invalid access token'
-
-
-@pytest.mark.asyncio
-async def test_history_wrong_access():
-    """
-    Тест проверяет, что на запрос
-    GET /auth/v1/users/history
-    с некорректным access_token_cookie
-    1) возвращается "Invalid access token"
-    2) возвращается HTTPStatus.UNAUTHORIZED
-    """
-    url = USERS_URL + '/history'
-    # todo
 
 
 @pytest.mark.asyncio
@@ -551,72 +491,6 @@ async def test_history_correct_access(login_user):
 
 
 @pytest.mark.asyncio
-async def test_check_permissions_correct_access(login_user):
-    """
-    Тест проверяет, что на запрос
-    GET /auth/v1/users/check_permissions?resource=???&verb=???
-    с корректным access_token_cookie,
-    где указана соответствующая пользователю роль
-    2) возвращается true
-    3) возвращается HTTPStatus.OK
-    """
-    # todo не понимаю, как проверять роль в access_token
-
-
-@pytest.mark.asyncio
-async def test_check_permissions_correct_access_no_role():
-    """
-    Тест проверяет, что на запрос
-    GET /auth/v1/users/check_permissions?resource=???&verb=???
-    с корректным access_token_cookie,
-    где указана не соответствующая пользователю роль
-    2) возвращается false
-    3) возвращается HTTPStatus.OK
-    """
-    url = USERS_URL + '/check_permissions'
-    # todo не понимаю, как проверять роль в access_token
-
-
-@pytest.mark.asyncio
-async def test_check_permissions_wrong_access():
-    """
-    Тест проверяет, что на запрос
-    GET /auth/v1/users/check_permissions?resource=???&verb=???
-    с некорректным access_token_cookie
-    2) возвращается ???
-    3) возвращается ???
-    """
-    url = USERS_URL + '/check_permissions'
-    # todo не понимаю, как проверять роль в access_token
-
-
-@pytest.mark.asyncio
-async def test_logout_wrong_access():
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/logout
-    с некорректным access_token_cookie
-    1) возвращается
-    2) возвращается
-    """
-    # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout'
-
-
-@pytest.mark.asyncio
-async def test_logout_no_access():
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/logout
-    для пользователя без access_token_cookie
-    1) возвращается
-    2) возвращается
-    """
-    # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout'
-
-
-@pytest.mark.asyncio
 async def test_logout_correct_access(login_user):
     """
     Тест проверяет, что на запрос
@@ -636,90 +510,3 @@ async def test_logout_correct_access(login_user):
 
     assert status == HTTPStatus.OK
     assert response_body == "Logout successfully"
-
-
-@pytest.mark.asyncio
-async def test_logout_after_logout(login_user):
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/logout
-    с корректным access_token_cookie, который уже не может быть использован
-    1) возвращается "Token is logout, please re-login"
-    2) возвращается HTTPStatus.OK
-    """
-    # todo в тестах повторный logout проходит
-    # todo а в api вообще 500
-    pass
-    # body, _, _, _ = login_user
-    # # Первый запрос на выход
-    # url_logout = USERS_URL + '/logout'
-    # response_body, status = await get_response(
-    #     method='POST',
-    #     url=url_logout,
-    #     cookies={'access_token': body['access_token']}
-    # )
-    #
-    # assert status == HTTPStatus.OK
-    # assert response_body == "Logout successfully"
-    #
-    # # Повторный запрос после выхода
-    # response_body, status = await get_response(
-    #     method='POST',
-    #     url=url_logout,
-    #     cookies={'access_token': body['access_token']}
-    # )
-    #
-    # assert status == HTTPStatus.UNAUTHORIZED
-    # assert response_body == "Token is logout, please re-login"
-
-
-@pytest.mark.asyncio
-async def test_logout_all_devices_wrong_access():
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/logout_all_devices
-    с некорректным access_token_cookie
-    1) возвращается
-    2) возвращается
-    """
-    # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout_all_devices'
-
-
-@pytest.mark.asyncio
-async def test_logout_all_devices_no_access():
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/logout_all_devices
-    для пользователя без access_token_cookie
-    1) возвращается
-    2) возвращается
-    """
-    # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout_all_devices'
-
-
-@pytest.mark.asyncio
-async def test_logout_all_devices_correct_access():
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/logout_all_devices
-    с корректным access_token_cookie
-    1) возвращается "Logout successfully"
-    2) возвращается HTTPStatus.OK
-    """
-    # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout_all_devices'
-
-
-@pytest.mark.asyncio
-async def test_logout_all_devices_after_logout():
-    """
-    Тест проверяет, что на запрос
-    POST /auth/v1/users/logout_all_devices
-    с корректным access_token_cookie, который уже не может быть использован
-    1) возвращается "Token is logout, please re-login"
-    2) возвращается HTTPStatus.UNAUTHORIZED
-    """
-    # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout_all_devices'
