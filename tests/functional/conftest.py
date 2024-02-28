@@ -1,8 +1,7 @@
 import pytest
+from configs.test_settings import settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-
-from configs.test_settings import settings
 from src.tests_basic_functions import create_user, get_response
 from testdata.testdata_genres import genres_data
 from testdata.testdata_movies import movies_data

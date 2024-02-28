@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import pytest
-
 from configs.test_settings import settings
 from src.tests_basic_functions import check_pagination, get_response
 
