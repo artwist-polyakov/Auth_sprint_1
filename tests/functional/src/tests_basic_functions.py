@@ -1,14 +1,17 @@
 import random
 
 import aiohttp
-import httpx
 
 from configs.test_settings import settings
 
 
-async def get_es_response(url: str, params: dict):
+async def get_response(url: str, params: dict = None, method: str = 'GET'):
+    """
+    Функция отправляет асинхронный запрос на сервер
+    и возвращает ответ
+    """
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, params=params) as response:
+        async with session.request(method=method.lower(), url=url, params=params) as response:
             body = await response.json()
             status = response.status
             return body, status
@@ -31,26 +34,36 @@ def check_pagination(data):
         "data['results'] должен быть list"
 
 
-async def get_pg_response(method: str, url: str, data=None):
-    async with httpx.AsyncClient() as client:
-        if data:
-            response = await getattr(client, method.lower())(url=url, **data)
-        else:
-            response = await getattr(client, method.lower())(url=url)
-    return response
+# async def get_auth_response(method: str, url: str, data=None):
+#     """
+#     Функция отправляет асинхронный запрос на сервер
+#     и возвращает ответ
+#     """
+#     async with httpx.AsyncClient() as client:
+#         if data:
+#             response = await getattr(client, method.lower())(url=url, **data)
+#         else:
+#             response = await getattr(client, method.lower())(url=url)
+#     return response
 
 
-async def create_user() -> tuple:
-    random_five_digit_number = random.randint(10000, 99999)
-    email = f'starfish{random_five_digit_number}@mail.ru'
-    password = 'Aa123'
+async def create_user(email: str = '', password: str = 'Aa123') -> tuple:
+    """
+    Функция генерирует email и пароль,
+    отправляет асинхронный запрос на регистрацию пользователя
+    и возвращает uuid, status, email и пароль
+    """
+    if email == '':
+        random_five_digit_number = random.randint(10000, 99999)
+        email = f'starfish{random_five_digit_number}@mail.ru'
 
     url = f'{settings.auth_url}/users/sign_up'
 
-    response = await get_pg_response(
+    body, status = await get_response(
         method='POST',
         url=url,
-        data={'params': {'email': email, 'password': password}}
+        params={'email': email, 'password': password}
     )
-    uuid = response.json()['uuid']
-    return uuid, email, password
+    # user_uuid = str(body[0]['uuid'])
+    # token_type = body[0]['token_type']
+    return body, status, email, password

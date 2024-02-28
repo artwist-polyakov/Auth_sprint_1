@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 from configs.test_settings import settings
 from src.test_movies.test_film import check_films_data
-from src.tests_basic_functions import check_pagination, get_es_response
+from src.tests_basic_functions import check_pagination, get_response
 
 
 MOVIES_URL = settings.movies_url
@@ -54,7 +54,7 @@ async def test_search_persons(es_write_data):
 
     url = MOVIES_URL + '/persons/search/'
     params = {'query': 'writer', 'per_page': 10, 'page': 1}
-    body, status = await get_es_response(url, params)
+    body, status = await get_response(url, params)
 
     assert status == HTTPStatus.OK
     assert len(body['results']) == 3, "Должно быть найдено 3 документа"
@@ -85,7 +85,7 @@ async def test_person_uuid(es_write_data):
     """
 
     url = MOVIES_URL + '/persons/d1cf010d-5941-4877-a22b-c137a642370c'
-    body, status = await get_es_response(url, {})
+    body, status = await get_response(url, {})
 
     assert status == HTTPStatus.OK
     check_person(body)
@@ -108,7 +108,7 @@ async def test_person_uuid_film(es_write_data):
     """
     url = (MOVIES_URL +
            '/persons/d1cf010d-5941-4877-a22b-c137a642370c/film')
-    body, status = await get_es_response(url, {})
+    body, status = await get_response(url, {})
 
     assert status == HTTPStatus.OK
     assert len(body) == 1, "Должен быть 1 документ"
@@ -125,7 +125,7 @@ async def test_person_wrong_uuid(es_write_data):
     """
 
     url = MOVIES_URL + '/persons/000'
-    body, status = await get_es_response(url, {})
+    body, status = await get_response(url, {})
     assert status == HTTPStatus.NOT_FOUND
 
 
@@ -147,7 +147,7 @@ async def test_persons(es_write_data):
     """
     url = MOVIES_URL + '/persons/'
     params = {'per_page': 10, 'page': 1}
-    body, status = await get_es_response(url, params)
+    body, status = await get_response(url, params)
 
     assert status == HTTPStatus.OK
     assert len(body['results']) == 10, "В persons testdata 10 документов"

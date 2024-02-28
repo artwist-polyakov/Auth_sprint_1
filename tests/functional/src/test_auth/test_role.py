@@ -4,13 +4,13 @@ from http import HTTPStatus
 
 import pytest
 from configs.test_settings import settings
-from src.tests_basic_functions import get_pg_response, create_user
+from src.tests_basic_functions import get_response, create_user
 
 ROLES_URL = settings.auth_url + '/roles'
 
 random_five_digit_number = random.randint(10000, 99999)
 ROLE_NAME = f'master{random_five_digit_number}'
-WRONG_UUID = uuid.uuid4()
+WRONG_UUID = str(uuid.uuid4())
 CORRECT_UUID = str()
 
 
@@ -28,21 +28,19 @@ async def test_roles_add():
 
     url = ROLES_URL + '/add'
     params = {'role': ROLE_NAME, 'resource': 'films', 'verb': 'read'}
-    data = {'params': params}
-    response = await get_pg_response(
+    body, status = await get_response(
         method='POST',
         url=url,
-        data=data
+        params=params
     )
-
-    assert response.status_code == HTTPStatus.CREATED
-    body = response.json()
-    assert isinstance(body, dict)
-    assert 'uuid' in body
-    assert isinstance(body['uuid'], str)
 
     global CORRECT_UUID
     CORRECT_UUID = body['uuid']
+
+    assert status == HTTPStatus.CREATED
+    assert isinstance(body, dict)
+    assert 'uuid' in body
+    assert isinstance(body['uuid'], str)
 
 
 @pytest.mark.asyncio
@@ -65,13 +63,12 @@ async def test_roles_all():
     2) возвращается HTTPStatus.OK
     """
     url = ROLES_URL + '/all'
-    response = await get_pg_response(
+    body, status = await get_response(
         method='GET',
         url=url
     )
 
-    assert response.status_code == HTTPStatus.OK
-    body = response.json()
+    assert status == HTTPStatus.OK
     assert isinstance(body, dict)
     assert isinstance(body[ROLE_NAME], dict)
     assert isinstance(body[ROLE_NAME]['films'], list)
@@ -87,15 +84,13 @@ async def test_roles_update_wrong():
     """
     url = ROLES_URL + '/update'
     params = {'uuid': WRONG_UUID, 'role': f'{ROLE_NAME}2', 'resource': 'films2', 'verb': 'read2'}
-    data = {'params': params}
-    response = await get_pg_response(
+    body, status = await get_response(
         method='PUT',
         url=url,
-        data=data
+        params=params
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    body = response.json()
+    assert status == HTTPStatus.NOT_FOUND
     assert body == 'Role not found'
 
 
@@ -109,15 +104,13 @@ async def test_roles_update_correct():
     """
     url = ROLES_URL + '/update'
     params = {'uuid': CORRECT_UUID, 'role': f'{ROLE_NAME}2', 'resource': 'films2', 'verb': 'read2'}
-    data = {'params': params}
-    response = await get_pg_response(
+    body, status = await get_response(
         method='PUT',
         url=url,
-        data=data
+        params=params
     )
 
-    assert response.status_code == HTTPStatus.OK
-    body = response.json()
+    assert status == HTTPStatus.OK
     assert body == 'success'
 
 
@@ -131,15 +124,13 @@ async def test_roles_delete_wrong():
     """
     url = ROLES_URL + '/delete'
     params = {'uuid': WRONG_UUID}
-    data = {'params': params}
-    response = await get_pg_response(
+    body, status = await get_response(
         method='DELETE',
         url=url,
-        data=data
+        params=params
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    body = response.json()
+    assert status == HTTPStatus.NOT_FOUND
     assert body == 'role not found'
 
 
@@ -153,15 +144,13 @@ async def test_roles_delete_correct():
     """
     url = ROLES_URL + '/delete'
     params = {'uuid': CORRECT_UUID}
-    data = {'params': params}
-    response = await get_pg_response(
+    body, status = await get_response(
         method='DELETE',
         url=url,
-        data=data
+        params=params
     )
 
-    assert response.status_code == HTTPStatus.OK
-    body = response.json()
+    assert status == HTTPStatus.OK
     assert body == 'success'
 
 
@@ -175,15 +164,13 @@ async def test_change_role_wrong():
     """
     url = ROLES_URL + '/change_role'
     params = {'uuid': WRONG_UUID, 'new_role': 'master'}
-    data = {'params': params}
-    response = await get_pg_response(
+    body, status = await get_response(
         method='PUT',
         url=url,
-        data=data
+        params=params
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    body = response.json()
+    assert status == HTTPStatus.NOT_FOUND
     assert body == 'User not found'
 
 
@@ -195,17 +182,15 @@ async def test_change_role_correct():
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
-    user_response: tuple = await create_user()
-    user_uuid: str = user_response[0]
+    body, *args = await create_user()
+    user_uuid = body['uuid']
     url = ROLES_URL + '/change_role'
-    params = {'uuid': user_uuid, 'new_role': 'master'}
-    data = {'params': params}
-    response = await get_pg_response(
+    params = {'uuid': str(user_uuid), 'new_role': 'master'}
+    body, status = await get_response(
         method='PUT',
         url=url,
-        data=data
+        params=params
     )
 
-    assert response.status_code == HTTPStatus.OK
-    body = response.json()
+    assert status == HTTPStatus.OK
     assert body == 'success'

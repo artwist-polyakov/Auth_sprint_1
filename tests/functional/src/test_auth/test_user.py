@@ -1,8 +1,9 @@
+import random
 from http import HTTPStatus
 
 import pytest
 from configs.test_settings import settings
-
+from src.tests_basic_functions import create_user
 
 USERS_URL = settings.auth_url + '/users'
 
@@ -19,7 +20,7 @@ USERS_URL = settings.auth_url + '/users'
 async def test_sign_up_correct():
     """
     Тест проверяет, что на запрос
-    POST /auth/v1/users/sign_up?email=starfish%40mail.ru&password=Aa123
+    POST /auth/v1/users/sign_up?email=<email>&password=Aa123
     1) возвращается словарь вида
         {
           "uuid": "uuid",
@@ -28,26 +29,37 @@ async def test_sign_up_correct():
     2) возвращается HTTPStatus.CREATED,
     3) token_type содержит "cookie-jwt"
     """
-    url = USERS_URL + '/sign_up'
+    body, status, _, _ = await create_user()
+
+    assert status == HTTPStatus.CREATED
+    assert isinstance(body, dict)
+    assert isinstance(body['uuid'], str)
+    assert body['token_type'] == 'cookie-jwt'
 
 
 @pytest.mark.asyncio
 async def test_sign_up_repeated():
     """
     Тест проверяет, что на повторный запрос
-    POST /auth/v1/users/sign_up?email=starfish%40mail.ru&password=Aa123
+    POST /auth/v1/users/sign_up?email=<email>&password=Aa123
     1) возвращается строка
         "user with this email already exists"
     2) возвращается HTTPStatus.CONFLICT
     """
-    url = USERS_URL + '/sign_up'
+    random_five_digit_number = random.randint(10000, 99999)
+    email = f'starfish{random_five_digit_number}@mail.ru'
+    await create_user(email=email)
+    body, status, _, _ = await create_user(email=email)
+
+    assert status == HTTPStatus.CONFLICT
+    assert body == 'user with this email already exists'
 
 
 @pytest.mark.asyncio
 async def test_sign_up_incorrect_email():
     """
     Тест проверяет, что на запрос
-    POST /auth/v1/users/sign_up?email=starfish&password=Aa123
+    POST /auth/v1/users/sign_up?email=<wrong_email>&password=Aa123
     1) возвращается словарь вида
         {
           "status_code": 422,
@@ -55,14 +67,19 @@ async def test_sign_up_incorrect_email():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/sign_up'
+    # todo 422 UNPROCESSABLE_ENTITY
+    body, status, _, _ = await create_user(email='aa')
+
+    assert status == HTTPStatus.OK
+    assert isinstance(body, dict)
+    assert body['content'] == 'Email is not valid'
 
 
 @pytest.mark.asyncio
 async def test_sign_up_incorrect_password():
     """
     Тест проверяет, что на запрос
-    POST /auth/v1/users/sign_up?email=starfish2%40mail.ru&password=aa
+    POST /auth/v1/users/sign_up?email=<email>&password=aa
     1) возвращается словарь вида
         {
           "status_code": 422,
@@ -70,14 +87,19 @@ async def test_sign_up_incorrect_password():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/sign_up'
+    # todo 422 UNPROCESSABLE_ENTITY
+    body, status, _, _ = await create_user(password='aa')
+
+    assert status == HTTPStatus.OK
+    assert isinstance(body, dict)
+    assert body['content'] == 'Password must have at least 5 characters'
 
 
 @pytest.mark.asyncio
 async def test_login_correct():
     """
     Тест проверяет, что на запрос
-    /auth/v1/users/login?email=starfish%40mail.ru&password=Aa123
+    /auth/v1/users/login?email=<email>&password=Aa123
     1) возвращается словарь вида
         {
           "refresh_token": "str",
@@ -94,7 +116,7 @@ async def test_login_correct():
 async def test_login_incorrect_password():
     """
     Тест проверяет, что на запрос
-    POST /auth/v1/users/sign_up?email=starfish2%40mail.ru&password=aa
+    POST /auth/v1/users/sign_up?email=<email>&password=aa
     1) возвращается "password is incorrect"
     2) возвращается HTTPStatus.BAD_REQUEST
     """
