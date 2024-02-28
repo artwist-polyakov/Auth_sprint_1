@@ -21,6 +21,20 @@ from utils.creator_provider import get_creator
 PAGE_SIZE = 10
 
 
+def generate_access_container(user_id: str, refresh_id: str) -> AccessTokenContainer:
+    result = AccessTokenContainer(
+        user_id=user_id,
+        role="user",
+        is_superuser=False,
+        verified=True,
+        subscribed=False,
+        created_at=int(datetime.now().timestamp()),
+        refresh_id=refresh_id,
+        refreshed_at=int(datetime.now().timestamp())
+    )
+    return result
+
+
 class UserService:
     def __init__(self, instance: PostgresInterface, enters_storage: LogoutStorage):
         self._postgres = instance
@@ -91,11 +105,10 @@ class UserService:
         response: dict = await self._postgres.delete_single_data(uuid, 'user')
         return response
 
-    # todo сделаеть обёртку для ошибок или raise (я бы выбрал raise)
     async def authenticate(self, email: str, password: str) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
             field_name='email',
-            field_value=email
+            field_value=email.lower()
         )
         if isinstance(user, dict):
             return user
@@ -181,6 +194,10 @@ class UserService:
                 'status_code': HTTPStatus.UNAUTHORIZED,
                 'content': 'Refresh token has expired'
             }
+
+        token_to_blacklist = generate_access_container(user_id, refresh_id)
+        await self._enters_storage.logout_current_session(token_to_blacklist)
+
         new_refresh_token = RefreshToken(
             uuid=refresh_id,
             user_id=user_id,

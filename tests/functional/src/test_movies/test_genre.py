@@ -4,6 +4,8 @@ import pytest
 from configs.test_settings import settings
 from src.tests_basic_functions import check_pagination, get_response
 
+MOVIES_URL = settings.movies_url
+
 
 @pytest.mark.asyncio
 async def test_genres(es_write_data):
@@ -22,7 +24,7 @@ async def test_genres(es_write_data):
         ...
     ]
     """
-    url = settings.service_url + '/genres/'
+    url = MOVIES_URL + '/genres/'
     params = {'per_page': 10, 'page': 1}
     body, status = await get_response(url, params)
 
@@ -49,7 +51,7 @@ async def test_genre_uuid(es_write_data):
     "description": "str"
     }
     """
-    url = settings.service_url + '/genres/69717732-0b46-4290-8727-7a5db7d1ea9d'
+    url = MOVIES_URL + '/genres/69717732-0b46-4290-8727-7a5db7d1ea9d'
     doc, status = await get_response(url, {})
 
     assert status == HTTPStatus.OK
@@ -70,6 +72,6 @@ async def test_genre_wrong_uuid(es_write_data):
     где uuid указывает на несуществующий документ,
     возвращается ошибка 404
     """
-    url = settings.service_url + '/genres/000'
+    url = MOVIES_URL + '/genres/000'
     body, status = await get_response(url, {})
     assert status == HTTPStatus.NOT_FOUND

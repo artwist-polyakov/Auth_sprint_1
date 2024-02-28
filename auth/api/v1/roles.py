@@ -36,7 +36,7 @@ async def add_role(
     response = await service.add_role(role_data.role, role_data.resource, role_data.verb)
     await clear_rbac_conf_cache()
     return JSONResponse(
-        status_code=HTTPStatus.OK,
+        status_code=HTTPStatus.CREATED,
         content={'uuid': response}
     )
 
@@ -73,6 +73,7 @@ async def delete_role(
         uuid: str,
         service: RoleService = Depends(get_role_service)
 ) -> Response:
+    # todo если мы удаляем роль, нужно изменить значения role в users.users
     response: dict = await service.remove_role(uuid)
     await clear_rbac_conf_cache()
     return JSONResponse(

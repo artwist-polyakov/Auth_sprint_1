@@ -1,9 +1,16 @@
+import random
+
 import aiohttp
+from configs.test_settings import settings
 
 
-async def get_response(url: str, params: dict):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, params=params) as response:
+async def get_response(url: str, params: dict = None, method: str = 'GET', cookies: dict = None):
+    """
+    Функция отправляет асинхронный запрос на сервер
+    и возвращает ответ
+    """
+    async with aiohttp.ClientSession(cookies=cookies if cookies else None) as session:
+        async with session.request(method=method.lower(), url=url, params=params) as response:
             body = await response.json()
             status = response.status
             return body, status
@@ -24,3 +31,23 @@ def check_pagination(data):
 
     assert isinstance(data['results'], list), \
         "data['results'] должен быть list"
+
+
+async def create_user(email: str = '', password: str = 'Aa123') -> tuple:
+    """
+    Функция генерирует email и пароль,
+    отправляет асинхронный запрос на регистрацию пользователя
+    и возвращает uuid, status, email и пароль
+    """
+    if email == '':
+        random_five_digit_number = random.randint(10000, 99999)
+        email = f'starfish{random_five_digit_number}@mail.ru'
+
+    url = f'{settings.auth_url}/users/sign_up'
+
+    body, status = await get_response(
+        method='POST',
+        url=url,
+        params={'email': email, 'password': password}
+    )
+    return body, status, email, password

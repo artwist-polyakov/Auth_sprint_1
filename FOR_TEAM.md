@@ -74,18 +74,6 @@ cd ./tests/functional
 README.md
 ```
 
-## Первая версия функциональных тестов
-
-потребуется библиотека requests
-```shell
-pip install requests
-```
-
-запуск тестов
-```shell
-python tests_simple/test_es_query.py    
-```
-
 ## Генерация собственного сертификата
 
 1. Создать корневой сертификат
@@ -114,13 +102,12 @@ openssl x509 -req -sha256 -days 1024 -in localhost.csr -CA RootCA.pem -CAkey Roo
 
 ## Ручное применение существующих миграций
 
-На данный момент миграции выполняются автоматически. При необходимости делать это вручную:
+На данный момент миграции выполняются автоматически. При необходимости можно сделать это вручную:
 
 1. Установить библиотеку: 
 ```shell
 pip install alembic==1.13.1
 ```
-
 2. Если требуется, поменять роли по умолчанию в файле `cd ./auth/migrations/roles/default_roles.py`
 
 3. В `./auth/migrations/.env` поменять хост на localhost
@@ -138,10 +125,20 @@ alembic upgrade head
 pip install alembic==1.13.1
 ```
 
+Если в сервисе отсутствуют файлы для работы с alembic:
+- выполните команды:
+```shell
+cd ./auth/
+alembic init migrations
+```
+- настройте `alembic.ini` и `env.py`.
+
 2. Создание миграции:
 ```shell
+cd ./auth/
 alembic revision --autogenerate
 ```
+
 `--autogenerate` обеспечивает сравнение моделей в коде и состояния базы данных
 
 _Внимание_. На всем пути работы `alembic` не должно быть импортов settings (включая файлы с моделями `./auth/db/auth`). 
@@ -165,7 +162,7 @@ alembic upgrade <revision_name>
 ```shell
 alembic downgrade base
 ```
-Чтобы откатиться до какой-то ревизии, необходимо использовать ее `revision`
+Чтобы откатиться до какой-то миграции, необходимо использовать ее `revision`
 ```shell
 alembic downgrade <revision_name>
 ```
