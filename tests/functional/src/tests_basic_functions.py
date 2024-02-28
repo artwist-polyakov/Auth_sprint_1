@@ -51,6 +51,4 @@ async def create_user(email: str = '', password: str = 'Aa123') -> tuple:
         url=url,
         params={'email': email, 'password': password}
     )
-    # user_uuid = str(body[0]['uuid'])
-    # token_type = body[0]['token_type']
     return body, status, email, password
