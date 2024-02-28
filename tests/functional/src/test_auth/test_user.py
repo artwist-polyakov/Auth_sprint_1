@@ -76,7 +76,7 @@ async def test_sign_up_incorrect_email():
 
 
 @pytest.mark.asyncio
-async def test_sign_up_incorrect_password():
+async def test_sign_up_wrong_password():
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/sign_up?email=<email>&password=aa
@@ -134,7 +134,7 @@ async def test_login_correct():
 
 
 @pytest.mark.asyncio
-async def test_login_incorrect_password():
+async def test_login_wrong_password():
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/sign_up?email=<email>&password=aa
@@ -212,7 +212,7 @@ async def test_user_no_token():
 
 
 @pytest.mark.asyncio
-async def test_user_no_token_incorrect_uuid():
+async def test_user_no_token_wrong_uuid():
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/user?uuid=<wrong_uuid>
@@ -233,7 +233,7 @@ async def test_user_no_token_incorrect_uuid():
 
 
 @pytest.mark.asyncio
-async def test_user_correct_token_another_uuid(login_user):
+async def test_user_correct_token_wrong_uuid(login_user):
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/user?uuid=<another_uuid>
@@ -255,7 +255,7 @@ async def test_user_correct_token_another_uuid(login_user):
 
 
 @pytest.mark.asyncio
-async def test_user_incorrect_token(login_user):
+async def test_user_wrong_token(login_user):
     # todo
     pass
 
@@ -283,7 +283,7 @@ async def test_update_no_token():
 
 
 @pytest.mark.asyncio
-async def test_update_incorrect_token():
+async def test_update_wrong_token():
     # todo
     pass
 
@@ -313,6 +313,19 @@ async def test_update_correct(login_user):
 
 
 @pytest.mark.asyncio
+async def test_update_wrong_uuid():
+    """
+    Тест проверяет, что на запрос
+    PATCH /auth/v1/users/update?uuid=<wrong_uuid>&email=<new_email>
+    'Cookie: access_token=<access_token>'
+    1) возвращается "Your access token doesn't permit request to this user"
+    2) возвращается HTTPStatus.FORBIDDEN
+    """
+    # todo должно быть FORBIDDEN, возвращается UNAUTHORIZED
+    pass
+
+
+@pytest.mark.asyncio
 async def test_delete_no_token():
     """
     Тест проверяет, что на запрос
@@ -320,22 +333,42 @@ async def test_delete_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
+    body, user_uuid, _, _ = await create_user()
     url = USERS_URL + '/delete'
+    body, status = await get_response(
+        method='DELETE',
+        url=url,
+        params={'uuid': user_uuid}
+    )
+
+    assert status == HTTPStatus.UNAUTHORIZED
+    assert body == 'Invalid access token'
 
 
 @pytest.mark.asyncio
-async def test_delete_incorrect_uuid():
+async def test_delete_wrong_uuid(login_user):
     """
     Тест проверяет, что на запрос
     DELETE /auth/v1/users/delete?uuid=<wrong_uuid>
     1) возвращается "Your access token doesn't permit request to this user"
     2) возвращается HTTPStatus.FORBIDDEN
     """
+    body, _, _, _ = login_user
     url = USERS_URL + '/delete'
+    wrong_uuid = str(uuid.uuid4())
+    new_body, status = await get_response(
+        method='DELETE',
+        url=url,
+        params={'uuid': wrong_uuid},
+        cookies={'access_token': body['access_token']}
+    )
+
+    assert status == HTTPStatus.FORBIDDEN
+    assert new_body == "Your access token doesn't permit request to this user"
 
 
 @pytest.mark.asyncio
-async def test_delete_correct():
+async def test_delete_correct(login_user):
     """
     Тест проверяет, что на запрос
     DELETE /auth/v1/users/delete?uuid=<uuid>
@@ -344,11 +377,21 @@ async def test_delete_correct():
     2) возвращается HTTPStatus.OK
     """
     # todo проверить что пользователь больше не существует
+    body, user_uuid, _, _ = login_user
     url = USERS_URL + '/delete'
+    new_body, status = await get_response(
+        method='DELETE',
+        url=url,
+        params={'uuid': user_uuid},
+        cookies={'access_token': body['access_token']}
+    )
+
+    assert status == HTTPStatus.OK
+    assert new_body == "success"
 
 
 @pytest.mark.asyncio
-async def test_tokens_refresh_incorrect_refresh():
+async def test_tokens_refresh_wrong_refresh():
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/refresh
@@ -378,7 +421,7 @@ async def test_tokens_refresh_correct_refresh():
 
 
 @pytest.mark.asyncio
-async def test_history_incorrect_access():
+async def test_history_wrong_access():
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/history
@@ -440,7 +483,7 @@ async def test_check_permissions_correct_access_no_role():
 
 
 @pytest.mark.asyncio
-async def test_check_permissions_incorrect_access():
+async def test_check_permissions_wrong_access():
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/check_permissions?resource=???&verb=???
@@ -453,7 +496,7 @@ async def test_check_permissions_incorrect_access():
 
 
 @pytest.mark.asyncio
-async def test_logout_incorrect_access():
+async def test_logout_wrong_access():
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/logout
@@ -503,7 +546,7 @@ async def test_logout_after_logout():
 
 
 @pytest.mark.asyncio
-async def test_logout_all_devices_incorrect_access():
+async def test_logout_all_devices_wrong_access():
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/logout_all_devices
