@@ -1,4 +1,5 @@
 import random
+import uuid
 from http import HTTPStatus
 
 import pytest
@@ -6,14 +7,6 @@ from configs.test_settings import settings
 from src.tests_basic_functions import create_user, get_response
 
 USERS_URL = settings.auth_url + '/users'
-
-
-# cookies = add_and_login_user
-# access_token = cookies['access_token']
-#
-# assert isinstance(access_token, str)
-#
-# data = {'params': params, 'cookies': {'access_token': access_token}}
 
 
 @pytest.mark.asyncio
@@ -163,7 +156,7 @@ async def test_login_incorrect_password():
 
 
 @pytest.mark.asyncio
-async def test_user_correct():
+async def test_user_correct(login_user):
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/user?uuid=<uuid>
@@ -177,7 +170,25 @@ async def test_user_correct():
         }
     2) возвращается HTTPStatus.OK
     """
+    body, user_uuid, email, _ = login_user
     url = USERS_URL + '/user'
+    body, status = await get_response(
+        method='GET',
+        url=url,
+        params={'uuid': user_uuid},
+        cookies={'access_token': body['access_token']}
+    )
+
+    assert status == HTTPStatus.OK
+    assert isinstance(body, dict)
+    assert 'uuid' in body
+    assert 'email' in body
+    assert 'first_name' in body
+    assert 'last_name' in body
+    assert body['uuid'] == user_uuid
+    assert body['email'] == email
+    assert isinstance(body['first_name'], str)
+    assert isinstance(body['last_name'], str)
 
 
 @pytest.mark.asyncio
@@ -188,7 +199,17 @@ async def test_user_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
+    body, status, _, _ = await create_user()
+    wrong_user_uuid = str(uuid.uuid4())
     url = USERS_URL + '/user'
+    body, status = await get_response(
+        method='GET',
+        url=url,
+        params={'uuid': wrong_user_uuid}
+    )
+
+    assert status == HTTPStatus.UNAUTHORIZED
+    assert body == 'Invalid access token'
 
 
 @pytest.mark.asyncio
@@ -200,17 +221,37 @@ async def test_user_no_token_incorrect_uuid():
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
     url = USERS_URL + '/user'
+    wrong_user_uuid = str(uuid.uuid4())
+    body, status = await get_response(
+        method='GET',
+        url=url,
+        params={'uuid': wrong_user_uuid}
+    )
+
+    assert status == HTTPStatus.UNAUTHORIZED
+    assert body == 'Invalid access token'
 
 
 @pytest.mark.asyncio
-async def test_user_correct_token_another_uuid():
+async def test_user_correct_token_another_uuid(login_user):
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/user?uuid=<another_uuid>
     1) возвращается "Your access token doesn't permit request to this user"
     2) возвращается HTTPStatus.FORBIDDEN
     """
+    body, *args = login_user
     url = USERS_URL + '/user'
+    wrong_user_uuid = str(uuid.uuid4())
+    body, status = await get_response(
+        method='GET',
+        url=url,
+        params={'uuid': wrong_user_uuid},
+        cookies={'access_token': body['access_token']}
+    )
+
+    assert status == HTTPStatus.FORBIDDEN
+    assert body == 'Your access token doesn\'t permit request to this user'
 
 
 @pytest.mark.asyncio

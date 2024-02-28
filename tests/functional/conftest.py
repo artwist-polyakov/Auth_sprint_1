@@ -54,8 +54,8 @@ async def login_user():
     user_uuid = body['uuid']
     url_login = (f'{settings.auth_url}/users/login'
                  f'?email={email}&password={password}')
-    login_resp = await get_response(
+    body, status = await get_response(
         method='GET',
         url=url_login
     )
-    return login_resp.cookies, user_uuid, email, password
+    return body, user_uuid, email, password

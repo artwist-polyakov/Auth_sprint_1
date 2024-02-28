@@ -5,12 +5,12 @@ import aiohttp
 from configs.test_settings import settings
 
 
-async def get_response(url: str, params: dict = None, method: str = 'GET'):
+async def get_response(url: str, params: dict = None, method: str = 'GET', cookies: dict = None):
     """
     Функция отправляет асинхронный запрос на сервер
     и возвращает ответ
     """
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(cookies=cookies if cookies else None) as session:
         async with session.request(method=method.lower(), url=url, params=params) as response:
             body = await response.json()
             status = response.status
@@ -32,19 +32,6 @@ def check_pagination(data):
 
     assert isinstance(data['results'], list), \
         "data['results'] должен быть list"
-
-
-# async def get_auth_response(method: str, url: str, data=None):
-#     """
-#     Функция отправляет асинхронный запрос на сервер
-#     и возвращает ответ
-#     """
-#     async with httpx.AsyncClient() as client:
-#         if data:
-#             response = await getattr(client, method.lower())(url=url, **data)
-#         else:
-#             response = await getattr(client, method.lower())(url=url)
-#     return response
 
 
 async def create_user(email: str = '', password: str = 'Aa123') -> tuple:
