@@ -7,6 +7,14 @@ from configs.test_settings import settings
 USERS_URL = settings.auth_url + '/users'
 
 
+# cookies = add_and_login_user
+# access_token = cookies['access_token']
+#
+# assert isinstance(access_token, str)
+#
+# data = {'params': params, 'cookies': {'access_token': access_token}}
+
+
 @pytest.mark.asyncio
 async def test_sign_up_correct():
     """
@@ -20,7 +28,7 @@ async def test_sign_up_correct():
     2) возвращается HTTPStatus.CREATED,
     3) token_type содержит "cookie-jwt"
     """
-    url = USERS_URL + '/sign_up/'
+    url = USERS_URL + '/sign_up'
 
 
 @pytest.mark.asyncio
@@ -32,7 +40,7 @@ async def test_sign_up_repeated():
         "user with this email already exists"
     2) возвращается HTTPStatus.CONFLICT
     """
-    url = USERS_URL + '/sign_up/'
+    url = USERS_URL + '/sign_up'
 
 
 @pytest.mark.asyncio
@@ -47,7 +55,7 @@ async def test_sign_up_incorrect_email():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/sign_up/'
+    url = USERS_URL + '/sign_up'
 
 
 @pytest.mark.asyncio
@@ -62,7 +70,7 @@ async def test_sign_up_incorrect_password():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/sign_up/'
+    url = USERS_URL + '/sign_up'
 
 
 @pytest.mark.asyncio
@@ -79,7 +87,7 @@ async def test_login_correct():
     2) возвращается HTTPStatus.OK,
     3) token_type содержит "bearer"
     """
-    url = USERS_URL + '/login/'
+    url = USERS_URL + '/login'
 
 
 @pytest.mark.asyncio
@@ -90,7 +98,7 @@ async def test_login_incorrect_password():
     1) возвращается "password is incorrect"
     2) возвращается HTTPStatus.BAD_REQUEST
     """
-    url = USERS_URL + '/login/'
+    url = USERS_URL + '/login'
 
     # todo мб можно проверить, созданы ли токены
 
@@ -110,7 +118,7 @@ async def test_user_correct():
         }
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/user/'
+    url = USERS_URL + '/user'
 
 
 @pytest.mark.asyncio
@@ -121,7 +129,7 @@ async def test_user_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/user/'
+    url = USERS_URL + '/user'
 
 
 @pytest.mark.asyncio
@@ -132,7 +140,7 @@ async def test_user_no_token_incorrect_uuid():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/user/'
+    url = USERS_URL + '/user'
 
 
 @pytest.mark.asyncio
@@ -143,7 +151,7 @@ async def test_user_correct_token_another_uuid():
     1) возвращается "Your access token doesn't permit request to this user"
     2) возвращается HTTPStatus.FORBIDDEN
     """
-    url = USERS_URL + '/user/'
+    url = USERS_URL + '/user'
 
 
 @pytest.mark.asyncio
@@ -154,7 +162,7 @@ async def test_update_wrong_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/update/'
+    url = USERS_URL + '/update'
 
 
 @pytest.mark.asyncio
@@ -166,7 +174,7 @@ async def test_update_correct():
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/update/'
+    url = USERS_URL + '/update'
 
 
 @pytest.mark.asyncio
@@ -177,7 +185,7 @@ async def test_delete_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/delete/'
+    url = USERS_URL + '/delete'
 
 
 @pytest.mark.asyncio
@@ -188,7 +196,7 @@ async def test_delete_incorrect_uuid():
     1) возвращается "Your access token doesn't permit request to this user"
     2) возвращается HTTPStatus.FORBIDDEN
     """
-    url = USERS_URL + '/delete/'
+    url = USERS_URL + '/delete'
 
 
 @pytest.mark.asyncio
@@ -200,7 +208,7 @@ async def test_delete_correct():
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/delete/'
+    url = USERS_URL + '/delete'
 
 
 @pytest.mark.asyncio
@@ -212,7 +220,7 @@ async def test_tokens_refresh_incorrect_refresh():
     1) возвращается "Refresh token has expired"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/delete/'
+    url = USERS_URL + '/delete'
 
 
 @pytest.mark.asyncio
@@ -230,7 +238,7 @@ async def test_tokens_refresh_correct_refresh():
     """
     # todo на самом деле должно возвращаться HTTPStatus.CREATED
 
-    url = USERS_URL + '/refresh/'
+    url = USERS_URL + '/refresh'
 
 
 @pytest.mark.asyncio
@@ -242,7 +250,7 @@ async def test_history_incorrect_access():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/history/'
+    url = USERS_URL + '/history'
 
 
 @pytest.mark.asyncio
@@ -264,7 +272,7 @@ async def test_history_correct_access():
      ]
     3) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/history/'
+    url = USERS_URL + '/history'
 
 
 @pytest.mark.asyncio
@@ -277,7 +285,7 @@ async def test_check_permissions_correct_access():
     2) возвращается true
     3) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/check_permissions/'
+    url = USERS_URL + '/check_permissions'
     # todo не понимаю, как работает и как проверять
 
 
@@ -291,7 +299,7 @@ async def test_check_permissions_correct_access_no_role():
     2) возвращается false
     3) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/check_permissions/'
+    url = USERS_URL + '/check_permissions'
     # todo не понимаю, как работает и как проверять
 
 
@@ -304,7 +312,7 @@ async def test_check_permissions_incorrect_access():
     2) возвращается ???
     3) возвращается ???
     """
-    url = USERS_URL + '/check_permissions/'
+    url = USERS_URL + '/check_permissions'
     # todo не понимаю, как работает и как проверять
 
 
@@ -318,7 +326,7 @@ async def test_logout_incorrect_access():
     2) возвращается
     """
     # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout/'
+    url = USERS_URL + '/logout'
 
 
 @pytest.mark.asyncio
@@ -331,7 +339,7 @@ async def test_logout_no_access():
     2) возвращается
     """
     # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout/'
+    url = USERS_URL + '/logout'
 
 
 @pytest.mark.asyncio
@@ -343,7 +351,7 @@ async def test_logout_correct_access():
     1) возвращается "Logout successfully"
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/logout/'
+    url = USERS_URL + '/logout'
 
 
 @pytest.mark.asyncio
@@ -355,7 +363,7 @@ async def test_logout_after_logout():
     1) возвращается "Token is logout, please re-login"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/logout/'
+    url = USERS_URL + '/logout'
 
 
 @pytest.mark.asyncio
@@ -368,7 +376,7 @@ async def test_logout_all_devices_incorrect_access():
     2) возвращается
     """
     # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout_all_devices/'
+    url = USERS_URL + '/logout_all_devices'
 
 
 @pytest.mark.asyncio
@@ -381,7 +389,7 @@ async def test_logout_all_devices_no_access():
     2) возвращается
     """
     # todo AttributeError: 'NoneType' object has no attribute 'rsplit'
-    url = USERS_URL + '/logout_all_devices/'
+    url = USERS_URL + '/logout_all_devices'
 
 
 @pytest.mark.asyncio
@@ -393,7 +401,7 @@ async def test_logout_all_devices_correct_access():
     1) возвращается "Logout successfully"
     2) возвращается HTTPStatus.OK
     """
-    url = USERS_URL + '/logout_all_devices/'
+    url = USERS_URL + '/logout_all_devices'
 
 
 @pytest.mark.asyncio
@@ -405,4 +413,4 @@ async def test_logout_all_devices_after_logout():
     1) возвращается "Token is logout, please re-login"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/logout_all_devices/'
+    url = USERS_URL + '/logout_all_devices'

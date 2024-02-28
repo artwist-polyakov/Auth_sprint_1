@@ -54,26 +54,26 @@ async def es_write_data(es_client):
     yield True
 
 
-@pytest.fixture(scope='module')
-@pytest.mark.asyncio
-async def add_and_login_user():
-    random_five_digit_number = random.randint(10000, 99999)
-    email = f'starfish{random_five_digit_number}@mail.ru'
-    password = 'Aa123'
-
-    url_add = f'{settings.auth_url}/users/sign_up'
-    url_login = (f'{settings.auth_url}/users/login'
-                 f'?email={email}&password={password}')
-
-    await get_pg_response(
-        method='POST',
-        url=url_add,
-        data={'params': {'email': email, 'password': password}}
-    )
-
-    response = await get_pg_response(
-        method='GET',
-        url=url_login
-    )
-
-    return response.cookies
+# @pytest.fixture(scope='module')
+# @pytest.mark.asyncio
+# async def add_and_login_user():
+#     random_five_digit_number = random.randint(10000, 99999)
+#     email = f'starfish{random_five_digit_number}@mail.ru'
+#     password = 'Aa123'
+#
+#     url_add = f'{settings.auth_url}/users/sign_up'
+#     url_login = (f'{settings.auth_url}/users/login'
+#                  f'?email={email}&password={password}')
+#
+#     await get_pg_response(
+#         method='POST',
+#         url=url_add,
+#         data={'params': {'email': email, 'password': password}}
+#     )
+#
+#     response = await get_pg_response(
+#         method='GET',
+#         url=url_login
+#     )
+#
+#     return response.cookies
