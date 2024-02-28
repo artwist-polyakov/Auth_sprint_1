@@ -199,13 +199,12 @@ async def test_user_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    body, status, _, _ = await create_user()
-    wrong_user_uuid = str(uuid.uuid4())
+    body, user_uuid, _, _ = await create_user()
     url = USERS_URL + '/user'
     body, status = await get_response(
         method='GET',
         url=url,
-        params={'uuid': wrong_user_uuid}
+        params={'uuid': user_uuid}
     )
 
     assert status == HTTPStatus.UNAUTHORIZED
@@ -217,6 +216,7 @@ async def test_user_no_token_incorrect_uuid():
     """
     Тест проверяет, что на запрос
     GET /auth/v1/users/user?uuid=<wrong_uuid>
+    без access token
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
@@ -255,26 +255,61 @@ async def test_user_correct_token_another_uuid(login_user):
 
 
 @pytest.mark.asyncio
-async def test_update_wrong_token():
-    """
-    Тест проверяет, что на запрос
-    PATCH /auth/v1/users/update?uuid=<uuid>&email=starfish1000%40mail.ru
-    1) возвращается "Invalid access token"
-    2) возвращается HTTPStatus.UNAUTHORIZED
-    """
-    url = USERS_URL + '/update'
+async def test_user_incorrect_token(login_user):
+    # todo
+    pass
 
 
 @pytest.mark.asyncio
-async def test_update_correct():
+async def test_update_no_token():
     """
     Тест проверяет, что на запрос
-    PATCH /auth/v1/users/update?uuid=<uuid>&email=starfish1000%40mail.ru
+    PATCH /auth/v1/users/update?uuid=<uuid>&email=<email>
+    без access token
+    1) возвращается "Invalid access token"
+    2) возвращается HTTPStatus.UNAUTHORIZED
+    """
+    body, user_uuid, email, _ = await create_user()
+    url = USERS_URL + '/update'
+    new_email = 'new' + email
+    body, status = await get_response(
+        method='PATCH',
+        url=url,
+        params={'uuid': user_uuid, 'email': new_email}
+    )
+
+    assert status == HTTPStatus.UNAUTHORIZED
+    assert body == 'Invalid access token'
+
+
+@pytest.mark.asyncio
+async def test_update_incorrect_token():
+    # todo
+    pass
+
+
+@pytest.mark.asyncio
+async def test_update_correct(login_user):
+    """
+    Тест проверяет, что на запрос
+    PATCH /auth/v1/users/update?uuid=<uuid>&email=<new_email>
     'Cookie: access_token=<access_token>'
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
+    # todo проверить что поле изменилось
+    body, user_uuid, email, _ = login_user
     url = USERS_URL + '/update'
+    new_email = 'new' + email
+    new_body, status = await get_response(
+        method='PATCH',
+        url=url,
+        params={'uuid': user_uuid, 'email': new_email},
+        cookies={'access_token': body['access_token']}
+    )
+
+    assert status == HTTPStatus.OK
+    assert new_body == "success"
 
 
 @pytest.mark.asyncio
@@ -308,6 +343,7 @@ async def test_delete_correct():
     1) возвращается "success"
     2) возвращается HTTPStatus.OK
     """
+    # todo проверить что пользователь больше не существует
     url = USERS_URL + '/delete'
 
 
