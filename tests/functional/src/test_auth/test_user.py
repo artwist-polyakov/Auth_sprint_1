@@ -45,6 +45,7 @@ async def test_sign_up_repeated():
     random_five_digit_number = random.randint(10000, 99999)
     email = f'starfish{random_five_digit_number}@mail.ru'
     await create_user(email=email)
+
     body, status, _, _ = await create_user(email=email)
 
     assert status == HTTPStatus.CONFLICT
@@ -112,8 +113,9 @@ async def test_login_correct():
     2) возвращается HTTPStatus.OK,
     3) token_type содержит "bearer"
     """
-    _, _, email, password = await create_user()
     url = USERS_URL + '/login'
+    _, _, email, password = await create_user()
+
     body, status = await get_response(
         method='GET',
         url=url,
@@ -144,6 +146,7 @@ async def test_login_wrong_password():
     # todo проверить, созданы ли токены
     _, _, email, _ = await create_user()
     url = USERS_URL + '/login'
+
     body, status = await get_response(
         method='GET',
         url=url,
@@ -172,6 +175,7 @@ async def test_user_correct(login_user):
     """
     body, user_uuid, email, _ = login_user
     url = USERS_URL + '/user'
+
     body, status = await get_response(
         method='GET',
         url=url,
@@ -201,6 +205,7 @@ async def test_user_no_token():
     """
     body, user_uuid, _, _ = await create_user()
     url = USERS_URL + '/user'
+
     body, status = await get_response(
         method='GET',
         url=url,
@@ -222,6 +227,7 @@ async def test_user_no_token_wrong_uuid():
     """
     url = USERS_URL + '/user'
     wrong_user_uuid = str(uuid.uuid4())
+
     body, status = await get_response(
         method='GET',
         url=url,
@@ -243,6 +249,7 @@ async def test_user_correct_token_wrong_uuid(login_user):
     body, *args = login_user
     url = USERS_URL + '/user'
     wrong_user_uuid = str(uuid.uuid4())
+
     body, status = await get_response(
         method='GET',
         url=url,
@@ -272,6 +279,7 @@ async def test_update_no_token():
     body, user_uuid, email, _ = await create_user()
     url = USERS_URL + '/update'
     new_email = 'new' + email
+
     body, status = await get_response(
         method='PATCH',
         url=url,
@@ -301,6 +309,7 @@ async def test_update_correct(login_user):
     body, user_uuid, email, _ = login_user
     url = USERS_URL + '/update'
     new_email = 'new' + email
+
     new_body, status = await get_response(
         method='PATCH',
         url=url,
@@ -333,8 +342,9 @@ async def test_delete_no_token():
     1) возвращается "Invalid access token"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    body, user_uuid, _, _ = await create_user()
+    _, user_uuid, _, _ = await create_user()
     url = USERS_URL + '/delete'
+
     body, status = await get_response(
         method='DELETE',
         url=url,
@@ -356,6 +366,7 @@ async def test_delete_wrong_uuid(login_user):
     body, _, _, _ = login_user
     url = USERS_URL + '/delete'
     wrong_uuid = str(uuid.uuid4())
+
     new_body, status = await get_response(
         method='DELETE',
         url=url,
@@ -379,6 +390,7 @@ async def test_delete_correct(login_user):
     # todo проверить что пользователь больше не существует
     body, user_uuid, _, _ = login_user
     url = USERS_URL + '/delete'
+
     new_body, status = await get_response(
         method='DELETE',
         url=url,
@@ -391,7 +403,27 @@ async def test_delete_correct(login_user):
 
 
 @pytest.mark.asyncio
-async def test_tokens_refresh_wrong_refresh():
+async def test_tokens_refresh_no_refresh():
+    """
+    Тест проверяет, что на запрос
+    POST /auth/v1/users/refresh
+    с некорректным refresh_token_cookie
+    1) возвращается "Invalid refresh token"
+    2) возвращается HTTPStatus.UNAUTHORIZED
+    """
+    url = USERS_URL + '/refresh'
+
+    body, status = await get_response(
+        method='POST',
+        url=url
+    )
+
+    assert status == HTTPStatus.UNAUTHORIZED
+    assert body == 'Invalid refresh token'
+
+
+@pytest.mark.asyncio
+async def test_tokens_refresh_old_refresh():
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/refresh
@@ -399,11 +431,12 @@ async def test_tokens_refresh_wrong_refresh():
     1) возвращается "Refresh token has expired"
     2) возвращается HTTPStatus.UNAUTHORIZED
     """
-    url = USERS_URL + '/delete'
+    # todo
+    pass
 
 
 @pytest.mark.asyncio
-async def test_tokens_refresh_correct_refresh():
+async def test_tokens_refresh_correct_refresh(login_user):
     """
     Тест проверяет, что на запрос
     POST /auth/v1/users/refresh
@@ -416,8 +449,24 @@ async def test_tokens_refresh_correct_refresh():
     2) возвращается HTTPStatus.OK
     """
     # todo на самом деле должно возвращаться HTTPStatus.CREATED
+    # todo проверить, что access token работает
 
+    body, _, _, _ = login_user
     url = USERS_URL + '/refresh'
+    cookies = {'refresh_token': body['refresh_token']}
+
+    body, status = await get_response(
+        method='POST',
+        url=url,
+        cookies=cookies
+    )
+
+    assert status == HTTPStatus.OK
+    assert isinstance(body, dict)
+    assert 'refresh_token' in body
+    assert 'access_token' in body
+    assert isinstance(body['refresh_token'], str)
+    assert isinstance(body['access_token'], str)
 
 
 @pytest.mark.asyncio
