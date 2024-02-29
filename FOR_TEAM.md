@@ -144,6 +144,8 @@ alembic revision --autogenerate
 _Внимание_. На всем пути работы `alembic` не должно быть импортов settings (включая файлы с моделями `./auth/db/auth`). 
 Это связано с тем, что скрипт alembic не сможет прочитать .env, который находится в корне проекта `cd .`
 
+_Внимание_. Если Alembic возвращает какую-либо ошибку (`Foreign key couldn't find column`, `print ...` и т.д.), с большой вероятностью достаточно прописать импорты моделей в `./auth/migrations/env.py`
+
 Чтобы добавить постфикс к имени миграции, добавьте `-m`:
 ```shell
 alembic revision --autogenerate -m "migration_name"
