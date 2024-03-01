@@ -4,51 +4,45 @@ import uuid
 # from configs.settings import settings
 from sqlalchemy import UniqueConstraint, Column, ForeignKey, DateTime, Text, text, PrimaryKeyConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from db.auth.base import Base
 
-
-DEVICES: list = ['mac_app', 'android_app', 'web', 'smart_tv']
+# Список утройств (реализовано в миграции):
+# ['mac_app', 'android_app', 'web', 'smart_tv']
 # app может быть на телефоне и на планшете
 
 
-def create_partition(target, connection, **kw) -> None:
-    """creating partition by user_sign_in"""
-
-    for device in DEVICES:
-        connection.execute(
-            text(
-                f"CREATE TABLE IF NOT EXISTS 'users_sign_in_{device}' "
-                f"PARTITION OF 'users_sign_in' FOR VALUES IN ('{device}')"
-            )
-        )
-
-
 class UserSignIn(Base):
-    __tablename__ = 'users_sign_in'
-    __table_args__ = (
-        UniqueConstraint('uuid', 'user_device_type'),
-        {
-            'postgresql_partition_by': 'LIST (user_device_type)',
-            'listeners': [('after_create', create_partition)],
-        }
-    )
+    # !!!ВНИМАНИЕ!!!
+    # ПРИ СОЗДАНИИ alembic-МИГРАЦИИ этой таблицы, НЕОБХОДИМО УДАЛИТЬ
+    # из миграции строку "sa.UniqueConstraint('uuid')"
 
-    uuid = Column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        unique=True,
-        default=uuid.uuid4,
-        nullable=False
-    )
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey('users.users.uuid'),
-        nullable=False
-    )
+    # Иначе возникает ошибка:
+    # sqlalchemy.exc.DBAPIError: (sqlalchemy.dialects.postgresql.asyncpg.Error)
+    # <class 'asyncpg.exceptions.FeatureNotSupportedError'>:
+    # unique constraint on partitioned table must include all partitioning columns
+    # DETAIL:  UNIQUE constraint on table "user_sign_ins" lacks column "user_device_type"
+    # which is part of the partition key.
+
+    # Это связано с тем, что при создании UniqueConstraint необходимо указать и uuid, и user_device_type,
+    # и это строка вызывает ошибку даже если есть вторая ПРАВИЛЬНАЯ строка, которая
+    # генерируется из таблицы
+
+    # --- Описание решения ошибки связано с тем, что его нет(?) в интернете
+
+    __tablename__ = 'user_sign_ins'
+    __table_args__ = (UniqueConstraint('uuid', 'user_device_type'),
+                      {'schema': 'users',
+                       'postgresql_partition_by': 'LIST (user_device_type)'})
+
+    uuid = Column(UUID(as_uuid=True), primary_key=True, unique=True, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.users.uuid'), nullable=False)
     logged_in_at = Column(DateTime, default=datetime.datetime.utcnow)
     user_agent = Column(Text)
-    user_device_type = Column(Text, primary_key=True)
+    user_device_type = Column(Text, nullable=False, primary_key=True)
+
+    user = relationship("User", back_populates="sign_ins")
 
     def __init__(self,
                  user_id: str,
