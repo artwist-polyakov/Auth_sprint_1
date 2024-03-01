@@ -1,6 +1,6 @@
 from datetime import datetime
 
-# from configs.settings import settings
+from configs.settings import settings
 from db.auth.base import Base
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = 'users'
-    __table_args__ = {'schema': 'users'}
+    __table_args__ = {'schema': settings.postgres_schema_2}
 
     uuid = Column(
         UUID(as_uuid=True),
