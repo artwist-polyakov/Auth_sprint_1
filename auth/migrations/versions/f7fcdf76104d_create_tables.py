@@ -53,7 +53,7 @@ def upgrade() -> None:
                     sa.UniqueConstraint('uuid'),
                     schema='users'
                     )
-    op.create_table('user_sign_ins',
+    op.create_table('users_sign_ins',
                     sa.Column('uuid', sa.UUID(), nullable=False),
                     sa.Column('user_id', sa.UUID(), nullable=False),
                     sa.Column('logged_in_at', sa.DateTime(), nullable=True),

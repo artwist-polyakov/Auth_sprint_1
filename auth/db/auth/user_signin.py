@@ -1,15 +1,14 @@
 import datetime
 
-import uuid
 from configs.settings import settings
-from sqlalchemy import UniqueConstraint, Column, ForeignKey, DateTime, Text, text, PrimaryKeyConstraint
+from sqlalchemy import UniqueConstraint, Column, ForeignKey, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from db.auth.base import Base
 
 # Список утройств (реализовано в миграции):
-# ['mac_app', 'android_app', 'web', 'smart_tv']
+# ['ios_app', 'android_app', 'web', 'smart_tv']
 # app может быть на телефоне и на планшете
 
 
@@ -31,7 +30,7 @@ class UserSignIn(Base):
 
     # --- Описание решения ошибки связано с тем, что его нет(?) в интернете
 
-    __tablename__ = 'user_sign_ins'
+    __tablename__ = 'users_sign_ins'
     __table_args__ = (UniqueConstraint('uuid', 'user_device_type'),
                       {'schema': settings.postgres_schema_2,
                        'postgresql_partition_by': 'LIST (user_device_type)'})
