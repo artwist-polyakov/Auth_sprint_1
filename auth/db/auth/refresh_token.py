@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from configs.settings import settings
+# from configs.settings import settings
 from db.auth.base import Base
 from sqlalchemy import BigInteger, Column, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 
 class RefreshToken(Base):
     __tablename__ = 'refresh_tokens'
-    __table_args__ = {'schema': f'{settings.postgres_schema_2}'}
+    __table_args__ = {'schema': 'users'}
 
     uuid = Column(
         UUID(as_uuid=True),
