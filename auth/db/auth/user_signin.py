@@ -13,23 +13,6 @@ from db.auth.base import Base
 
 
 class UserSignIn(Base):
-    # !!!ВНИМАНИЕ!!!
-    # ПРИ СОЗДАНИИ alembic-МИГРАЦИИ этой таблицы, НЕОБХОДИМО УДАЛИТЬ
-    # из миграции строку "sa.UniqueConstraint('uuid')"
-
-    # Иначе возникает ошибка:
-    # sqlalchemy.exc.DBAPIError: (sqlalchemy.dialects.postgresql.asyncpg.Error)
-    # <class 'asyncpg.exceptions.FeatureNotSupportedError'>:
-    # unique constraint on partitioned table must include all partitioning columns
-    # DETAIL:  UNIQUE constraint on table "user_sign_ins" lacks column "user_device_type"
-    # which is part of the partition key.
-
-    # Это связано с тем, что при создании UniqueConstraint необходимо указать и uuid, и user_device_type,
-    # и это строка вызывает ошибку даже если есть вторая ПРАВИЛЬНАЯ строка, которая
-    # генерируется из таблицы
-
-    # --- Описание решения ошибки связано с тем, что его нет(?) в интернете
-
     __tablename__ = 'users_sign_ins'
     __table_args__ = (UniqueConstraint('uuid', 'user_device_type'),
                       {'schema': settings.postgres_schema_2,

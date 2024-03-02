@@ -20,26 +20,13 @@ DEVICES = ['ios_app', 'android_app', 'web', 'smart_tv']
 
 
 def upgrade() -> None:
-    op.execute(
-        "CREATE TABLE users.users_sign_ins_ios_app "
-        "PARTITION OF users.users_sign_ins FOR VALUES IN ('ios_app')"
-    )
-    op.execute(
-        "CREATE TABLE users.users_sign_ins_android_app "
-        "PARTITION OF users.users_sign_ins FOR VALUES IN ('android_app')"
-    )
-    op.execute(
-        "CREATE TABLE users.users_sign_ins_web "
-        "PARTITION OF users.users_sign_ins FOR VALUES IN ('web')"
-    )
-    op.execute(
-        "CREATE TABLE users.users_sign_ins_smart_tv "
-        "PARTITION OF users.users_sign_ins FOR VALUES IN ('smart_tv')"
-    )
+    for device in DEVICES:
+        op.execute(
+            f"CREATE TABLE users.users_sign_ins_{device} "
+            f"PARTITION OF users.users_sign_ins FOR VALUES IN ('{device}')"
+        )
 
 
 def downgrade() -> None:
-    op.execute("DROP TABLE users.users_sign_ins_ios_app")
-    op.execute("DROP TABLE users.users_sign_ins_android_app")
-    op.execute("DROP TABLE users.users_sign_ins_web")
-    op.execute("DROP TABLE users.users_sign_ins_smart_tv")
+    for device in DEVICES:
+        op.execute(f"DROP TABLE users.users_sign_ins_{device}")

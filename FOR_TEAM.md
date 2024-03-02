@@ -141,11 +141,6 @@ alembic revision --autogenerate
 
 `--autogenerate` обеспечивает сравнение моделей в коде и состояния базы данных
 
-_Внимание_. На всем пути работы `alembic` не должно быть импортов settings (включая файлы с моделями `./auth/db/auth`). 
-Это связано с тем, что скрипт alembic не сможет прочитать .env, который находится в корне проекта `cd .`
-
-_Внимание_. Если Alembic возвращает какую-либо ошибку (`Foreign key couldn't find column`, `print ...` и т.д.), с большой вероятностью достаточно прописать импорты моделей в `./auth/migrations/env.py`
-
 Чтобы добавить постфикс к имени миграции, добавьте `-m`:
 ```shell
 alembic revision --autogenerate -m "migration_name"
@@ -173,4 +168,22 @@ alembic downgrade <revision_name>
 ```shell
 alembic revision
 ```
-_Внимание_. Чтобы избежать ошибки DuplicateObjectError, необходимо заполнять не только `def upgrade()`, но и `def downgrade()` (запрос `DELETE`)
+
+##  Решение некоторых ошибок при работе с миграциями (alembic)
+
+1. Если миграции запускаются из контейнера, в файле `./auth/migrations/.env` должно быть указано имя контейнера, иначе - имя локального хоста (например, `localhost`)
+
+2. На всем пути работы `alembic` не должно быть импортов settings (включая файлы с моделями `./auth/db/auth`). 
+Это связано с тем, что скрипт `alembic` не сможет прочитать `.env`, который находится в корне проекта `cd .`
+
+3. Если возвращается ошибка `Foreign key couldn't find column`, `print ...` и т.д.), необходимо прописать импорты моделей из `./auth/db/auth` в `./auth/migrations/env.py`; импорта `Base`, от которого наследуются другие модели, недостаточно
+
+4. Чтобы избежать ошибки `DuplicateObjectError`, необходимо заполнять не только `def upgrade()`, но и `def downgrade()` (запрос `DELETE/DROP`)
+
+5. При создании миграции модели, содержащей `UniqueConstraint` (например, `UserSignIn`), необходимо удалить из файла миграции строку `sa.UniqueConstraint('uuid')` (генерируется автоматически для всех таблиц с `PK uuid`). Иначе возникает ошибка:
+```shell
+ sqlalchemy.exc.DBAPIError: (sqlalchemy.dialects.postgresql.asyncpg.Error)
+ <class 'asyncpg.exceptions.FeatureNotSupportedError'>: unique constraint on partitioned table must include all partitioning columns
+ DETAIL:  UNIQUE constraint on table "user_sign_ins" lacks column "user_device_type" which is part of the partition key.
+```
+Это связано с тем, что при создании `UniqueConstraint` необходимо указать и `uuid`, и `user_device_type`, и строка `sa.UniqueConstraint('uuid')` вызывает ошибку даже если есть вторая правильная строка c `UniqueConstraint`, которая генерируется из модели
