@@ -8,8 +8,6 @@ Create Date: 2024-03-02 18:59:47.937903
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
-
 from migrations.roles.default_roles import default_roles
 
 # revision identifiers, used by Alembic.

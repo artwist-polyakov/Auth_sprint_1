@@ -1,15 +1,13 @@
 """create_schema_users
 
 Revision ID: 367bdda798cc
-Revises: 
+Revises:
 Create Date: 2024-02-29 19:45:47.895913
 
 """
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision: str = '367bdda798cc'

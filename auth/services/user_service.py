@@ -21,7 +21,11 @@ from utils.creator_provider import get_creator
 PAGE_SIZE = 10
 
 
-def generate_access_container(user_id: str, refresh_id: str, user_device_type: str) -> AccessTokenContainer:
+def generate_access_container(
+        user_id: str,
+        refresh_id: str,
+        user_device_type: str
+) -> AccessTokenContainer:
     result = AccessTokenContainer(
         user_id=user_id,
         role="user",
@@ -106,7 +110,12 @@ class UserService:
         response: dict = await self._postgres.delete_single_data(uuid, 'user')
         return response
 
-    async def authenticate(self, email: str, password: str, user_device_type: str) -> AccessTokenContainer | dict:
+    async def authenticate(
+            self,
+            email: str,
+            password: str,
+            user_device_type: str
+    ) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
             field_name='email',
             field_value=email.lower()
@@ -191,7 +200,13 @@ class UserService:
             'content': 'Password changed successfully'
         }
 
-    async def refresh_access_token(self, refresh_id: str, user_id: str, active_till: int, user_device_type: str):
+    async def refresh_access_token(
+            self,
+            refresh_id: str,
+            user_id: str,
+            active_till: int,
+            user_device_type: str
+    ):
         if active_till < int(datetime.now().timestamp()):
             return {
                 'status_code': HTTPStatus.UNAUTHORIZED,
