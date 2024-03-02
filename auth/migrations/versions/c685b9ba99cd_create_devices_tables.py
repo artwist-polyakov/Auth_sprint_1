@@ -10,23 +10,23 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
+from configs.settings import devices
+
 # revision identifiers, used by Alembic.
 revision: str = 'c685b9ba99cd'
 down_revision: Union[str, None] = 'f7fcdf76104d'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-DEVICES = ['ios_app', 'android_app', 'web', 'smart_tv']
-
 
 def upgrade() -> None:
-    for device in DEVICES:
+    for device in devices:
         op.execute(
-            f"CREATE TABLE users.users_sign_ins_{device} "
-            f"PARTITION OF users.users_sign_ins FOR VALUES IN ('{device}')"
+            f"CREATE TABLE users.refresh_tokens_{device} "
+            f"PARTITION OF users.refresh_tokens FOR VALUES IN ('{device}')"
         )
 
 
 def downgrade() -> None:
-    for device in DEVICES:
-        op.execute(f"DROP TABLE users.users_sign_ins_{device}")
+    for device in devices:
+        op.execute(f"DROP TABLE users.refresh_tokens_{device}")

@@ -6,7 +6,7 @@ from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
-from fastapi import APIRouter, Cookie, Depends
+from fastapi import APIRouter, Cookie, Depends, Header
 from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
@@ -157,9 +157,12 @@ async def delete_user(
 async def login_user(
         email: str,
         password: str,
-        service: UserService = Depends(get_user_service)
+        service: UserService = Depends(get_user_service),
+        user_agent: str = Header('User-Agent')
 ) -> Response:
-    response: dict = await service.authenticate(email, password)
+    logging.warning(user_agent, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+    user_device_type: str = user_agent
+    response: dict = await service.authenticate(email, password, user_device_type)
     return get_tokens_response(response)
 
 

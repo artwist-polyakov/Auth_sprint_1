@@ -105,7 +105,7 @@ class UserService:
         response: dict = await self._postgres.delete_single_data(uuid, 'user')
         return response
 
-    async def authenticate(self, email: str, password: str) -> AccessTokenContainer | dict:
+    async def authenticate(self, email: str, password: str, user_device_type: str) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
             field_name='email',
             field_value=email.lower()
@@ -121,7 +121,8 @@ class UserService:
             uuid=str(uuid.uuid4()),
             user_id=str(user.uuid),
             active_till=int((datetime.now() + timedelta(
-                minutes=settings.refresh_token_expire_minutes)).timestamp())
+                minutes=settings.refresh_token_expire_minutes)).timestamp()),
+            user_device_type=user_device_type
         )
         await self._postgres.add_single_data(refresh_token, 'refresh_token')
 
@@ -188,7 +189,7 @@ class UserService:
             'content': 'Password changed successfully'
         }
 
-    async def refresh_access_token(self, refresh_id: str, user_id: str, active_till: int):
+    async def refresh_access_token(self, refresh_id: str, user_id: str, active_till: int, user_device_type: str):
         if active_till < int(datetime.now().timestamp()):
             return {
                 'status_code': HTTPStatus.UNAUTHORIZED,
@@ -202,7 +203,8 @@ class UserService:
             uuid=refresh_id,
             user_id=user_id,
             active_till=int((datetime.now() + timedelta(
-                minutes=settings.refresh_token_expire_minutes)).timestamp())
+                minutes=settings.refresh_token_expire_minutes)).timestamp()),
+            user_device_type=user_device_type
         )
         await self._postgres.update_refresh_token(new_refresh_token, refresh_id)
 

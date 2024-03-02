@@ -9,6 +9,8 @@ log_levels = {
     'ERROR': logging.ERROR
 }
 
+devices = ['ios_app', 'android_app', 'web', 'smart_tv']
+
 
 class Settings(BaseSettings):
     project_name: str = "movie_api_default"

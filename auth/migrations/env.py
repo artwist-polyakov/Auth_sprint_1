@@ -8,7 +8,6 @@ from sqlalchemy import engine_from_config, pool
 # from db.auth.refresh_token import RefreshToken
 # from db.auth.role import Role
 # from db.auth.user import User
-# from db.auth.user_signin import UserSignIn
 
 from db.auth.base import Base
 

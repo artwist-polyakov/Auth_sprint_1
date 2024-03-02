@@ -20,8 +20,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.create_index(
-        index_name='ix_users_sign_ins_user_device_type',
-        table_name='users_sign_ins',
+        index_name='ix_refresh_tokens_user_device_type',
+        table_name='refresh_tokens',
         columns=['user_device_type'],
         unique=False,
         schema='users'
@@ -30,6 +30,6 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_index(
-        index_name='ix_users_sign_ins_user_device_type',
-        table_name='users.users_sign_ins'
+        index_name='ix_refresh_tokens_user_device_type',
+        table_name='users.refresh_tokens'
     )

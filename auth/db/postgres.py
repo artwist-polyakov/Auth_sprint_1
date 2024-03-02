@@ -47,7 +47,8 @@ class PostgresInterface(UserStorage):
                             .values(
                                 uuid=request.uuid,
                                 user_id=request.user_id,
-                                active_till=request.active_till
+                                active_till=request.active_till,
+                                user_device_type=request.user_device_type
                             )
                         )
                     case 'role':
@@ -280,18 +281,19 @@ class PostgresInterface(UserStorage):
                 await session.commit()
                 history = []
                 tokens = tokens.all()
-                logging.warning(tokens)
                 for token_instance in tokens:
                     token_instance = token_instance[0].__dict__
                     created_at = token_instance['created_at']
                     active_till = token_instance['active_till']
                     token_uuid = token_instance['uuid']
                     user_id = token_instance['user_id']
+                    user_device_type = token_instance['user_device_type']
                     history.append({
                         'token_id': str(token_uuid),
                         'created_at': created_at.isoformat(),
                         'active_till': active_till,
-                        'user_id': str(user_id)
+                        'user_id': str(user_id),
+                        'user_device_type': user_device_type
                     })
                 return {
                     'status_code': HTTPStatus.OK,
