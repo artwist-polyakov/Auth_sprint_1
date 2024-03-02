@@ -176,7 +176,7 @@ alembic revision
 2. На всем пути работы `alembic` не должно быть импортов settings (включая файлы с моделями `./auth/db/auth`). 
 Это связано с тем, что скрипт `alembic` не сможет прочитать `.env`, который находится в корне проекта `cd .`
 
-3. Если возвращается ошибка `Foreign key couldn't find column`, `print ...` и т.д.), необходимо прописать импорты моделей из `./auth/db/auth` в `./auth/migrations/env.py`; импорта `Base`, от которого наследуются другие модели, недостаточно
+3. Если возвращается ошибка `Foreign key couldn't find column` или `print ...`, необходимо прописать импорты моделей из `./auth/db/auth` в `./auth/migrations/env.py`; импорта `Base`, от которого наследуются другие модели, недостаточно
 
 4. Чтобы избежать ошибки `DuplicateObjectError`, необходимо заполнять не только `def upgrade()`, но и `def downgrade()` (запрос `DELETE/DROP`)
 
