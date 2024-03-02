@@ -5,8 +5,9 @@ from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
+from configs.devices import devices
 from db.models.token_models.access_token_container import AccessTokenContainer
-from fastapi import APIRouter, Cookie, Depends, Header
+from fastapi import APIRouter, Cookie, Depends
 from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
@@ -152,16 +153,19 @@ async def delete_user(
 @router.get(
     path='/login',
     summary="Login",
-    description="Login by email and password"
+    description=f"Login by email and password. List of available devices types: {devices}"
 )
 async def login_user(
         email: str,
         password: str,
+        user_device_type: str,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    user_agent: str = Header('User-Agent')
-    logging.warning(user_agent, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-    user_device_type: str = user_agent
+    if user_device_type not in devices:
+        return JSONResponse(
+            status_code=HTTPStatus.BAD_REQUEST,
+            content='No such device type'
+        )
     response: dict = await service.authenticate(email, password, user_device_type)
     return get_tokens_response(response)
 

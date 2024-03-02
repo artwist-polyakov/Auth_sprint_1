@@ -21,7 +21,7 @@ from utils.creator_provider import get_creator
 PAGE_SIZE = 10
 
 
-def generate_access_container(user_id: str, refresh_id: str) -> AccessTokenContainer:
+def generate_access_container(user_id: str, refresh_id: str, user_device_type: str) -> AccessTokenContainer:
     result = AccessTokenContainer(
         user_id=user_id,
         role="user",
@@ -30,7 +30,8 @@ def generate_access_container(user_id: str, refresh_id: str) -> AccessTokenConta
         subscribed=False,
         created_at=int(datetime.now().timestamp()),
         refresh_id=refresh_id,
-        refreshed_at=int(datetime.now().timestamp())
+        refreshed_at=int(datetime.now().timestamp()),
+        user_device_type=user_device_type
     )
     return result
 
@@ -134,7 +135,8 @@ class UserService:
             subscribed=False,
             created_at=int(datetime.now().timestamp()),
             refresh_id=str(refresh_token.uuid),
-            refreshed_at=int(datetime.now().timestamp())
+            refreshed_at=int(datetime.now().timestamp()),
+            user_device_type=user_device_type
         )
         return result
 
@@ -196,7 +198,7 @@ class UserService:
                 'content': 'Refresh token has expired'
             }
 
-        token_to_blacklist = generate_access_container(user_id, refresh_id)
+        token_to_blacklist = generate_access_container(user_id, refresh_id, user_device_type)
         await self._enters_storage.logout_current_session(token_to_blacklist)
 
         new_refresh_token = RefreshToken(
@@ -218,7 +220,8 @@ class UserService:
             subscribed=False,
             created_at=int(datetime.now().timestamp()),
             refresh_id=str(new_refresh_token.uuid),
-            refreshed_at=int(datetime.now().timestamp())
+            refreshed_at=int(datetime.now().timestamp()),
+            user_device_type=user_device_type
         )
         return result
 
