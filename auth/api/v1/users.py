@@ -157,9 +157,9 @@ async def delete_user(
 async def login_user(
         email: str,
         password: str,
-        service: UserService = Depends(get_user_service),
-        user_agent: str = Header('User-Agent')
+        service: UserService = Depends(get_user_service)
 ) -> Response:
+    user_agent: str = Header('User-Agent')
     logging.warning(user_agent, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
     user_device_type: str = user_agent
     response: dict = await service.authenticate(email, password, user_device_type)
