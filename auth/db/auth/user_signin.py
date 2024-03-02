@@ -1,6 +1,6 @@
 import datetime
 
-from configs.settings import settings
+# from configs.settings import settings
 from sqlalchemy import UniqueConstraint, Column, ForeignKey, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -15,7 +15,7 @@ from db.auth.base import Base
 class UserSignIn(Base):
     __tablename__ = 'users_sign_ins'
     __table_args__ = (UniqueConstraint('uuid', 'user_device_type'),
-                      {'schema': settings.postgres_schema_2,
+                      {'schema': 'users',
                        'postgresql_partition_by': 'LIST (user_device_type)'})
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, unique=True, nullable=False)
