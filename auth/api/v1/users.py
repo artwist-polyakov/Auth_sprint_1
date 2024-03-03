@@ -76,7 +76,7 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
 @router.post(
     path='/sign_up',
     summary="Sign Up",
-    description="Sign Up"
+    description="Sign Up. Available for unauthorised"
 )
 @value_error_handler()
 async def sign_up(
@@ -108,13 +108,19 @@ async def sign_up(
     path='/user',
     response_model=UserResult,
     summary="Get User by UUID",
-    description="Get one user with current uuid if exists"
+    description="Get one user with current uuid if exists. Available for user, admin"
 )
 async def get_user_by_uuid(
         uuid: str,
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> UserResult | Response:
+    # token = AccessTokenContainer(
+    #     **dict_from_jwt(access_token)
+    # )
+    # rbac = RBACInfo(role='admin', resource='users', verb='read')
+    # response: bool = await service.check_permissions(token, rbac)
+
     if error := get_error_from_uuid(uuid, access_token):
         return error
     response: dict = await service.get_user_by_uuid(uuid)
@@ -134,7 +140,7 @@ async def get_user_by_uuid(
 @router.delete(
     path='/delete',
     summary="Delete User by UUID",
-    description="Delete one user with current uuid if exists"
+    description="Delete one user with current uuid if exists. Available for user, admin"
 )
 async def delete_user(
         uuid: str,
@@ -153,7 +159,7 @@ async def delete_user(
 @router.get(
     path='/login',
     summary="Login",
-    description=f"Login by email and password. List of available devices types: {devices}"
+    description=f"Login by email and password. List of available devices types: {devices}. Available for unauthorised"
 )
 async def login_user(
         email: str,
@@ -173,7 +179,7 @@ async def login_user(
 @router.patch(
     path='/update',
     summary="Update Profile Data",
-    description="Update profile data except password"
+    description="Update profile data except password. Available for user, admin"
 )
 async def update_user(
         uuid: str,
@@ -198,7 +204,7 @@ async def update_user(
 @router.post(
     path='/refresh',
     summary="Refresh access token via refresh token",
-    description="Emits new access token if refresh token is valid"
+    description="Emits new access token if refresh token is valid. Available for user"
 )
 async def refresh_access_token(
         refresh_token: str = Cookie(None),
@@ -224,7 +230,7 @@ async def refresh_access_token(
 @router.post(
     path='/logout',
     summary="Logout from current session",
-    description="Terminate all sessions correspondend with current refresh token"
+    description="Terminate all sessions correspondend with current refresh token. Available for user"
 )
 async def logout(
         access_token: str = Cookie(None),
@@ -246,7 +252,7 @@ async def logout(
 @router.post(
     path="/logout_all_devices",
     summary="Logout from all devices",
-    description="Terminate all sessions correspondend with current user_id"
+    description="Terminate all sessions correspondend with current user_id. Available for user"
 )
 async def logout_all_devices(
         access_token: str = Cookie(None),
@@ -265,7 +271,7 @@ async def logout_all_devices(
 @router.get(
     path="/history",
     summary="Get login history",
-    description="Get login history for current user"
+    description="Get login history for current user. Available for user, admin"
 )
 async def get_login_history(
         pagination: PaginatedParams = Depends(),
@@ -297,11 +303,11 @@ async def get_login_history(
         content=result
     )
 
-# todo ^admin
+# todo ^user, admin
 @router.get(
     path="/check_permissions",
     summary="Check permissions",
-    description="Check permissions for current user"
+    description="Check permissions for current user. Available for user, admin"
 )
 async def check_permissions(
         resource: str,

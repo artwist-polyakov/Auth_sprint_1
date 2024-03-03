@@ -4,15 +4,16 @@ from api.v1.models.roles_schema import RoleSchema
 from configs.rbac_conf import clear_rbac_conf_cache
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, Response
+
 from services.role_service import RoleService, get_role_service
 
 router = APIRouter()
 
-# todo ^superuser
+
 @router.get(
     path='/all',
     summary="Roles",
-    description="Get all roles"
+    description="Get all roles. Available for superuser"
 )
 async def get_roles(
         service: RoleService = Depends(get_role_service)
@@ -23,11 +24,11 @@ async def get_roles(
         content=response
     )
 
-# todo ^superuser
+
 @router.post(
     path='/add',
     summary="Add Role",
-    description="Add role"
+    description="Add role. Available for superuser"
 )
 async def add_role(
         role_data: RoleSchema = Depends(),
@@ -40,11 +41,11 @@ async def add_role(
         content={'uuid': response}
     )
 
-# todo ^superuser
+
 @router.patch(
     path='/update',
     summary="Update Role",
-    description="Update role"
+    description="Update role. Available for superuser"
 )
 async def update_role(
         uuid: str,
@@ -63,11 +64,11 @@ async def update_role(
         content=response['content']
     )
 
-# todo ^superuser
+
 @router.delete(
     path='/delete',
     summary="Delete User by UUID",
-    description="Delete one user with current uuid if exists"
+    description="Delete one user with current uuid if exists. Available for superuser"
 )
 async def delete_role(
         uuid: str,
@@ -81,11 +82,11 @@ async def delete_role(
         content=response['content']
     )
 
-# todo ^superuser
+
 @router.patch(
     path='/change_role',
     summary="Change User Role",
-    description="Change user role"
+    description="Change user role. Available for superuser"
 )
 async def change_user_role(
         uuid: str,
