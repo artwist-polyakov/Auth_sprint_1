@@ -223,20 +223,21 @@ class UserService:
                 minutes=settings.refresh_token_expire_minutes)).timestamp()),
             user_device_type=user_device_type
         )
+        # todo result = AccessTokenContainer
         await self._postgres.update_refresh_token(new_refresh_token, refresh_id)
 
         # todo  добавить информацию про роль данного пользователя
 
         result = AccessTokenContainer(
             user_id=user_id,
-            role="user",
-            is_superuser=False,
-            verified=True,
-            subscribed=False,
+            role="user",  ############################################################################################
+            is_superuser=False,  ############################################################################################
+            verified=True,  ############################################################################################
+            subscribed=False,  ############################################################################################
             created_at=int(datetime.now().timestamp()),
             refresh_id=str(new_refresh_token.uuid),
             refreshed_at=int(datetime.now().timestamp()),
-            user_device_type=user_device_type
+            user_device_type=user_device_type  ############################################################################################
         )
         return result
 
@@ -274,22 +275,6 @@ class UserService:
         is_blacklisted = await self._enters_storage.is_blacklisted(logout_info)
         has_permissions = await has_permission(rbac.role, rbac.resource, rbac.verb)
         return not is_blacklisted and has_permissions
-
-    # async def check_has_role(self, uuid: str) -> bool | dict:
-    #     user: User | dict = await self._postgres.get_single_user(field_name='uuid', field_value=uuid)
-    #     if isinstance(user, dict):
-    #         return {
-    #             'status_code': HTTPStatus.NOT_FOUND,
-    #             'content': 'User not found'
-    #         }
-    #     if user.is_superuser:
-    #         return True
-    #     return {
-    #         'status_code': HTTPStatus.FORBIDDEN,
-    #         'content': False
-    #     }
-
-
 
 
 @lru_cache

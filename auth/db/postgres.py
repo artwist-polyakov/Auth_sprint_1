@@ -158,6 +158,7 @@ class PostgresInterface(UserStorage):
             old_refresh_token_id: str
     ) -> bool:
         async with self._async_session() as session:
+            # одним запросом UserConfig(user_id, role, is_superuser, subscribed)
             try:
                 query = (
                     update(

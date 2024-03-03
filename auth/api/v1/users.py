@@ -103,7 +103,7 @@ async def sign_up(
         content=response['content']
     )
 
-# todo ^user, admin
+
 @router.get(
     path='/user',
     response_model=UserResult,
@@ -115,12 +115,6 @@ async def get_user_by_uuid(
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> UserResult | Response:
-    # token = AccessTokenContainer(
-    #     **dict_from_jwt(access_token)
-    # )
-    # rbac = RBACInfo(role='admin', resource='users', verb='read')
-    # response: bool = await service.check_permissions(token, rbac)
-
     if error := get_error_from_uuid(uuid, access_token):
         return error
     response: dict = await service.get_user_by_uuid(uuid)
@@ -136,7 +130,7 @@ async def get_user_by_uuid(
         content=response['content']
     )
 
-# todo ^user, admin
+
 @router.delete(
     path='/delete',
     summary="Delete User by UUID",
@@ -175,7 +169,7 @@ async def login_user(
     response: dict = await service.authenticate(email, password, user_device_type)
     return get_tokens_response(response)
 
-# todo ^user, admin
+
 @router.patch(
     path='/update',
     summary="Update Profile Data",
@@ -200,7 +194,7 @@ async def update_user(
         content=response['content']
     )
 
-# todo ^user
+
 @router.post(
     path='/refresh',
     summary="Refresh access token via refresh token",
@@ -226,7 +220,7 @@ async def refresh_access_token(
         content='Invalid refresh token'
     )
 
-# todo ^user
+
 @router.post(
     path='/logout',
     summary="Logout from current session",
@@ -248,7 +242,7 @@ async def logout(
         content=response['content']
     )
 
-# todo ^user
+
 @router.post(
     path="/logout_all_devices",
     summary="Logout from all devices",
@@ -267,7 +261,7 @@ async def logout_all_devices(
         content=response['content']
     )
 
-# todo ^user, admin
+
 @router.get(
     path="/history",
     summary="Get login history",
@@ -286,6 +280,8 @@ async def get_login_history(
     token = AccessTokenContainer(
         **dict_from_jwt(access_token)
     )
+    if error := get_error_from_uuid(token.uuid, access_token):
+        return error
     response: dict = await service.get_login_history(
         user_id=token.user_id,
         page=pagination.page,
@@ -303,11 +299,11 @@ async def get_login_history(
         content=result
     )
 
-# todo ^user, admin
+
 @router.get(
     path="/check_permissions",
     summary="Check permissions",
-    description="Check permissions for current user. Available for user, admin"
+    description="Check permissions for current user"
 )
 async def check_permissions(
         resource: str,
@@ -323,6 +319,13 @@ async def check_permissions(
     token = AccessTokenContainer(
         **dict_from_jwt(access_token)
     )
+
+    if not token.is_superuser:
+        return JSONResponse(
+            status_code=HTTPStatus.FORBIDDEN,
+            content='Insufficient permissions'
+        )
+
     rbac = RBACInfo(
         role=token.role,
         resource=resource,
