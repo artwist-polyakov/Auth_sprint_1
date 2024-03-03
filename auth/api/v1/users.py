@@ -72,7 +72,7 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
         content=response['content']
     )
 
-
+# todo ^unauthorised
 @router.post(
     path='/sign_up',
     summary="Sign Up",
@@ -103,7 +103,7 @@ async def sign_up(
         content=response['content']
     )
 
-
+# todo ^user, admin
 @router.get(
     path='/user',
     response_model=UserResult,
@@ -130,7 +130,7 @@ async def get_user_by_uuid(
         content=response['content']
     )
 
-
+# todo ^user, admin
 @router.delete(
     path='/delete',
     summary="Delete User by UUID",
@@ -149,7 +149,7 @@ async def delete_user(
         content=response['content']
     )
 
-
+# todo ^unauthorised
 @router.get(
     path='/login',
     summary="Login",
@@ -169,7 +169,7 @@ async def login_user(
     response: dict = await service.authenticate(email, password, user_device_type)
     return get_tokens_response(response)
 
-
+# todo ^user, admin
 @router.patch(
     path='/update',
     summary="Update Profile Data",
@@ -194,7 +194,7 @@ async def update_user(
         content=response['content']
     )
 
-
+# todo ^user
 @router.post(
     path='/refresh',
     summary="Refresh access token via refresh token",
@@ -220,7 +220,7 @@ async def refresh_access_token(
         content='Invalid refresh token'
     )
 
-
+# todo ^user
 @router.post(
     path='/logout',
     summary="Logout from current session",
@@ -242,7 +242,7 @@ async def logout(
         content=response['content']
     )
 
-
+# todo ^user
 @router.post(
     path="/logout_all_devices",
     summary="Logout from all devices",
@@ -261,7 +261,7 @@ async def logout_all_devices(
         content=response['content']
     )
 
-
+# todo ^user, admin
 @router.get(
     path="/history",
     summary="Get login history",
@@ -297,7 +297,7 @@ async def get_login_history(
         content=result
     )
 
-
+# todo ^admin
 @router.get(
     path="/check_permissions",
     summary="Check permissions",

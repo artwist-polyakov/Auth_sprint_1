@@ -275,6 +275,23 @@ class UserService:
         has_permissions = await has_permission(rbac.role, rbac.resource, rbac.verb)
         return not is_blacklisted and has_permissions
 
+    async def check_is_superuser(self, uuid: str) -> dict:
+        user: User | dict = await self._postgres.get_single_user(field_name='uuid', field_value=uuid)
+        if isinstance(user, dict):
+            return {
+                'status_code': HTTPStatus.NOT_FOUND,
+                'content': 'User not found'
+            }
+        if user.is_superuser:
+            return {
+                'status_code': HTTPStatus.ACCEPTED,
+                'content': True
+            }
+        return {
+            'status_code': HTTPStatus.FORBIDDEN,
+            'content': False
+        }
+
 
 @lru_cache
 def get_user_service():

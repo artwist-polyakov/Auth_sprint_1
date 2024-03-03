@@ -8,7 +8,7 @@ from services.role_service import RoleService, get_role_service
 
 router = APIRouter()
 
-
+# todo ^superuser
 @router.get(
     path='/all',
     summary="Roles",
@@ -23,7 +23,7 @@ async def get_roles(
         content=response
     )
 
-
+# todo ^superuser
 @router.post(
     path='/add',
     summary="Add Role",
@@ -40,7 +40,7 @@ async def add_role(
         content={'uuid': response}
     )
 
-
+# todo ^superuser
 @router.patch(
     path='/update',
     summary="Update Role",
@@ -63,7 +63,7 @@ async def update_role(
         content=response['content']
     )
 
-
+# todo ^superuser
 @router.delete(
     path='/delete',
     summary="Delete User by UUID",
@@ -81,7 +81,7 @@ async def delete_role(
         content=response['content']
     )
 
-
+# todo ^superuser
 @router.patch(
     path='/change_role',
     summary="Change User Role",
