@@ -1,8 +1,8 @@
-"""empty message
+"""create_tables
 
-Revision ID: 9d4fc6612143
-Revises: 61b961cce125
-Create Date: 2024-02-25 15:29:53.588916
+Revision ID: f7fcdf76104d
+Revises: 367bdda798cc
+Create Date: 2024-03-01 16:24:21.908848
 
 """
 from typing import Sequence, Union
@@ -11,8 +11,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = '9d4fc6612143'
-down_revision: Union[str, None] = '61b961cce125'
+revision: str = 'f7fcdf76104d'
+down_revision: Union[str, None] = '367bdda798cc'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -48,10 +48,12 @@ def upgrade() -> None:
                     sa.Column('user_id', sa.UUID(), nullable=False),
                     sa.Column('active_till', sa.BigInteger(), nullable=False),
                     sa.Column('created_at', sa.DateTime(), nullable=True),
+                    sa.Column('user_device_type', sa.Text(), nullable=False),
                     sa.ForeignKeyConstraint(['user_id'], ['users.users.uuid'], ),
-                    sa.PrimaryKeyConstraint('uuid'),
-                    sa.UniqueConstraint('uuid'),
-                    schema='users'
+                    sa.PrimaryKeyConstraint('uuid', 'user_device_type'),
+                    sa.UniqueConstraint('uuid', 'user_device_type'),
+                    schema='users',
+                    postgresql_partition_by='list(user_device_type)'
                     )
     # ### end Alembic commands ###
 

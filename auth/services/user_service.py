@@ -21,7 +21,11 @@ from utils.creator_provider import get_creator
 PAGE_SIZE = 10
 
 
-def generate_access_container(user_id: str, refresh_id: str) -> AccessTokenContainer:
+def generate_access_container(
+        user_id: str,
+        refresh_id: str,
+        user_device_type: str
+) -> AccessTokenContainer:
     result = AccessTokenContainer(
         user_id=user_id,
         role="user",
@@ -30,7 +34,8 @@ def generate_access_container(user_id: str, refresh_id: str) -> AccessTokenConta
         subscribed=False,
         created_at=int(datetime.now().timestamp()),
         refresh_id=refresh_id,
-        refreshed_at=int(datetime.now().timestamp())
+        refreshed_at=int(datetime.now().timestamp()),
+        user_device_type=user_device_type
     )
     return result
 
@@ -105,7 +110,12 @@ class UserService:
         response: dict = await self._postgres.delete_single_data(uuid, 'user')
         return response
 
-    async def authenticate(self, email: str, password: str) -> AccessTokenContainer | dict:
+    async def authenticate(
+            self,
+            email: str,
+            password: str,
+            user_device_type: str
+    ) -> AccessTokenContainer | dict:
         user: User | dict = await self._postgres.get_single_user(
             field_name='email',
             field_value=email.lower()
@@ -121,7 +131,8 @@ class UserService:
             uuid=str(uuid.uuid4()),
             user_id=str(user.uuid),
             active_till=int((datetime.now() + timedelta(
-                minutes=settings.refresh_token_expire_minutes)).timestamp())
+                minutes=settings.refresh_token_expire_minutes)).timestamp()),
+            user_device_type=user_device_type
         )
         await self._postgres.add_single_data(refresh_token, 'refresh_token')
 
@@ -133,7 +144,8 @@ class UserService:
             subscribed=False,
             created_at=int(datetime.now().timestamp()),
             refresh_id=str(refresh_token.uuid),
-            refreshed_at=int(datetime.now().timestamp())
+            refreshed_at=int(datetime.now().timestamp()),
+            user_device_type=user_device_type
         )
         return result
 
@@ -188,21 +200,28 @@ class UserService:
             'content': 'Password changed successfully'
         }
 
-    async def refresh_access_token(self, refresh_id: str, user_id: str, active_till: int):
+    async def refresh_access_token(
+            self,
+            refresh_id: str,
+            user_id: str,
+            active_till: int,
+            user_device_type: str
+    ):
         if active_till < int(datetime.now().timestamp()):
             return {
                 'status_code': HTTPStatus.UNAUTHORIZED,
                 'content': 'Refresh token has expired'
             }
 
-        token_to_blacklist = generate_access_container(user_id, refresh_id)
+        token_to_blacklist = generate_access_container(user_id, refresh_id, user_device_type)
         await self._enters_storage.logout_current_session(token_to_blacklist)
 
         new_refresh_token = RefreshToken(
             uuid=refresh_id,
             user_id=user_id,
             active_till=int((datetime.now() + timedelta(
-                minutes=settings.refresh_token_expire_minutes)).timestamp())
+                minutes=settings.refresh_token_expire_minutes)).timestamp()),
+            user_device_type=user_device_type
         )
         await self._postgres.update_refresh_token(new_refresh_token, refresh_id)
 
@@ -216,7 +235,8 @@ class UserService:
             subscribed=False,
             created_at=int(datetime.now().timestamp()),
             refresh_id=str(new_refresh_token.uuid),
-            refreshed_at=int(datetime.now().timestamp())
+            refreshed_at=int(datetime.now().timestamp()),
+            user_device_type=user_device_type
         )
         return result
 
