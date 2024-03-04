@@ -39,11 +39,11 @@ async def get_response(url: str, params: dict = None, method: str = 'GET', cooki
 
 
 async def has_permission(user_role, resource_name, required_permission):
-    url = 'http://rbac:8000/api/v1/has_permission/'
+    url = 'http://auth:8000/auth/v1/users/check_permissions/'
     params = {
         'role': user_role,
         'resource': resource_name,
-        'action': required_permission
+        'verb': required_permission
     }
     result, status = await get_response(url=url, params=params)
     logging.warning(f"result: {result}")
@@ -78,9 +78,9 @@ class RBACMiddleware(BaseHTTPMiddleware):
                     status_code=HTTPStatus.UNAUTHORIZED,
                     detail="Bad credentials")
             if not is_superuser and not await has_permission(role, resource, action):
-                raise HTTPException(
+                return ORJSONResponse(
                     status_code=HTTPStatus.FORBIDDEN,
-                    detail="Permission denied")
+                    content="Permission denied")
         try:
             response = await call_next(request)
             return response
