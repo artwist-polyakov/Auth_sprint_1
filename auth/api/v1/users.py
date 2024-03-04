@@ -149,7 +149,7 @@ async def delete_user(
         content=response['content']
     )
 
-# todo ^unauthorised
+
 @router.get(
     path='/login',
     summary="Login",

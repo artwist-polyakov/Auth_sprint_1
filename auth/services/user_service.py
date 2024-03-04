@@ -227,6 +227,7 @@ class UserService:
         await self._postgres.update_refresh_token(new_refresh_token, refresh_id)
 
         # todo  добавить информацию про роль данного пользователя
+        # todo в postgres.py одним запросом UserConfig(user_id, role, is_superuser, subscribed)
 
         result = AccessTokenContainer(
             user_id=user_id,

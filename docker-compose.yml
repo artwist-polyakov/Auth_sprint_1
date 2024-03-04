@@ -43,6 +43,17 @@ services:
       - redis
 
 
+  admin:
+    container_name: admin
+    build: ./admin
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+
   etl:
     container_name: etl
     build: ./etl
