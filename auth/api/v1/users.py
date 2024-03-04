@@ -308,31 +308,33 @@ async def get_login_history(
 async def check_permissions(
         resource: str,
         verb: str,
+        role: str,
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     if not access_token:
-        return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            content='Invalid access token'
+        token = None
+    else:
+        token = AccessTokenContainer(
+            **dict_from_jwt(access_token)
         )
-    token = AccessTokenContainer(
-        **dict_from_jwt(access_token)
-    )
+        if token.is_superuser:
+            return JSONResponse(
+                status_code=HTTPStatus.OK,
+                content=True
+            )
 
-    if not token.is_superuser:
-        return JSONResponse(
-            status_code=HTTPStatus.FORBIDDEN,
-            content='Insufficient permissions'
-        )
 
     rbac = RBACInfo(
-        role=token.role,
+        role=role,
         resource=resource,
         verb=verb
     )
     response: bool = await service.check_permissions(token, rbac)
+    result = {
+        'permission': response
+    }
     return JSONResponse(
         status_code=HTTPStatus.OK,
-        content=response
+        content=result
     )
