@@ -138,7 +138,7 @@ class UserService:
 
         result = AccessTokenContainer(
             user_id=str(user.uuid),
-            role="user",
+            role=user.role,
             is_superuser=user.is_superuser,
             verified=True,
             subscribed=False,
@@ -223,20 +223,22 @@ class UserService:
                 minutes=settings.refresh_token_expire_minutes)).timestamp()),
             user_device_type=user_device_type
         )
+        # todo result = AccessTokenContainer
         await self._postgres.update_refresh_token(new_refresh_token, refresh_id)
 
         # todo  добавить информацию про роль данного пользователя
+        # todo в postgres.py одним запросом UserConfig(user_id, role, is_superuser, subscribed)
 
         result = AccessTokenContainer(
             user_id=user_id,
-            role="user",
-            is_superuser=False,
-            verified=True,
-            subscribed=False,
+            role="user",  # #######################################################
+            is_superuser=False,  # ################################################
+            verified=True,  # #####################################################
+            subscribed=False,  # ##################################################
             created_at=int(datetime.now().timestamp()),
             refresh_id=str(new_refresh_token.uuid),
             refreshed_at=int(datetime.now().timestamp()),
-            user_device_type=user_device_type
+            user_device_type=user_device_type  # ##################################
         )
         return result
 

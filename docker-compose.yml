@@ -8,13 +8,27 @@ services:
    volumes:
      - static_volume:/var/www/static
      - media_volume:/var/www/media
+     - admin_volume:/var/www/static/admin
    depends_on:
      - movies
      - auth
+     - admin
    ports:
      - "8000:80"
      - "443:443"
 
+
+  admin:
+    container_name: admin
+    build: ./admin
+    volumes:
+      - admin_static:/var/www/static/admin
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
 
 
   movies:
@@ -120,6 +134,8 @@ services:
 volumes:
     static_volume:
     media_volume:
+    admin_volume:
+    admin_static:
     elasticsearch_data:
     redis_data:
     postgres_data:

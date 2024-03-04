@@ -280,6 +280,8 @@ async def get_login_history(
     token = AccessTokenContainer(
         **dict_from_jwt(access_token)
     )
+    if error := get_error_from_uuid(token.uuid, access_token):
+        return error
     response: dict = await service.get_login_history(
         user_id=token.user_id,
         page=pagination.page,
@@ -317,6 +319,13 @@ async def check_permissions(
     token = AccessTokenContainer(
         **dict_from_jwt(access_token)
     )
+
+    if not token.is_superuser:
+        return JSONResponse(
+            status_code=HTTPStatus.FORBIDDEN,
+            content='Insufficient permissions'
+        )
+
     rbac = RBACInfo(
         role=token.role,
         resource=resource,
