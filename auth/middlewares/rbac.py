@@ -49,15 +49,21 @@ class RBACMiddleware(BaseHTTPMiddleware):
             else:
                 refresh_token = request.cookies.get(REFRESH_TOKEN_KEY)
                 if refresh_token and not (LOGIN_HANDLE in resource):
-                    raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Access token expired")
+                    raise HTTPException(
+                        status_code=HTTPStatus.UNAUTHORIZED,
+                        detail="Access token expired")
             if not role:
-                raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Bad credentials")
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED,
+                    detail="Bad credentials")
             if not is_superuser and role != UNAUTHORIZED_ROLE and not await has_permission(
                     role,
                     resource.split("/")[2],
                     action
             ):
-                raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Insufficient permissions")
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN,
+                    detail="Insufficient permissions")
             logging.warning(f"Role: {role}")
         try:
             response = await call_next(request)
