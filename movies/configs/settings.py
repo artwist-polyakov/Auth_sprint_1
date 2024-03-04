@@ -65,3 +65,12 @@ class PostgresSettings(BaseSettings):
     password: str = settings.postgres_password
     host: str = settings.postgres_host
     port: int = settings.postgres_port
+
+
+class JWTSecuritySettings(BaseSettings):
+    jwt_cookie_csrf_protect: bool = False
+    openssl_key: str = ...
+    algorithm: str = 'HS256'
+
+    class Config:
+        env_file = '.env'
