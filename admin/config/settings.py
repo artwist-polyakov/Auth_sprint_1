@@ -59,7 +59,7 @@ DATABASES = {
         'HOST': settings.postgres_host,
         'PORT': settings.postgres_port,
         'OPTIONS': {
-            'options': '-c search_path=public,users'
+            'options': '-c search_path=users'
         }
     }
 }
@@ -79,7 +79,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'ru-RU'
+LANGUAGE_CODE = 'en-en'
 
 TIME_ZONE = 'UTC'
 

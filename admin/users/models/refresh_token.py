@@ -12,3 +12,6 @@ class RefreshToken(models.Model):
 
     def __str__(self):
         return f'<RefreshToken {self.uuid}>'
+
+    class Meta:
+        db_table = 'refresh_tokens'

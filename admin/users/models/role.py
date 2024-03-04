@@ -10,3 +10,6 @@ class Role(models.Model):
 
     def __str__(self):
         return f'<Role {self.role}>'
+
+    class Meta:
+        db_table = 'roles'
