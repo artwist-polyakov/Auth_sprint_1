@@ -72,11 +72,11 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
         content=response['content']
     )
 
-# todo ^unauthorised
+
 @router.post(
     path='/sign_up',
     summary="Sign Up",
-    description="Sign Up. Available for unauthorised"
+    description="Sign Up"
 )
 @value_error_handler()
 async def sign_up(
@@ -108,7 +108,7 @@ async def sign_up(
     path='/user',
     response_model=UserResult,
     summary="Get User by UUID",
-    description="Get one user with current uuid if exists. Available for user, admin"
+    description="Get one user with current uuid if exists"
 )
 async def get_user_by_uuid(
         uuid: str,
@@ -134,7 +134,7 @@ async def get_user_by_uuid(
 @router.delete(
     path='/delete',
     summary="Delete User by UUID",
-    description="Delete one user with current uuid if exists. Available for user, admin"
+    description="Delete one user with current uuid if exists"
 )
 async def delete_user(
         uuid: str,
@@ -153,7 +153,7 @@ async def delete_user(
 @router.get(
     path='/login',
     summary="Login",
-    description=f"Login by email and password. List of available devices types: {devices}. Available for unauthorised"
+    description=f"Login by email and password. List of available devices types: {devices}"
 )
 async def login_user(
         email: str,
@@ -173,7 +173,7 @@ async def login_user(
 @router.patch(
     path='/update',
     summary="Update Profile Data",
-    description="Update profile data except password. Available for user, admin"
+    description="Update profile data except password"
 )
 async def update_user(
         uuid: str,
@@ -198,7 +198,7 @@ async def update_user(
 @router.post(
     path='/refresh',
     summary="Refresh access token via refresh token",
-    description="Emits new access token if refresh token is valid. Available for user"
+    description="Emits new access token if refresh token is valid"
 )
 async def refresh_access_token(
         refresh_token: str = Cookie(None),
@@ -224,7 +224,7 @@ async def refresh_access_token(
 @router.post(
     path='/logout',
     summary="Logout from current session",
-    description="Terminate all sessions correspondend with current refresh token. Available for user"
+    description="Terminate all sessions correspondend with current refresh token"
 )
 async def logout(
         access_token: str = Cookie(None),
@@ -246,7 +246,7 @@ async def logout(
 @router.post(
     path="/logout_all_devices",
     summary="Logout from all devices",
-    description="Terminate all sessions correspondend with current user_id. Available for user"
+    description="Terminate all sessions correspondend with current user_id"
 )
 async def logout_all_devices(
         access_token: str = Cookie(None),
@@ -265,7 +265,7 @@ async def logout_all_devices(
 @router.get(
     path="/history",
     summary="Get login history",
-    description="Get login history for current user. Available for user, admin"
+    description="Get login history for current user"
 )
 async def get_login_history(
         pagination: PaginatedParams = Depends(),
