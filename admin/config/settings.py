@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from configs.settings import settings
@@ -86,6 +87,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/admin_static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'admin_static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

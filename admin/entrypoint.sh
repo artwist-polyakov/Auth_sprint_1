@@ -10,6 +10,8 @@ wait_for_postgres() {
 
 wait_for_postgres
 
+python manage.py collectstatic
+
 python manage.py migrate
 
 if [ "$DJANGO_SUPERUSER_USERNAME" ]
