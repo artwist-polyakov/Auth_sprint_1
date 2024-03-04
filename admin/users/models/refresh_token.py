@@ -8,7 +8,7 @@ class RefreshToken(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='refresh_tokens')
     active_till = models.BigIntegerField()
     created_at = models.DateTimeField(default=datetime.utcnow)
-    user_device_type = models.TextField(primary_key=True)
+    user_device_type = models.TextField()
 
     def __str__(self):
         return f'<RefreshToken {self.uuid}>'

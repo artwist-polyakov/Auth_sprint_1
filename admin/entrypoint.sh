@@ -10,4 +10,5 @@ wait_for_postgres() {
 
 wait_for_postgres
 
+python manage.py migrate
 python manage.py runserver
