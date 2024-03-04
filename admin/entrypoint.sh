@@ -20,4 +20,4 @@ then
         --email "$DJANGO_SUPERUSER_EMAIL"
 fi
 
-python manage.py runserver
+python manage.py runserver "$ADMIN_HOST":"$ADMIN_PORT"
