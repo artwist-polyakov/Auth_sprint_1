@@ -324,7 +324,6 @@ async def check_permissions(
                 content=True
             )
 
-
     rbac = RBACInfo(
         role=role,
         resource=resource,

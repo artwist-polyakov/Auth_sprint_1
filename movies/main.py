@@ -4,7 +4,6 @@ from configs.settings import Settings
 from core.logger import LOGGING
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-
 from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
 
@@ -19,6 +18,7 @@ app = FastAPI(
 )
 
 app.add_middleware(RBACMiddleware)
+
 
 @app.on_event('shutdown')
 async def shutdown():
