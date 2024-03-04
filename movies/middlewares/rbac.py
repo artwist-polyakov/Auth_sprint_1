@@ -45,6 +45,7 @@ async def has_permission(user_role, resource_name, required_permission):
         'resource': resource_name,
         'verb': required_permission
     }
+    logging.warning(f"params: {params}")
     result, status = await get_response(url=url, params=params)
     logging.warning(f"result: {result}")
     logging.warning(f"status: {status}")
@@ -77,7 +78,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
                 raise HTTPException(
                     status_code=HTTPStatus.UNAUTHORIZED,
                     detail="Bad credentials")
-            if not is_superuser and not await has_permission(role, resource, action):
+            if not is_superuser and not await has_permission(role, resource.split("/")[2], action):
                 return ORJSONResponse(
                     status_code=HTTPStatus.FORBIDDEN,
                     content="Permission denied")
