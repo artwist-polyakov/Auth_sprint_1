@@ -12,7 +12,7 @@ router = APIRouter()
 @router.get(
     path='/all',
     summary="Roles",
-    description="Get all roles. Available for superuser"
+    description="Get all roles"
 )
 async def get_roles(
         service: RoleService = Depends(get_role_service)
@@ -27,7 +27,7 @@ async def get_roles(
 @router.post(
     path='/add',
     summary="Add Role",
-    description="Add role. Available for superuser"
+    description="Add role"
 )
 async def add_role(
         role_data: RoleSchema = Depends(),
@@ -44,7 +44,7 @@ async def add_role(
 @router.patch(
     path='/update',
     summary="Update Role",
-    description="Update role. Available for superuser"
+    description="Update role"
 )
 async def update_role(
         uuid: str,
@@ -67,7 +67,7 @@ async def update_role(
 @router.delete(
     path='/delete',
     summary="Delete User by UUID",
-    description="Delete one user with current uuid if exists. Available for superuser"
+    description="Delete one user with current uuid if exists"
 )
 async def delete_role(
         uuid: str,
@@ -85,7 +85,7 @@ async def delete_role(
 @router.patch(
     path='/change_role',
     summary="Change User Role",
-    description="Change user role. Available for superuser"
+    description="Change user role"
 )
 async def change_user_role(
         uuid: str,
