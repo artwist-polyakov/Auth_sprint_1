@@ -71,6 +71,7 @@ class JWTSecuritySettings(BaseSettings):
     jwt_cookie_csrf_protect: bool = False
     openssl_key: str = ...
     algorithm: str = 'HS256'
+    internal_secret_token: str = ...
 
     class Config:
         env_file = '.env'
