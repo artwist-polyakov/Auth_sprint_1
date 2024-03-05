@@ -1,6 +1,7 @@
 import http
 import json
 
+import bcrypt
 import requests
 from django.conf import settings
 from django.contrib.auth.backends import BaseBackend
@@ -12,6 +13,9 @@ User = get_user_model()
 class CustomBackend(BaseBackend):
     def authenticate(self, request, email=None, password=None):
         url = settings.AUTH_API_LOGIN_URL
+
+        # todo
+
         payload = {'email': email, 'password': password}
         response = requests.post(url, data=json.dumps(payload))
         if response.status_code != http.HTTPStatus.OK:
