@@ -1,11 +1,12 @@
 import logging
+from enum import Enum
 from http import HTTPStatus
 
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
-from configs.devices import devices
+from fastapi import Query
 from db.models.token_models.access_token_container import AccessTokenContainer
 from fastapi import APIRouter, Cookie, Depends
 from fastapi.responses import JSONResponse, Response
@@ -19,6 +20,13 @@ USER_ID_KEY = 'user_id'
 ROLE_KEY = 'role'
 IS_SUPERUSER_KEY = 'is_superuser'
 ADMIN_ROLE = 'admin'
+
+
+class DeviceType(str, Enum):
+    IOS = "ios_app"
+    ANDROID = "android_app"
+    WEB = "web"
+    SMART_TV = "smart_tv"
 
 
 def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
@@ -153,19 +161,14 @@ async def delete_user(
 @router.get(
     path='/login',
     summary="Login",
-    description=f"Login by email and password. List of available devices types: {devices}"
+    description=f"Login by email and password."
 )
 async def login_user(
         email: str,
         password: str,
-        user_device_type: str,
+        user_device_type: DeviceType = Query(None, alias="user_device_type"),
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    if user_device_type not in devices:
-        return JSONResponse(
-            status_code=HTTPStatus.BAD_REQUEST,
-            content='No such device type'
-        )
     response: dict = await service.authenticate(email, password, user_device_type)
     return get_tokens_response(response)
 
