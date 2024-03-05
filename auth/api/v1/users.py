@@ -6,9 +6,8 @@ from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
-from fastapi import Query
 from db.models.token_models.access_token_container import AccessTokenContainer
-from fastapi import APIRouter, Cookie, Depends
+from fastapi import APIRouter, Cookie, Depends, Query
 from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
@@ -161,7 +160,7 @@ async def delete_user(
 @router.get(
     path='/login',
     summary="Login",
-    description=f"Login by email and password."
+    description="Login by email and password."
 )
 async def login_user(
         email: str,
