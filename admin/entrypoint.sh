@@ -15,8 +15,4 @@ python manage.py collectstatic
 python manage.py makemigrations
 python manage.py migrate
 
-python manage.py createsuperuser \
-        --noinput \
-        --email "$DJANGO_SUPERUSER_EMAIL"
-
 python manage.py runserver "$ADMIN_HOST":"$ADMIN_PORT"

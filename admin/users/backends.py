@@ -1,44 +1,62 @@
-import http
-import json
+import asyncio
+import logging
+from http import HTTPStatus
 
-import bcrypt
-import requests
-from django.conf import settings
+import aiohttp
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
+
+from configs.settings import settings
 
 User = get_user_model()
 
 
+async def get_response(
+        url: str,
+        params: dict = None,
+        method: str = 'GET',
+        cookies: dict = None,
+        headers: dict = None
+):
+    """
+    Функция отправляет асинхронный запрос на сервер
+    и возвращает ответ
+    """
+    async with aiohttp.ClientSession(
+            cookies=cookies if cookies else None,
+            headers=headers
+    ) as session:
+        async with session.request(
+                method=method.lower(),
+                url=url,
+                params=params
+        ) as response:
+            logging.warning(f"response: {response}")
+            body = await response.json()
+            status = response.status
+            return body, status
+
+
 class CustomBackend(BaseBackend):
     def authenticate(self, request, email=None, password=None):
-        url = settings.AUTH_API_LOGIN_URL
+        try:
+            url = settings.auth_api_login_url
+            logging.warning(url, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa')
+            body, status = asyncio.run(get_response(
+                method='GET',
+                url=url,
+                params={'email': email, 'password': password}
+            ))
 
-        # todo
-
-        payload = {'email': email, 'password': password}
-        response = requests.post(url, data=json.dumps(payload))
-        if response.status_code != http.HTTPStatus.OK:
+            if status == HTTPStatus.OK:
+                return User.objects.get(email=email)
             return None
 
-        data = response.json()
-
-        try:
-            user, created = User.objects.get_or_create(uuid=data['uuid'],)
-            user.email = data.get('email')
-            user.first_name = data.get('first_name')
-            user.last_name = data.get('last_name')
-            user.is_superuser = data.get('is_superuser')
-            user.role = data.get('role')
-            user.is_verified = data.get('is_verified')
-            user.save()
         except Exception:
             return None
 
-        return user
-
     def get_user(self, user_uuid):
         try:
-            return User.objects.get(pk=user_uuid)
+            return User.objects.get(uuid=user_uuid)
         except User.DoesNotExist:
             return None
