@@ -3,10 +3,9 @@ import logging
 from http import HTTPStatus
 
 import aiohttp
-from django.contrib.auth.backends import BaseBackend
-from django.contrib.auth import get_user_model
-
 from configs.settings import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import BaseBackend
 
 User = get_user_model()
 
