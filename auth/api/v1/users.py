@@ -1,13 +1,13 @@
 import logging
+from enum import Enum
 from http import HTTPStatus
 
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
-from configs.devices import devices
 from db.models.token_models.access_token_container import AccessTokenContainer
-from fastapi import APIRouter, Cookie, Depends
+from fastapi import APIRouter, Cookie, Depends, Query
 from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
@@ -19,6 +19,13 @@ USER_ID_KEY = 'user_id'
 ROLE_KEY = 'role'
 IS_SUPERUSER_KEY = 'is_superuser'
 ADMIN_ROLE = 'admin'
+
+
+class DeviceType(str, Enum):
+    IOS = "ios_app"
+    ANDROID = "android_app"
+    WEB = "web"
+    SMART_TV = "smart_tv"
 
 
 def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
@@ -153,19 +160,14 @@ async def delete_user(
 @router.get(
     path='/login',
     summary="Login",
-    description=f"Login by email and password. List of available devices types: {devices}"
+    description="Login by email and password."
 )
 async def login_user(
         email: str,
         password: str,
-        user_device_type: str,
+        user_device_type: DeviceType = Query(None, alias="user_device_type"),
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    if user_device_type not in devices:
-        return JSONResponse(
-            status_code=HTTPStatus.BAD_REQUEST,
-            content='No such device type'
-        )
     response: dict = await service.authenticate(email, password, user_device_type)
     return get_tokens_response(response)
 
@@ -308,31 +310,32 @@ async def get_login_history(
 async def check_permissions(
         resource: str,
         verb: str,
+        role: str | None = None,
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     if not access_token:
-        return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            content='Invalid access token'
+        token = None
+    else:
+        token = AccessTokenContainer(
+            **dict_from_jwt(access_token)
         )
-    token = AccessTokenContainer(
-        **dict_from_jwt(access_token)
-    )
-
-    if not token.is_superuser:
-        return JSONResponse(
-            status_code=HTTPStatus.FORBIDDEN,
-            content='Insufficient permissions'
-        )
+        if token.is_superuser:
+            return JSONResponse(
+                status_code=HTTPStatus.OK,
+                content=True
+            )
 
     rbac = RBACInfo(
-        role=token.role,
+        role=role if role else token.role if token else None,
         resource=resource,
         verb=verb
     )
     response: bool = await service.check_permissions(token, rbac)
+    result = {
+        'permission': response
+    }
     return JSONResponse(
         status_code=HTTPStatus.OK,
-        content=response
+        content=result
     )

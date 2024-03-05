@@ -4,6 +4,7 @@ from configs.settings import Settings
 from core.logger import LOGGING
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
 
 settings = Settings()
@@ -15,6 +16,8 @@ app = FastAPI(
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse
 )
+
+app.add_middleware(RBACMiddleware)
 
 
 @app.on_event('shutdown')

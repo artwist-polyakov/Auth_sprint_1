@@ -187,3 +187,12 @@ alembic revision
  DETAIL:  UNIQUE constraint on table "user_sign_ins" lacks column "user_device_type" which is part of the partition key.
 ```
 Это связано с тем, что при создании `UniqueConstraint` необходимо указать и `uuid`, и `user_device_type`, и строка `sa.UniqueConstraint('uuid')` вызывает ошибку даже если есть вторая правильная строка c `UniqueConstraint`, которая генерируется из модели
+
+## Полезные команды
+
+1. Генератор UUID4
+```shell
+
+docker exec -it auth python utils/uuid_generator.py
+
+```

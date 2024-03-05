@@ -273,8 +273,15 @@ class UserService:
                                 logout_info: AccessTokenContainer,
                                 rbac: RBACInfo
                                 ) -> bool:
-        is_blacklisted = await self._enters_storage.is_blacklisted(logout_info)
-        has_permissions = await has_permission(rbac.role, rbac.resource, rbac.verb)
+        if not logout_info:
+            is_blacklisted = False
+        else:
+            is_blacklisted = await self._enters_storage.is_blacklisted(logout_info)
+        has_permissions = await has_permission(
+            rbac.role,
+            rbac.resource,
+            rbac.verb
+        ) if rbac.role else False
         return not is_blacklisted and has_permissions
 
 
