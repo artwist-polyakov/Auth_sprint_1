@@ -22,6 +22,10 @@ class User(AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
 
+    @property
+    def is_staff(self):
+        return self.role == 'admin'
+
     objects = UserManager()
 
     def __str__(self):
