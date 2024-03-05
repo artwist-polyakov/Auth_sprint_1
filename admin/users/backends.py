@@ -38,18 +38,17 @@ async def get_response(
 
 
 class CustomBackend(BaseBackend):
-    def authenticate(self, request, email=None, password=None):
+    def authenticate(self, request, username=None, password=None, **kwars):
         try:
             url = settings.auth_api_login_url
-            logging.warning(url, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa')
             body, status = asyncio.run(get_response(
                 method='GET',
                 url=url,
-                params={'email': email, 'password': password}
+                params={'email': username, 'password': password, 'user_device_type': 'web'}
             ))
 
             if status == HTTPStatus.OK:
-                return User.objects.get(email=email)
+                return User.objects.get(email=username)
             return None
 
         except Exception:
