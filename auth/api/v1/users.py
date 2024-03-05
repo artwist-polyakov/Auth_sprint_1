@@ -311,7 +311,7 @@ async def get_login_history(
 async def check_permissions(
         resource: str,
         verb: str,
-        role: str,
+        role: str | None = None,
         access_token: str = Cookie(None),
         service: UserService = Depends(get_user_service)
 ) -> Response:
@@ -328,7 +328,7 @@ async def check_permissions(
             )
 
     rbac = RBACInfo(
-        role=role,
+        role=role if role else token.role if token else None,
         resource=resource,
         verb=verb
     )
