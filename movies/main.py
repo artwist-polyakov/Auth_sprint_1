@@ -11,6 +11,7 @@ from opentelemetry.sdk.trace import TracerProvider, Span, Tracer
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.resources import Resource
 
 settings = Settings()
 creator = get_creator()
@@ -35,7 +36,11 @@ async def before_request(request: Request, call_next):
 
 
 def configure_tracer() -> None:
-    trace.set_tracer_provider(TracerProvider())
+    resource = Resource.create(attributes={
+        "service.name": "movies-app",
+        "custom.data": "custom_data",
+    })
+    trace.set_tracer_provider(TracerProvider(resource=resource))
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(
             JaegerExporter(
