@@ -131,6 +131,17 @@ services:
       - ./core/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
 
+
+  jaeger:
+    image: jaegertracing/all-in-one:${JAEGER_VERSION}
+    ports:
+      - ${JAEGER_PORTS_1}
+      - ${JAEGER_PORTS_2}
+    environment:
+      - LOG_LEVEL=debug
+    env_file:
+      - .env
+
 volumes:
     static_volume:
     media_volume:
