@@ -1,8 +1,9 @@
 import logging
 from enum import Enum
+from functools import lru_cache
 from http import HTTPStatus
 
-
+from fastapi import Request
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
@@ -14,6 +15,12 @@ from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
+from user_agents import parse
+
+
+import aiohttp
+import base64
+from aiohttp import FormData
 
 router = APIRouter()
 USER_ID_KEY = 'user_id'
@@ -21,12 +28,16 @@ ROLE_KEY = 'role'
 IS_SUPERUSER_KEY = 'is_superuser'
 ADMIN_ROLE = 'admin'
 
+@lru_cache()
+def get_converter() -> APIConvertor:
+    return APIConvertor()
 
 class DeviceType(str, Enum):
     IOS = "ios_app"
     ANDROID = "android_app"
     WEB = "web"
     SMART_TV = "smart_tv"
+    UNKNOWN = "unknown"
 
 
 def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
@@ -79,6 +90,21 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
         status_code=response['status_code'],
         content=response['content']
     )
+
+def get_device_type(request: Request) -> DeviceType:
+    ua = request.headers.get('User-Agent')
+    device = parse(ua)
+    if device.is_mobile or device.is_tablet:
+        if "Android" in ua:
+            return DeviceType.ANDROID
+        elif "iPhone" in ua or "iPad" in ua:
+            return DeviceType.IOS
+        else:
+            return DeviceType.UNKNOWN  # Мобильное устройство не Android/iOS
+    elif device.is_pc:
+        return DeviceType.WEB  # Просто предполагаем, что все десктопы - это веб
+    else:
+        return DeviceType.UNKNOWN
 
 
 @router.post(
@@ -342,6 +368,34 @@ async def check_permissions(
     )
 
 
+async def exchange_code_for_tokens(code: str):
+    client_id = "f0f7d3c997d14831944552f7739d94c2"
+    client_secret = "859e4faf6fa6444e8ece1ccc73f5b4d2"
+    # Кодирование client_id и client_secret в base64
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(credentials.encode("utf-8")).decode("utf-8")
+
+    url = "https://oauth.yandex.ru/token"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": f"Basic {encoded_credentials}"
+    }
+    data = {
+        "grant_type": "authorization_code",
+        "code": code
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, data=data, headers=headers) as response:
+            if response.status == 200:
+                # Успешный обмен
+                tokens = await response.json()
+                return tokens
+            else:
+                # Обработка ошибок
+                error_message = await response.text()
+                print(f"Error exchanging code for tokens: {error_message}")
+                return None
+
 @router.get(
     path="/apply-yandex-code",
     summary="Takes visit with yandex token and returns access and refresh tokens",
@@ -349,9 +403,13 @@ async def check_permissions(
 )
 async def yandex_login(
         code: str,
+        request: Request,
         service: UserService = Depends(get_user_service)
 ) -> Response:
-    logging.warning(f"Code: {code}")
+    device_type = get_device_type(request)
+    # response: dict = await service.yandex_login(code, device_type)
+    result = await exchange_code_for_tokens(code)
+    logging.warning(f"Yandex response: {result}")
     return JSONResponse(
         status_code=HTTPStatus.OK,
         content=code
