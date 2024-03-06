@@ -2,6 +2,7 @@ import logging
 from enum import Enum
 from http import HTTPStatus
 
+
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
@@ -338,4 +339,20 @@ async def check_permissions(
     return JSONResponse(
         status_code=HTTPStatus.OK,
         content=result
+    )
+
+
+@router.get(
+    path="/apply-yandex-code",
+    summary="Takes visit with yandex token and returns access and refresh tokens",
+    description="Takes yandex token and returns access and refresh tokens"
+)
+async def yandex_login(
+        code: str,
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    logging.warning(f"Code: {code}")
+    return JSONResponse(
+        status_code=HTTPStatus.OK,
+        content=code
     )
