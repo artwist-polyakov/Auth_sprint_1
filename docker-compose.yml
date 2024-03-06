@@ -43,6 +43,7 @@ services:
       - elasticsearch-node1
       - elasticsearch-node2
       - redis
+      - jaeger
 
 
   auth:
@@ -133,6 +134,7 @@ services:
 
 
   jaeger:
+    container_name: jaeger
     image: jaegertracing/all-in-one:${JAEGER_VERSION}
     ports:
       - ${JAEGER_PORTS_1}
