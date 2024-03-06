@@ -6,11 +6,11 @@ from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
-# from opentelemetry import trace
-# from opentelemetry.sdk.trace import TracerProvider
-# from opentelemetry.sdk.trace.export import BatchSpanProcessor
-# from opentelemetry.exporter.jaeger.thrift import JaegerExporter
-# from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider, Span, Tracer
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 settings = Settings()
 creator = get_creator()
@@ -25,29 +25,29 @@ app = FastAPI(
 app.add_middleware(RBACMiddleware)
 
 
-# @app.middleware('http')
-# async def before_request(request: Request, call_next):
-#     response = await call_next(request)
-#     request_id = request.headers.get('X-Request-Id')
-#     if not request_id:
-#         return ORJSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={'detail': 'X-Request-Id is required'})
-#     return response
-#
-#
-# def configure_tracer() -> None:
-#     trace.set_tracer_provider(TracerProvider())
-#     trace.get_tracer_provider().add_span_processor(
-#         BatchSpanProcessor(
-#             JaegerExporter(
-#                 agent_host_name=settings.jaeger_host,
-#                 agent_port=settings.jaeger_port,
-#             )
-#         )
-#     )
-#
-#
-# configure_tracer()
-# FastAPIInstrumentor.instrument_app(app)
+@app.middleware('http')
+async def before_request(request: Request, call_next):
+    response = await call_next(request)
+    request_id = request.headers.get('X-Request-Id')
+    if not request_id:
+        return ORJSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={'detail': 'X-Request-Id is required'})
+    return response
+
+
+def configure_tracer() -> None:
+    trace.set_tracer_provider(TracerProvider())
+    trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(
+            JaegerExporter(
+                agent_host_name=settings.jaeger_host,
+                agent_port=settings.jaeger_port,
+            )
+        )
+    )
+
+
+configure_tracer()
+FastAPIInstrumentor.instrument_app(app)
 
 
 @app.on_event('shutdown')
