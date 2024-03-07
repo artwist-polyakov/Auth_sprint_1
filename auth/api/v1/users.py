@@ -191,7 +191,7 @@ async def delete_user(
 async def login_user(
         email: str,
         password: str,
-        user_device_type: DeviceType = Query(None, alias="user_device_type"),
+        user_device_type: DeviceType = Query(..., alias="user_device_type"),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.authenticate(email, password, user_device_type)
