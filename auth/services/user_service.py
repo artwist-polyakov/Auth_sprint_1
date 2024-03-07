@@ -1,9 +1,11 @@
+import logging
 import uuid
 from datetime import datetime, timedelta
 from functools import lru_cache
 from http import HTTPStatus
 
 import bcrypt
+
 from configs.settings import settings
 from db.auth.user import User
 from db.logout.logout_storage import LogoutStorage
@@ -11,7 +13,9 @@ from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.models.token_models.access_token_container import AccessTokenContainer
+from db.models.token_models.oauth_token import OAuthToken
 from db.models.token_models.refresh_token import RefreshToken
+from db.oauth.yandex_oauth_service import get_yandex_oauth_service
 from db.postgres import PostgresInterface
 from middlewares.rbac import has_permission
 from services.models.permissions import RBACInfo
@@ -283,6 +287,11 @@ class UserService:
             rbac.verb
         ) if rbac.role else False
         return not is_blacklisted and has_permissions
+
+    async def exchange_code_for_tokens(self, code: str, device_type: str) -> OAuthToken:
+        logging.warning(device_type)
+        tokens = await get_yandex_oauth_service().exchange_code(code)
+        return tokens
 
 
 @lru_cache
