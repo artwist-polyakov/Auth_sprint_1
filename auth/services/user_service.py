@@ -13,7 +13,8 @@ from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
 from db.models.token_models.access_token_container import AccessTokenContainer
-from db.models.token_models.oauth_token import OAuthToken
+from db.models.oauth_models.oauth_token import OAuthToken
+from db.models.oauth_models.user_model import OAuthUserModel
 from db.models.token_models.refresh_token import RefreshToken
 from db.oauth.yandex_oauth_service import get_yandex_oauth_service
 from db.postgres import PostgresInterface
@@ -291,6 +292,9 @@ class UserService:
     async def exchange_code_for_tokens(self, code: str, device_type: str) -> OAuthToken:
         logging.warning(device_type)
         tokens = await get_yandex_oauth_service().exchange_code(code)
+        user_info = OAuthUserModel(**await get_yandex_oauth_service()
+                                   .get_user_info(tokens.access_token))
+        logging.warning(user_info)
         return tokens
 
 
