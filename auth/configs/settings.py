@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
     refresh_token_expire_minutes: int = 60 * 24 * 7
 
+    jaeger_host: str = ...
+    jaeger_port: int = ...
+
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 
