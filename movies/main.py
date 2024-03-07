@@ -2,13 +2,40 @@ import uvicorn
 from api.v1 import films, genres, persons
 from configs.settings import Settings
 from core.logger import LOGGING
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 from middlewares.rbac import RBACMiddleware
+from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
+                                            ConsoleSpanExporter)
 from utils.creator_provider import get_creator
 
 settings = Settings()
 creator = get_creator()
+
+
+def configure_tracer() -> None:
+    resource = Resource.create(attributes={
+        "service.name": "movies-app",
+        "custom.data": "custom_data",
+    })
+    trace.set_tracer_provider(TracerProvider(resource=resource))
+    trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(
+            JaegerExporter(
+                agent_host_name=settings.jaeger_host,
+                agent_port=settings.jaeger_port,
+            )
+        )
+    )
+    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+
+
+configure_tracer()
 
 app = FastAPI(
     title=settings.project_name,
@@ -17,7 +44,24 @@ app = FastAPI(
     default_response_class=ORJSONResponse
 )
 
+FastAPIInstrumentor.instrument_app(app)
+
 app.add_middleware(RBACMiddleware)
+
+
+@app.middleware('http')
+async def before_request(request: Request, call_next):
+    response = await call_next(request)
+    request_id = request.headers.get('X-Request-Id')
+    tracer = trace.get_tracer(__name__)
+    span = tracer.start_span('http.movies')
+    span.set_attribute('http.movies_request_id', request_id)
+    span.end()
+    if not request_id:
+        return ORJSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={'detail': 'X-Request-Id is required'})
+    return response
 
 
 @app.on_event('shutdown')
