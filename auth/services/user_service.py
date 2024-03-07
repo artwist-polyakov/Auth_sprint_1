@@ -295,6 +295,12 @@ class UserService:
         user_info = OAuthUserModel(**await get_yandex_oauth_service()
                                    .get_user_info(tokens.access_token))
         logging.warning(user_info)
+        # todo: проверить, есть ли такой пользователь в базе
+        
+        # todo: если нет, то добавить его в базу + сгенерировать ему пароль
+
+        # todo: заполнить таблицу user_oauth_yandex
+
         return tokens
 
 
