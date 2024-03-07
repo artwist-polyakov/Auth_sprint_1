@@ -1,4 +1,5 @@
 import logging
+from functools import lru_cache
 
 from pydantic_settings import BaseSettings
 
@@ -30,6 +31,10 @@ class Settings(BaseSettings):
 
     jaeger_host: str = ...
     jaeger_port: int = ...
+
+    yandex_oauth_client_id: str = ...
+    yandex_oauth_client_secret: str = ...
+    yandex_oauth_url: str = ...
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
@@ -75,3 +80,8 @@ class PostgresDSN(BaseSettings):
 
 
 pstg_dsn = PostgresDSN().dsn
+
+
+@lru_cache
+def get_settings():
+    return settings
