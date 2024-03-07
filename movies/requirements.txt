@@ -12,3 +12,7 @@ python-dotenv==1.0.0
 sqlalchemy[asyncio]==2.0.27
 python-jose[cryptography]==3.3.0
 aiohttp==3.9.3
+opentelemetry-api==1.17.0
+opentelemetry-sdk==1.17.0
+opentelemetry-instrumentation-fastapi==0.38b0
+opentelemetry-exporter-jaeger==1.17.0
