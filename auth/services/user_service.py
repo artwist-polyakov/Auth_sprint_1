@@ -301,7 +301,6 @@ class UserService:
             first_name=user_info.first_name,
             last_name=user_info.last_name
         )
-        logging.warning(f'generated password: {model.password}')
         exists: User | dict = await self._postgres.get_single_user(
             field_name='email',
             field_value=model.email
