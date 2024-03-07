@@ -20,7 +20,7 @@ from db.oauth.yandex_oauth_service import get_yandex_oauth_service
 from db.postgres import PostgresInterface
 from middlewares.rbac import has_permission
 from services.models.permissions import RBACInfo
-from services.models.signup import ProfileModel, SignupModel
+from services.models.signup import ProfileModel, SignupModel, PasswordModel
 from utils.creator_provider import get_creator
 
 PAGE_SIZE = 10
@@ -289,19 +289,55 @@ class UserService:
         ) if rbac.role else False
         return not is_blacklisted and has_permissions
 
-    async def exchange_code_for_tokens(self, code: str, device_type: str) -> OAuthToken:
+    async def exchange_code_for_tokens(self, code: str, device_type: str) -> dict | OAuthToken:
         logging.warning(device_type)
         tokens = await get_yandex_oauth_service().exchange_code(code)
         user_info = OAuthUserModel(**await get_yandex_oauth_service()
                                    .get_user_info(tokens.access_token))
-        logging.warning(user_info)
         # todo: проверить, есть ли такой пользователь в базе
-        
+        model = SignupModel(
+            email=user_info.default_email,
+            password=PasswordModel.generate_password(),
+            first_name=user_info.first_name,
+            last_name=user_info.last_name
+        )
+        logging.warning(f'generated password: {model.password}')
+        exists: User | dict = await self._postgres.get_single_user(
+            field_name='email',
+            field_value=model.email
+        )
+        if isinstance(exists, User):
+            return {
+                'status_code': HTTPStatus.CONFLICT,
+                'content': 'user with this email already exists'
+            }
+        password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
+        request = UserRequest(
+            uuid=str(uuid.uuid4()),
+            email=model.email,
+            password=password_hash,
+            first_name=model.first_name,
+            last_name=model.last_name
+        )
+        logging.warning(request)
+        response: dict = await self._postgres.add_single_data(request, 'user')
+        match response['status_code']:
+            case HTTPStatus.CREATED:
+                content = {
+                    'uuid': str(request.uuid),
+                }
+            case _:
+                content = response['content']
+        logging.warning(tokens)
+        return {
+            'status_code': response['status_code'],
+            'content': content
+        }
+
         # todo: если нет, то добавить его в базу + сгенерировать ему пароль
 
         # todo: заполнить таблицу user_oauth_yandex
 
-        return tokens
 
 
 @lru_cache
