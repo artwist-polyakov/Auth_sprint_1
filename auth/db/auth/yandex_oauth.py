@@ -2,8 +2,7 @@ from db.auth.base import Base
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy import (BigInteger, Column, DateTime, ForeignKey, Text,
-                        UniqueConstraint)
+from sqlalchemy import (BigInteger, Column, DateTime, ForeignKey, Text)
 from datetime import datetime
 
 
@@ -20,8 +19,8 @@ class YandexOAuth(Base):
     default_email = Column(String(255), unique=True, nullable=False)
     first_name = Column(String(255))
     last_name = Column(String(255))
-    access_token = Column(String(255), nullable=False)
-    refresh_token = Column(String(255), nullable=False)
+    access_token = Column(Text, nullable=False)
+    refresh_token = Column(Text, nullable=False)
     token_type = Column(String(50), nullable=False)
     expires_in = Column(BigInteger, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)

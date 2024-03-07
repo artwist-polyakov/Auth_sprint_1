@@ -1,6 +1,6 @@
 import uvicorn
 from api.v1 import roles, users
-from configs.settings import Settings, get_settings
+from configs.settings import get_settings
 from core.logger import LOGGING
 from db.postgres import PostgresInterface
 from fastapi import FastAPI, Request, status
