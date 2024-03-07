@@ -8,6 +8,7 @@ from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
+from db.models.oauth_models.oauth_token import OAuthToken
 from db.models.token_models.access_token_container import AccessTokenContainer
 from fastapi import APIRouter, Cookie, Depends, Query
 from fastapi.responses import JSONResponse, Response
@@ -382,7 +383,7 @@ async def yandex_login(
         result = await service.exchange_code_for_tokens(code, device_type.value)
         return JSONResponse(
             status_code=HTTPStatus.OK,
-            content=result.model_dump()
+            content=result.model_dump() if isinstance(result, OAuthToken) else result
         )
     except Exception as e:
         logging.warning(f"Yandex error: {e}")
