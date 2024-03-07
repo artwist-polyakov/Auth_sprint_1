@@ -1,6 +1,6 @@
 import uvicorn
 from api.v1 import films, genres, persons
-from configs.settings import Settings
+from configs.settings import Settings, get_settings
 from core.logger import LOGGING
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
@@ -14,7 +14,7 @@ from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
                                             ConsoleSpanExporter)
 from utils.creator_provider import get_creator
 
-settings = Settings()
+settings = get_settings()
 creator = get_creator()
 
 
@@ -32,7 +32,8 @@ def configure_tracer() -> None:
             )
         )
     )
-    # trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+    if settings.jaeger_logs_in_console:
+        trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
 
 configure_tracer()
