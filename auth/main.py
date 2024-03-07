@@ -6,7 +6,7 @@ from db.postgres import PostgresInterface
 from middlewares.logout_processor import CheckLogoutMiddleware
 from middlewares.rbac import RBACMiddleware
 from utils.creator_provider import get_creator
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
@@ -50,6 +50,21 @@ FastAPIInstrumentor.instrument_app(app)
 
 app.add_middleware(RBACMiddleware)
 app.add_middleware(CheckLogoutMiddleware)
+
+
+@app.middleware('http')
+async def before_request(request: Request, call_next):
+    response = await call_next(request)
+    request_id = request.headers.get('X-Request-Id')
+    tracer = trace.get_tracer(__name__)
+    span = tracer.start_span('http.auth')
+    span.set_attribute('http.auth_request_id', request_id)
+    span.end()
+    if not request_id:
+        return ORJSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={'detail': 'X-Request-Id is required'})
+    return response
 
 
 @app.on_event('shutdown')

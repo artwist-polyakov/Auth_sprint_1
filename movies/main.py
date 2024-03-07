@@ -53,6 +53,10 @@ app.add_middleware(RBACMiddleware)
 async def before_request(request: Request, call_next):
     response = await call_next(request)
     request_id = request.headers.get('X-Request-Id')
+    tracer = trace.get_tracer(__name__)
+    span = tracer.start_span('http.movies')
+    span.set_attribute('http.movies_request_id', request_id)
+    span.end()
     if not request_id:
         return ORJSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
