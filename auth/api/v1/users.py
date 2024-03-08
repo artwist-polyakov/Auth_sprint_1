@@ -3,21 +3,18 @@ from enum import Enum
 from functools import lru_cache
 from http import HTTPStatus
 
-from fastapi import Request
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
-from db.models.oauth_models.oauth_token import OAuthToken
 from db.models.token_models.access_token_container import AccessTokenContainer
-from fastapi import APIRouter, Cookie, Depends, Query
+from fastapi import APIRouter, Cookie, Depends, Query, Request
 from fastapi.responses import JSONResponse, Response
-
 from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
+from user_agents import parse
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
-from user_agents import parse
 
 router = APIRouter()
 USER_ID_KEY = 'user_id'
@@ -381,14 +378,10 @@ async def yandex_login(
     device_type = get_device_type(request)
     try:
         result = await service.exchange_code_for_tokens(code, device_type.value)
-        return JSONResponse(
-            status_code=HTTPStatus.OK,
-            content=result.model_dump() if isinstance(result, OAuthToken) else result
-        )
+        return get_tokens_response(result)
     except Exception as e:
         logging.warning(f"Yandex error: {e}")
         return JSONResponse(
             status_code=HTTPStatus.BAD_REQUEST,
             content=f"Error exchanging code for tokens: {e}"
         )
-
