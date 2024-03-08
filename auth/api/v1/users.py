@@ -1,5 +1,6 @@
 import logging
 from enum import Enum
+from functools import lru_cache
 from http import HTTPStatus
 
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
@@ -7,10 +8,11 @@ from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
-from fastapi import APIRouter, Cookie, Depends, Query
+from fastapi import APIRouter, Cookie, Depends, Query, Request
 from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
 from services.user_service import UserService, get_user_service
+from user_agents import parse
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
 
@@ -21,11 +23,17 @@ IS_SUPERUSER_KEY = 'is_superuser'
 ADMIN_ROLE = 'admin'
 
 
+@lru_cache()
+def get_converter() -> APIConvertor:
+    return APIConvertor()
+
+
 class DeviceType(str, Enum):
     IOS = "ios_app"
     ANDROID = "android_app"
     WEB = "web"
     SMART_TV = "smart_tv"
+    UNKNOWN = "unknown"
 
 
 def get_error_from_uuid(uuid: str, token: str | None) -> Response | None:
@@ -78,6 +86,22 @@ def get_tokens_response(response: AccessTokenContainer | dict) -> Response:
         status_code=response['status_code'],
         content=response['content']
     )
+
+
+def get_device_type(request: Request) -> DeviceType:
+    ua = request.headers.get('User-Agent')
+    device = parse(ua)
+    if device.is_mobile or device.is_tablet:
+        if "Android" in ua:
+            return DeviceType.ANDROID
+        elif "iPhone" in ua or "iPad" in ua:
+            return DeviceType.IOS
+        else:
+            return DeviceType.UNKNOWN  # Мобильное устройство не Android/iOS
+    elif device.is_pc:
+        return DeviceType.WEB  # Просто предполагаем, что все десктопы - это веб
+    else:
+        return DeviceType.UNKNOWN
 
 
 @router.post(
@@ -165,7 +189,7 @@ async def delete_user(
 async def login_user(
         email: str,
         password: str,
-        user_device_type: DeviceType = Query(None, alias="user_device_type"),
+        user_device_type: DeviceType = Query(..., alias="user_device_type"),
         service: UserService = Depends(get_user_service)
 ) -> Response:
     response: dict = await service.authenticate(email, password, user_device_type)
@@ -339,3 +363,25 @@ async def check_permissions(
         status_code=HTTPStatus.OK,
         content=result
     )
+
+
+@router.get(
+    path="/apply-yandex-code",
+    summary="Takes visit with yandex token and returns access and refresh tokens",
+    description="Takes yandex token and returns access and refresh tokens"
+)
+async def yandex_login(
+        code: str,
+        request: Request,
+        service: UserService = Depends(get_user_service)
+) -> Response:
+    device_type = get_device_type(request)
+    try:
+        result = await service.exchange_code_for_tokens(code, device_type.value)
+        return get_tokens_response(result)
+    except Exception as e:
+        logging.warning(f"Yandex error: {e}")
+        return JSONResponse(
+            status_code=HTTPStatus.BAD_REQUEST,
+            content=f"Error exchanging code for tokens: {e}"
+        )
