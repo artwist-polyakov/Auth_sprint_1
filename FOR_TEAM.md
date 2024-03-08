@@ -134,6 +134,9 @@ alembic init migrations
 - настройте `alembic.ini` и `env.py`.
 
 2. Создание миграции:
+
+РАСКОММЕНТИРУЙТЕ СТРОКИ ИМПОРТОВ В ФАЙЛЕ env.py
+
 ```shell
 cd ./auth/
 alembic revision --autogenerate
@@ -188,7 +191,16 @@ alembic revision
 ```
 Это связано с тем, что при создании `UniqueConstraint` необходимо указать и `uuid`, и `user_device_type`, и строка `sa.UniqueConstraint('uuid')` вызывает ошибку даже если есть вторая правильная строка c `UniqueConstraint`, которая генерируется из модели
 
-6. Иногда могут быть ошибки при работе с действующим venv проекта, есть смысл создать новый venv и установить туда только `dotenv`, `alembic` и `sqlalchemy` (или другие библиотеки, которые используются в миграциях)
+6. Иногда могут быть ошибки при работе с действующим venv проекта, в таком случае очистите виртуальное окружение.
+
+```shell
+
+cd ..
+pip freeze | xargs pip uninstall -y
+cd ./auth/
+pip install -r requirements.txt
+
+```
 
 ## Полезные команды
 
