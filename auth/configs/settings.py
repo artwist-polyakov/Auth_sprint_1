@@ -37,7 +37,6 @@ class Settings(BaseSettings):
     yandex_oauth_client_secret: str = ...
     yandex_oauth_url: str = ...
 
-
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 

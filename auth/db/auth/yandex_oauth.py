@@ -1,9 +1,10 @@
+from datetime import datetime
+
 from db.auth.base import Base
-from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy import (BigInteger, Column, DateTime, ForeignKey,
+                        String, Text)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy import (BigInteger, Column, DateTime, ForeignKey, Text)
-from datetime import datetime
 
 
 class YandexOAuth(Base):

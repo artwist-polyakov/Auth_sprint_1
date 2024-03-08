@@ -2,7 +2,6 @@ import base64
 from functools import lru_cache
 
 import aiohttp
-
 from configs.settings import get_settings
 from db.models.oauth_models.oauth_token import OAuthToken
 from db.oauth.oauth_service import OAuthService

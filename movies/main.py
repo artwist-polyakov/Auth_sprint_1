@@ -1,6 +1,6 @@
 import uvicorn
 from api.v1 import films, genres, persons
-from configs.settings import Settings, get_settings
+from configs.settings import get_settings
 from core.logger import LOGGING
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse

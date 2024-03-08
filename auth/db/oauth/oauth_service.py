@@ -1,4 +1,4 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 
 from db.models.oauth_models.oauth_token import OAuthToken
 

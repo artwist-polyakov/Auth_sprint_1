@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, constr, field_validator
-import string
 import secrets
+import string
+
+from pydantic import BaseModel, EmailStr, constr, field_validator
 
 MIN_PASS_LENGTH = 5
 
