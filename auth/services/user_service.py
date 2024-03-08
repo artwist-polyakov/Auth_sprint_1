@@ -5,22 +5,22 @@ from functools import lru_cache
 from http import HTTPStatus
 
 import bcrypt
-
 from configs.settings import settings
 from db.auth.user import User
 from db.logout.logout_storage import LogoutStorage
 from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
-from db.models.token_models.access_token_container import AccessTokenContainer
+from db.models.oauth_models.oauth_db import OAuthDBModel
 from db.models.oauth_models.oauth_token import OAuthToken
 from db.models.oauth_models.user_model import OAuthUserModel
+from db.models.token_models.access_token_container import AccessTokenContainer
 from db.models.token_models.refresh_token import RefreshToken
 from db.oauth.yandex_oauth_service import get_yandex_oauth_service
 from db.postgres import PostgresInterface
 from middlewares.rbac import has_permission
 from services.models.permissions import RBACInfo
-from services.models.signup import ProfileModel, SignupModel, PasswordModel
+from services.models.signup import PasswordModel, ProfileModel, SignupModel
 from utils.creator_provider import get_creator
 
 PAGE_SIZE = 10
@@ -131,28 +131,7 @@ class UserService:
         valid = bcrypt.checkpw(password.encode(), user.password.encode())
         if not valid:
             return {'status_code': HTTPStatus.BAD_REQUEST, 'content': 'password is incorrect'}
-
-        refresh_token = RefreshToken(
-            uuid=str(uuid.uuid4()),
-            user_id=str(user.uuid),
-            active_till=int((datetime.now() + timedelta(
-                minutes=settings.refresh_token_expire_minutes)).timestamp()),
-            user_device_type=user_device_type
-        )
-        await self._postgres.add_single_data(refresh_token, 'refresh_token')
-
-        result = AccessTokenContainer(
-            user_id=str(user.uuid),
-            role=user.role,
-            is_superuser=user.is_superuser,
-            verified=True,
-            subscribed=False,
-            created_at=int(datetime.now().timestamp()),
-            refresh_id=str(refresh_token.uuid),
-            refreshed_at=int(datetime.now().timestamp()),
-            user_device_type=user_device_type
-        )
-        return result
+        return await self._add_refresh_token(user, user_device_type)
 
     async def update_profile(
             self,
@@ -289,27 +268,26 @@ class UserService:
         ) if rbac.role else False
         return not is_blacklisted and has_permissions
 
-    async def exchange_code_for_tokens(self, code: str, device_type: str) -> dict | OAuthToken:
-        logging.warning(device_type)
+    async def exchange_code_for_tokens(
+            self,
+            code: str,
+            device_type: str
+    ) -> AccessTokenContainer | dict:
         tokens = await get_yandex_oauth_service().exchange_code(code)
         user_info = OAuthUserModel(**await get_yandex_oauth_service()
                                    .get_user_info(tokens.access_token))
-        # todo: проверить, есть ли такой пользователь в базе
         model = SignupModel(
             email=user_info.default_email,
             password=PasswordModel.generate_password(),
             first_name=user_info.first_name,
             last_name=user_info.last_name
         )
-        exists: User | dict = await self._postgres.get_single_user(
-            field_name='email',
-            field_value=model.email
-        )
-        if isinstance(exists, User):
-            return {
-                'status_code': HTTPStatus.CONFLICT,
-                'content': 'user with this email already exists'
-            }
+        exists: User | dict = await self._get_existing_user(model.email)
+
+        checkup = await self._emit_user_token(exists, user_info, tokens, device_type)
+        if checkup:
+            return checkup
+
         password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
         request = UserRequest(
             uuid=str(uuid.uuid4()),
@@ -320,23 +298,71 @@ class UserService:
         )
         logging.warning(request)
         response: dict = await self._postgres.add_single_data(request, 'user')
-        match response['status_code']:
-            case HTTPStatus.CREATED:
-                content = {
-                    'uuid': str(request.uuid),
-                }
-            case _:
-                content = response['content']
-        logging.warning(tokens)
-        return {
-            'status_code': response['status_code'],
-            'content': content
-        }
+        if response['status_code'] == HTTPStatus.CREATED :
+            exists = await self._get_existing_user(model.email)
+            return await self._emit_user_token(exists, user_info, tokens, device_type)
+        return response
 
-        # todo: если нет, то добавить его в базу + сгенерировать ему пароль
+    async def _save_user_to_oauth(
+            self,
+            user_info: OAuthUserModel,
+            tokens: OAuthToken,
+            user_id: str
+    ) -> bool:
+        exists = await self._postgres.get_yandex_oauth_user(user_info.default_email)
+        if exists:
+            return False
+        model = OAuthDBModel(
+            uuid=str(uuid.uuid4()),
+            default_email=user_info.default_email,
+            first_name=user_info.first_name,
+            last_name=user_info.last_name,
+            access_token=tokens.access_token,
+            refresh_token=tokens.refresh_token,
+            token_type=tokens.token_type,
+            expires_in=tokens.expires_in,
+            user_id=user_id
+        )
+        await self._postgres.add_single_data(model, 'yandex_oauth')
+        return True
 
-        # todo: заполнить таблицу user_oauth_yandex
+    async def _add_refresh_token(self, user: User, device_type: str) -> AccessTokenContainer:
+        refresh_token = RefreshToken(
+            uuid=str(uuid.uuid4()),
+            user_id=str(user.uuid),
+            active_till=int((datetime.now() + timedelta(
+                minutes=settings.refresh_token_expire_minutes)).timestamp()),
+            user_device_type=device_type
+        )
+        await self._postgres.add_single_data(refresh_token, 'refresh_token')
 
+        return AccessTokenContainer(
+            user_id=str(user.uuid),
+            role=user.role,
+            is_superuser=user.is_superuser,
+            verified=True,
+            subscribed=False,
+            created_at=int(datetime.now().timestamp()),
+            refresh_id=str(refresh_token.uuid),
+            refreshed_at=int(datetime.now().timestamp()),
+            user_device_type=device_type
+        )
+
+    async def _get_existing_user(self, email: str) -> User | dict:
+        return await self._postgres.get_single_user('email', email)
+
+    async def _emit_user_token(
+            self,
+            user: User | dict,
+            user_info: OAuthUserModel,
+            tokens: OAuthToken,
+            user_device_type: str
+    ) -> AccessTokenContainer | None:
+        if isinstance(user, User):
+            result = await self._save_user_to_oauth(user_info, tokens, str(user.uuid))
+            logging.warning(f"Result of user creating {result}")
+            return await self._add_refresh_token(user, user_device_type)
+        return None
 
 
 @lru_cache
