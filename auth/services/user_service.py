@@ -298,7 +298,7 @@ class UserService:
         )
         logging.warning(request)
         response: dict = await self._postgres.add_single_data(request, 'user')
-        if response['status_code'] == HTTPStatus.CREATED :
+        if response['status_code'] == HTTPStatus.CREATED:
             exists = await self._get_existing_user(model.email)
             return await self._emit_user_token(exists, user_info, tokens, device_type)
         return response

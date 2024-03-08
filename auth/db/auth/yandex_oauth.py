@@ -1,8 +1,7 @@
 from datetime import datetime
 
 from db.auth.base import Base
-from sqlalchemy import (BigInteger, Column, DateTime, ForeignKey,
-                        String, Text)
+from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 

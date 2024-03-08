@@ -7,12 +7,11 @@ from db.auth.role import Role
 from db.auth.user import User
 from db.auth.user_storage import UserStorage
 from db.auth.yandex_oauth import YandexOAuth
+from db.models.oauth_models.oauth_db import OAuthDBModel
 from pydantic import BaseModel
 from sqlalchemy import func, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-
-from db.models.oauth_models.oauth_db import OAuthDBModel
 
 
 class PostgresInterface(UserStorage):
