@@ -73,15 +73,7 @@ class PostgresInterface(UserStorage):
                             query = (
                                 insert(YandexOAuth)
                                 .values(
-                                    uuid=request.uuid,
-                                    default_email=request.default_email,
-                                    first_name=request.first_name,
-                                    last_name=request.last_name,
-                                    access_token=request.access_token,
-                                    refresh_token=request.refresh_token,
-                                    token_type=request.token_type,
-                                    expires_in=request.expires_in,
-                                    user_id=request.user_id
+                                    **request.model_dump()
                                 )
                             )
                 await session.execute(query)
