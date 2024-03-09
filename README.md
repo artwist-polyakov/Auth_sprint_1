@@ -47,9 +47,9 @@
 
 4. Создана модель токена `./auth/db/models/token_models/oauth_token.py`
 
-5. Создается модель пароля и метод, умеющий генерировать валидный пароль `./auth/services/models/signup.py`
+5. Созданы модель пароля и метод, умеющий генерировать валидный пароль `./auth/services/models/signup.py`
 
-6. Создается модель для хранения oauth данных `./auth/db/auth/yandex_oauth.py`
+6. Создана модель для хранения oauth данных `./auth/db/auth/yandex_oauth.py`
 
 7. Реализованы изменения, связанные с работой oauth `./auth/db/postgres.py`, `./auth/services/user_service.py`
 
