@@ -28,10 +28,9 @@ docker exec -it auth python superuser.py <email> <pass>
 ## Oauth 2.0
 
 Используем сервис Яндекса.
-Для перенаправления принимаем пользователя по адресу http://localhost:8000/oauth/yandex
 
 Страница авторизации https://oauth.yandex.ru/authorize?response_type=code&client_id=f0f7d3c997d14831944552f7739d94c2
-
+Соглашаемся с предоставлением доступа, нас перенаправляют на страницу апи, которая выпускает токен доступа и рефреш токен.
 
 
 # Проектная работа 6 спринта
