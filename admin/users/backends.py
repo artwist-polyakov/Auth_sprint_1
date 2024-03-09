@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from http import HTTPStatus
+import secrets
 
 import aiohttp
 from configs.settings import settings
@@ -21,9 +21,11 @@ async def get_response(
     Функция отправляет асинхронный запрос на сервер
     и возвращает ответ
     """
+    request_id = secrets.token_hex(16)
+    headers_x = {'X-Request-Id': request_id}
     async with aiohttp.ClientSession(
             cookies=cookies if cookies else None,
-            headers=headers
+            headers=headers if headers else headers_x
     ) as session:
         async with session.request(
                 method=method.lower(),
@@ -37,17 +39,29 @@ async def get_response(
 
 
 class CustomBackend(BaseBackend):
-    def authenticate(self, request, username=None, password=None, **kwars):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         try:
-            url = settings.auth_api_login_url
-            body, status = asyncio.run(get_response(
+            url_login = settings.auth_api_login_url
+            body, _ = asyncio.run(get_response(
                 method='GET',
-                url=url,
+                url=url_login,
                 params={'email': username, 'password': password, 'user_device_type': 'web'}
             ))
 
-            if status == HTTPStatus.OK:
-                return User.objects.get(email=username)
+            user = User.objects.get(email=username)
+
+            url_check = settings.auth_api_check_perm
+            body, _ = asyncio.run(get_response(
+                method='GET',
+                url=url_check,
+                params={'uuid': str(user.uuid), 'resource': 'admin', 'verb': 'read'},
+                cookies={'access_token': body['access_token']}
+            ))
+
+            if isinstance(body, bool) and body:
+                return user
+            elif body['permission']:
+                return user
             return None
 
         except Exception:

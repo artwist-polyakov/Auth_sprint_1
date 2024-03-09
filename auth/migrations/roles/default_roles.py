@@ -33,6 +33,8 @@ default_roles = [
      'role': 'admin', 'resource': 'roles', 'verb': 'write'},
     {'uuid': 'd9d86790-025c-4878-9c77-34259d1f5c6a',
      'role': 'admin', 'resource': 'roles', 'verb': 'delete'},
+    {'uuid': 'e5f6c4a0-f043-4147-b69c-3a7dae3c2750',
+     'role': 'admin', 'resource': 'admin', 'verb': 'read'},
     {'uuid': 'b1a11c35-41c8-4cfc-bd90-c8ba0c5a4f0b',
      'role': 'user', 'resource': 'films', 'verb': 'read'},
     {'uuid': '14b3f002-51d5-4147-820e-7fc977d9b29a',
