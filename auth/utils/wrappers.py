@@ -132,7 +132,6 @@ def asyncbackoff(max_attempts=-1, start_sleep_time=0.1, factor=2, border_sleep_t
                     logging.error(f"Error: {error}.{attempt_string}"
                                   f"Retrying in {sleep_with_jitter} seconds...")
                     await asyncio.sleep(sleep_with_jitter)
-            logging.error(f"Error: {error}. No more attempts")
             return None
 
         return inner
