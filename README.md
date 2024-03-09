@@ -2,12 +2,31 @@
 
 # Проектная работа 7 спринта
 
-## Интеграция Auth-сервиса с сервисом выдачи контента и административной панелью
+## Интеграция Auth-сервиса с сервисом выдачи контента
+
+1. Создан middleware проверки прав пользователя `./movies/middlewares/rbac.py`
+
+2. Добавлена изящная деградация `./movies/middlewares/rbac.py`
+
+3. Проверка доступа (`./auth/api/v1/users.py` `def check_permissions`) может проводиться с помощью токена
+
+4. В настройки (`./movies/configs/settings.py`) добавлен внутренний токен для обхода middleware rbac `internal_secret_token`
+
+## Интеграция Auth-сервиса с административной панелью
+
+1. Создан контейнер `admin` с сервисом `django`, создано приложение `users`, внесены изменения в `nginx.conf`
+2. Изменена модель по умолчанию User `./admin/users/models.py`
+
+Доступ к панели администратора имеют (`./admin/users/backends.py`):
+- пользователи, являющиеся superuser
+- администраторы, имеющие право на доступ к ресурсу `admin`
 
 ## Jaeger
 
 
+
 ## Rate limit
+
 
 
 ## Oauth 2.0
@@ -21,7 +40,7 @@
 
 Партицирование истории входов по `user_device_type`
 
-1. Измененена модель RefreshToken `./auth/db/auth/refresh_token.py`
+1. Изменена модель RefreshToken `./auth/db/auth/refresh_token.py`
 
 2. Созданы дополнительные миграции `./auth/migrations/`, в том числе был создан индекс `ix_refresh_tokens_user_device_type`
 
