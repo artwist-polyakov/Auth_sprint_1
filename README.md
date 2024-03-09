@@ -39,6 +39,20 @@
 Страница авторизации https://oauth.yandex.ru/authorize?response_type=code&client_id=f0f7d3c997d14831944552f7739d94c2
 Соглашаемся с предоставлением доступа, нас перенаправляют на страницу апи, которая выпускает токен доступа и рефреш токен.
 
+1. Создана api `yandex_login` (`./auth/api/v1/users.py`)
+
+2. Функция для обмена кода на токены `exchange_code_for_tokens` (`./auth/api/v1/users.py`)
+
+3. Созданы абстрактный класс OAuthService (`./auth/db/oauth/oauth_service.py`) и класс `YandexOAuthService` (`./auth/db/oauth/yandex_oauth_service.py`). Созданы методы, позволяющие получать пользовательскую информацию
+
+4. Создана модель токена `./auth/db/models/token_models/oauth_token.py`
+
+5. Создается модель пароля и метод, умеющий генерировать валидный пароль `./auth/services/models/signup.py`
+
+6. Создается модель для хранения oauth данных `./auth/db/auth/yandex_oauth.py`
+
+7. Реализованы изменения, связанные с работой oauth `./auth/db/postgres.py`, `./auth/services/user_service.py`
+
 ## Партицирование Refresh Token (истории входов)
 
 Партицирование истории входов по `user_device_type`
