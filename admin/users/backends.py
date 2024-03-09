@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import secrets
-from http import HTTPStatus
 
 import aiohttp
 from configs.settings import settings
