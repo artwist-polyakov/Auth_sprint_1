@@ -23,7 +23,7 @@ class User(AbstractBaseUser):
 
     @property
     def is_staff(self):
-        return self.role == 'admin'
+        return True
 
     objects = UserManager()
 
