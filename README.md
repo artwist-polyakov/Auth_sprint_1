@@ -23,6 +23,9 @@
 
 ## Jaeger
 
+1. Создан контейнер `jaeger`
+
+2. Настроена трассировка `./auth/main.py`, `./movies/main.py`, `nginx/nginx.conf`
 
 
 ## Rate limit
