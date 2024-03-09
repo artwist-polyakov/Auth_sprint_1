@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import secrets
 from http import HTTPStatus
 
 import aiohttp
@@ -65,8 +66,11 @@ async def has_permission(user_role, resource_name, required_permission):
         'verb': required_permission
     }
     logging.warning(f"params: {params}")
+    request_id = secrets.token_hex(16)
+    headers = {'X-Request-Id': request_id}
+    logging.warning(f"headers: {headers}")
     try:
-        result, status = await get_response(url=url, params=params)
+        result, status = await get_response(url=url, params=params, headers=headers)
     except (aiohttp.ClientError, asyncio.TimeoutError) as e:
         raise AuthUnavailableException() from e
     logging.warning(f"result: {result}")
