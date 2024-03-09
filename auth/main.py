@@ -6,6 +6,7 @@ from db.postgres import PostgresInterface
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 from middlewares.logout_processor import CheckLogoutMiddleware
+from middlewares.rate_limit import RateLimitMiddleware
 from middlewares.rbac import RBACMiddleware
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -52,6 +53,7 @@ FastAPIInstrumentor.instrument_app(app)
 
 app.add_middleware(RBACMiddleware)
 app.add_middleware(CheckLogoutMiddleware)
+app.add_middleware(RateLimitMiddleware)
 
 
 @app.middleware('http')
