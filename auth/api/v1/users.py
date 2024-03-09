@@ -306,7 +306,7 @@ async def get_login_history(
     token = AccessTokenContainer(
         **dict_from_jwt(access_token)
     )
-    if error := get_error_from_uuid(token.uuid, access_token):
+    if error := get_error_from_uuid(token.user_id, access_token):
         return error
     response: dict = await service.get_login_history(
         user_id=token.user_id,
