@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from configs.settings import get_settings
 from db.rate_limiter.redis_rate_limiter import get_rate_limiter
 from fastapi import Request
@@ -20,7 +22,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         else:
             key = str(request.client.host)
         if not await get_rate_limiter().is_within_limit(key, MAX_REQUESTS_PER_MINUTE):
-            return ORJSONResponse(status_code=429, content="Too Many Requests")
+            return ORJSONResponse(
+                status_code=HTTPStatus.TOO_MANY_REQUESTS,
+                content="Too Many Requests"
+            )
         request_id = request.headers.get(REQUEST_ID_KEY, "1")
         await get_rate_limiter().add_request(key, request_id)
         response = await call_next(request)
