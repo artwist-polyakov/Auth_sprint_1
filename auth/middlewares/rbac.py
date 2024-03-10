@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from configs.rbac_conf import EXСLUDED_PATHS, RBAC_CONF, get_rbac_conf
 from fastapi import HTTPException, Request
@@ -24,7 +25,6 @@ def translate_method_to_action(method: str) -> str:
 
 
 async def has_permission(user_role, resource_name, required_permission):
-
     logging.warning(f"RBAC_CONF: {RBAC_CONF}")
     logging.warning(f"DB_conf: {await get_rbac_conf()}")
     conf = await get_rbac_conf()
@@ -49,15 +49,21 @@ class RBACMiddleware(BaseHTTPMiddleware):
             else:
                 refresh_token = request.cookies.get(REFRESH_TOKEN_KEY)
                 if refresh_token and not (LOGIN_HANDLE in resource):
-                    raise HTTPException(status_code=401, detail="Access token expired")
+                    raise HTTPException(
+                        status_code=HTTPStatus.UNAUTHORIZED,
+                        detail="Access token expired")
             if not role:
-                raise HTTPException(status_code=401, detail="Bad credentials")
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED,
+                    detail="Bad credentials")
             if not is_superuser and role != UNAUTHORIZED_ROLE and not await has_permission(
                     role,
                     resource.split("/")[2],
                     action
             ):
-                raise HTTPException(status_code=403, detail="Insufficient permissions")
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN,
+                    detail="Insufficient permissions")
             logging.warning(f"Role: {role}")
         try:
             response = await call_next(request)

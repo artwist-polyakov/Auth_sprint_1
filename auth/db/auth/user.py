@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from configs.settings import settings
+# from configs.settings import settings
 from db.auth.base import Base
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = 'users'
-    __table_args__ = {'schema': f'{settings.postgres_schema_2}'}
+    __table_args__ = {'schema': 'users'}
 
     uuid = Column(
         UUID(as_uuid=True),
@@ -27,6 +27,8 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     refresh_tokens = relationship('RefreshToken', back_populates='user',
                                   cascade="all, delete-orphan")
+    yandex_oauth = relationship('YandexOAuth', back_populates='user',
+                                cascade="all, delete-orphan")
 
     def __init__(self,
                  email: str,

@@ -41,7 +41,7 @@ async def add_role(
     )
 
 
-@router.put(
+@router.patch(
     path='/update',
     summary="Update Role",
     description="Update role"
@@ -82,7 +82,7 @@ async def delete_role(
     )
 
 
-@router.put(
+@router.patch(
     path='/change_role',
     summary="Change User Role",
     description="Change user role"

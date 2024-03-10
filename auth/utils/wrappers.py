@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import random
 import time
@@ -101,6 +102,37 @@ def backoff(max_attempts=-1, start_sleep_time=0.1, factor=2, border_sleep_time=1
                     if attempt == 0:
                         logging.error(f"Error: {error}. No more attempts")
                         return None
+
+        return inner
+
+    return func_wrapper
+
+
+def asyncbackoff(max_attempts=-1, start_sleep_time=0.1, factor=2, border_sleep_time=10):
+    """
+        Асинхронный декооратор для повторного выполнения функции
+        в случае возникновения исключения
+        использует экспоненциальную задержку + jitter
+        но не более border_sleep_time
+    """
+
+    def func_wrapper(func):
+        @wraps(func)
+        async def inner(*args, **kwargs):
+            attempt = 0
+            while max_attempts == -1 or attempt < max_attempts:
+                try:
+                    return await func(*args, **kwargs)
+                except Exception as error:
+                    attempt += 1
+                    sleep_time = start_sleep_time * (factor ** attempt)
+                    sleep_time = min(sleep_time, border_sleep_time)
+                    sleep_with_jitter = random.uniform(0, sleep_time)
+                    attempt_string = f"Attempt {attempt}" if max_attempts > 0 else ""
+                    logging.error(f"Error: {error}.{attempt_string}"
+                                  f"Retrying in {sleep_with_jitter} seconds...")
+                    await asyncio.sleep(sleep_with_jitter)
+            return None
 
         return inner
 

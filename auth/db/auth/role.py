@@ -1,6 +1,6 @@
 import uuid
 
-from configs.settings import settings
+# from configs.settings import settings
 from db.auth.base import Base
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID
@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 class Role(Base):
     __tablename__ = 'roles'
-    __table_args__ = {'schema': f'{settings.postgres_schema_2}'}
+    __table_args__ = {'schema': 'users'}
 
     uuid = Column(
         UUID(as_uuid=True),

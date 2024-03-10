@@ -6,6 +6,8 @@ from db.auth.refresh_token import RefreshToken
 from db.auth.role import Role
 from db.auth.user import User
 from db.auth.user_storage import UserStorage
+from db.auth.yandex_oauth import YandexOAuth
+from db.models.oauth_models.oauth_db import OAuthDBModel
 from pydantic import BaseModel
 from sqlalchemy import func, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -22,7 +24,11 @@ class PostgresInterface(UserStorage):
             expire_on_commit=False
         )
 
-    async def add_single_data(self, request: BaseModel, entity: str) -> dict:
+    async def add_single_data(
+            self,
+            request: BaseModel | OAuthDBModel,
+            entity: str
+    ) -> dict:
         # INSERT запрос
         async with self._async_session() as session:
             try:
@@ -47,7 +53,8 @@ class PostgresInterface(UserStorage):
                             .values(
                                 uuid=request.uuid,
                                 user_id=request.user_id,
-                                active_till=request.active_till
+                                active_till=request.active_till,
+                                user_device_type=request.user_device_type
                             )
                         )
                     case 'role':
@@ -60,12 +67,35 @@ class PostgresInterface(UserStorage):
                                 verb=request.verb
                             )
                         )
+                    case 'yandex_oauth':
+                        if isinstance(request, OAuthDBModel):
+                            query = (
+                                insert(YandexOAuth)
+                                .values(
+                                    **request.model_dump()
+                                )
+                            )
                 await session.execute(query)
                 await session.commit()
                 return {'status_code': HTTPStatus.CREATED, 'content': f'{entity} created'}
 
             except Exception as e:
                 await session.rollback()
+                logging.error(type(e).__name__, e)
+                return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
+
+    async def get_yandex_oauth_user(self, email: str) -> dict | None:
+        # SELECT запрос
+        async with self._async_session() as session:
+            try:
+                query = select(YandexOAuth).where(YandexOAuth.default_email == email)
+                result = await session.execute(query)
+                user = result.scalar_one_or_none()
+                if not user:
+                    return None
+                return user
+
+            except Exception as e:
                 logging.error(type(e).__name__, e)
                 return {'status_code': HTTPStatus.INTERNAL_SERVER_ERROR, 'content': 'error'}
 
@@ -280,18 +310,19 @@ class PostgresInterface(UserStorage):
                 await session.commit()
                 history = []
                 tokens = tokens.all()
-                logging.warning(tokens)
                 for token_instance in tokens:
                     token_instance = token_instance[0].__dict__
                     created_at = token_instance['created_at']
                     active_till = token_instance['active_till']
                     token_uuid = token_instance['uuid']
                     user_id = token_instance['user_id']
+                    user_device_type = token_instance['user_device_type']
                     history.append({
                         'token_id': str(token_uuid),
                         'created_at': created_at.isoformat(),
                         'active_till': active_till,
-                        'user_id': str(user_id)
+                        'user_id': str(user_id),
+                        'user_device_type': user_device_type
                     })
                 return {
                     'status_code': HTTPStatus.OK,

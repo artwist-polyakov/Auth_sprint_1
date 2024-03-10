@@ -1,4 +1,5 @@
 import logging
+from functools import lru_cache
 
 from pydantic_settings import BaseSettings
 
@@ -28,6 +29,16 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
     refresh_token_expire_minutes: int = 60 * 24 * 7
 
+    jaeger_host: str = ...
+    jaeger_port: int = ...
+    jaeger_logs_in_console: bool = False
+
+    yandex_oauth_client_id: str = ...
+    yandex_oauth_client_secret: str = ...
+    yandex_oauth_url: str = ...
+
+    requests_rate_limit: int = ...
+
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 
@@ -54,6 +65,11 @@ class RedisLogoutSettings(RedisSettings):
     refresh_lifetime: int = settings.refresh_token_expire_minutes * 60
 
 
+class RedisRateLimitterSettings(RedisSettings):
+    db: int = 2
+    rate_limit: int = settings.requests_rate_limit
+
+
 class PostgresSettings(BaseSettings):
     db: str = settings.postgres_name
     user: str = settings.postgres_user
@@ -72,3 +88,8 @@ class PostgresDSN(BaseSettings):
 
 
 pstg_dsn = PostgresDSN().dsn
+
+
+@lru_cache
+def get_settings():
+    return settings

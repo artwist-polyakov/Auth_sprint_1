@@ -7,3 +7,4 @@ class RefreshToken(BaseModel):
     uuid: UUID
     user_id: UUID
     active_till: int
+    user_device_type: str

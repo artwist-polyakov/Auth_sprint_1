@@ -10,3 +10,9 @@ uvloop==0.17.0 ; sys_platform != "win32" and implementation_name == "cpython"
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
 sqlalchemy[asyncio]==2.0.27
+python-jose[cryptography]==3.3.0
+aiohttp==3.9.3
+opentelemetry-api==1.17.0
+opentelemetry-sdk==1.17.0
+opentelemetry-instrumentation-fastapi==0.38b0
+opentelemetry-exporter-jaeger==1.17.0
