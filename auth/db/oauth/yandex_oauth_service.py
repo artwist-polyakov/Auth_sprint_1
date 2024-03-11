@@ -1,5 +1,6 @@
 import base64
 from functools import lru_cache
+from http import HTTPStatus
 
 import aiohttp
 from configs.settings import get_settings
@@ -25,7 +26,7 @@ class YandexOAuthService(OAuthService):
         url = self._YANDEX_REVOKE_TOKEN_URL
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=data, headers=headers) as response:
-                if response.status != 200:
+                if response.status != HTTPStatus.OK:
                     self._raise_exception(response)
         return None
 
@@ -33,7 +34,7 @@ class YandexOAuthService(OAuthService):
         headers = self._get_token_headers(token)
         async with aiohttp.ClientSession() as session:
             async with session.get(self._YANDEX_LOGIN_URL, headers=headers) as response:
-                if response.status == 200:
+                if response.status == HTTPStatus.OK:
                     user_info = await response.json()
                     return user_info
                 else:
@@ -59,7 +60,7 @@ class YandexOAuthService(OAuthService):
         url = self._settings.yandex_oauth_url
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=data, headers=headers) as response:
-                if response.status == 200:
+                if response.status == HTTPStatus.OK:
                     # Успешный обмен
                     tokens = await response.json()
                     return OAuthToken(**tokens)
