@@ -39,6 +39,8 @@ class Settings(BaseSettings):
 
     requests_rate_limit: int = ...
 
+    enable_tracing: bool = ...
+
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 

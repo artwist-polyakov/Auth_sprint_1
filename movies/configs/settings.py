@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     jaeger_port: int = ...
     jaeger_logs_in_console: bool = False
 
+    enable_tracing: bool = ...
+
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 
