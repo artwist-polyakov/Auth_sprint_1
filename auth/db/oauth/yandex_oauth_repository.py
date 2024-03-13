@@ -5,7 +5,7 @@ from http import HTTPStatus
 import aiohttp
 from configs.settings import get_settings
 from db.models.oauth_models.oauth_token import OAuthToken
-from db.oauth.oauth_service import OAuthRepository
+from db.oauth.oauth_repository import OAuthRepository
 
 
 class YandexOAuthRepository(OAuthRepository):

@@ -11,7 +11,7 @@ from db.logout.logout_storage import LogoutStorage
 from db.models.auth_requests.user_request import UserRequest
 from db.models.oauth_models.user_model import OAuthUserModel
 from db.models.token_models.access_token_container import AccessTokenContainer
-from db.oauth.yandex_oauth_service import get_yandex_oauth_rep
+from db.oauth.yandex_oauth_repository import get_yandex_oauth_rep
 from db.postgres import PostgresInterface
 from services.models.signup import PasswordModel, SignupModel
 from services.oauth_service import OAUTHService

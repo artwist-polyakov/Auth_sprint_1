@@ -1,26 +1,22 @@
-import logging
 import uuid
 from datetime import datetime, timedelta
 from functools import lru_cache
 from http import HTTPStatus
 
 import bcrypt
+
 from configs.settings import settings
 from db.auth.user import User
 from db.logout.logout_storage import LogoutStorage
 from db.models.auth_requests.user_request import UserRequest
 from db.models.auth_requests.user_update_request import UserUpdateRequest
 from db.models.auth_responses.user_response import UserResponse
-from db.models.oauth_models.oauth_db import OAuthDBModel
-from db.models.oauth_models.oauth_token import OAuthToken
-from db.models.oauth_models.user_model import OAuthUserModel
 from db.models.token_models.access_token_container import AccessTokenContainer
 from db.models.token_models.refresh_token import RefreshToken
-from db.oauth.yandex_oauth_service import get_yandex_oauth_rep
 from db.postgres import PostgresInterface
 from middlewares.rbac import has_permission
 from services.models.permissions import RBACInfo
-from services.models.signup import PasswordModel, ProfileModel, SignupModel
+from services.models.signup import ProfileModel, SignupModel
 from utils.creator_provider import get_creator
 
 PAGE_SIZE = 10
