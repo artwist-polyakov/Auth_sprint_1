@@ -13,9 +13,8 @@ from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
 from services.oauth_service import OAUTHService
 from services.user_service import UserService, get_user_service
-from user_agents import parse
-
 from services.yandex_oauth_service import get_yandex_oauth_service
+from user_agents import parse
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
 

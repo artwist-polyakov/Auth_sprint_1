@@ -1,5 +1,4 @@
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from db.auth.user import User
 from db.models.oauth_models.oauth_token import OAuthToken
@@ -20,7 +19,11 @@ class OAUTHService(BaseAuthService, ABC):
         self._oauth_method = oauth_method
 
     @abstractmethod
-    async def exchange_code_for_tokens(self, code: str, device_type: str) -> AccessTokenContainer | dict:
+    async def exchange_code_for_tokens(
+            self,
+            code: str,
+            device_type: str
+    ) -> AccessTokenContainer | dict:
         pass
 
     async def _emit_user_token(

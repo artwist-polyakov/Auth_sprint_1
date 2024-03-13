@@ -1,6 +1,5 @@
 from core.base_orjson_model import BaseORJSONModel
-from pydantic import Field, AliasChoices
-
+from pydantic import AliasChoices, Field
 
 
 class OAuthUserModel(BaseORJSONModel):

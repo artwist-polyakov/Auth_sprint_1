@@ -4,10 +4,8 @@ from functools import lru_cache
 from http import HTTPStatus
 
 import bcrypt
-
 from configs.settings import get_settings
 from db.auth.user import User
-from db.logout.logout_storage import LogoutStorage
 from db.models.auth_requests.user_request import UserRequest
 from db.models.oauth_models.user_model import OAuthUserModel
 from db.models.token_models.access_token_container import AccessTokenContainer

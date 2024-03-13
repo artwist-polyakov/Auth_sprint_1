@@ -4,7 +4,6 @@ from functools import lru_cache
 from http import HTTPStatus
 
 import bcrypt
-
 from configs.settings import settings
 from db.auth.user import User
 from db.logout.logout_storage import LogoutStorage
