@@ -26,7 +26,6 @@ class YandexOAUTHService(OAUTHService):
             oauth_method: str = get_settings().yandex_oauth_method_name
     ):
         super().__init__(instance, oauth_method)
-        self._settings = get_settings()
 
     async def exchange_code_for_tokens(
             self,
