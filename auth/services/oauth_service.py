@@ -1,6 +1,5 @@
 import uuid
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from db.auth.user import User
 from db.models.oauth_models.oauth_db import OAuthDBModel

@@ -17,8 +17,6 @@ class BaseAuthService(ABC):
     ):
         self._postgres = instance
 
-
-
     async def _add_refresh_token(self, user: User, device_type: str) -> AccessTokenContainer:
         refresh_token = RefreshToken(
             uuid=str(uuid.uuid4()),
