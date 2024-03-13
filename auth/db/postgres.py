@@ -88,7 +88,7 @@ class PostgresInterface(UserStorage):
         # SELECT запрос
         async with self._async_session() as session:
             try:
-                query = select(YandexOAuth).where(YandexOAuth.default_email == email)
+                query = select(YandexOAuth).where(YandexOAuth.email == email)
                 result = await session.execute(query)
                 user = result.scalar_one_or_none()
                 if not user:
