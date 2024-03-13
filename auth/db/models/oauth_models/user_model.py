@@ -1,4 +1,6 @@
 from core.base_orjson_model import BaseORJSONModel
+from pydantic import Field, AliasChoices
+
 
 
 class OAuthUserModel(BaseORJSONModel):
@@ -26,6 +28,6 @@ class OAuthUserModel(BaseORJSONModel):
 
     """
 
-    default_email: str
+    email: str = Field(validation_alias=AliasChoices('default_email', 'email'))
     first_name: str
     last_name: str
