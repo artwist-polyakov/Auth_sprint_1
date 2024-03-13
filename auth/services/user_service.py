@@ -44,10 +44,7 @@ class UserService:
             first_name=first_name,
             last_name=last_name
         )
-        exists: User | dict = await self._postgres.get_single_user(
-            field_name='email',
-            field_value=model.email
-        )
+        exists: User | dict = await self._get_existing_user(model.email)
         if isinstance(exists, User):
             return {
                 'status_code': HTTPStatus.CONFLICT,
@@ -249,65 +246,6 @@ class UserService:
         ) if rbac.role else False
         return not is_blacklisted and has_permissions
 
-    async def exchange_code_for_tokens(
-            self,
-            code: str,
-            device_type: str
-    ) -> AccessTokenContainer | dict:
-        tokens = await get_yandex_oauth_rep().exchange_code(code)
-        user_info = OAuthUserModel(**await get_yandex_oauth_rep()
-                                   .get_user_info(tokens.access_token))
-        model = SignupModel(
-            email=user_info.email,
-            password=PasswordModel.generate_password(),
-            first_name=user_info.first_name,
-            last_name=user_info.last_name
-        )
-        exists: User | dict = await self._get_existing_user(model.email)
-
-        checkup = await self._emit_user_token(exists, user_info, tokens, device_type)
-        if checkup:
-            return checkup
-
-        password_hash = bcrypt.hashpw(model.password.encode(), bcrypt.gensalt())
-        request = UserRequest(
-            uuid=str(uuid.uuid4()),
-            email=model.email,
-            password=password_hash,
-            first_name=model.first_name,
-            last_name=model.last_name
-        )
-        logging.warning(request)
-        response: dict = await self._postgres.add_single_data(request, 'user')
-        if response['status_code'] == HTTPStatus.CREATED:
-            exists = await self._get_existing_user(model.email)
-            return await self._emit_user_token(exists, user_info, tokens, device_type)
-        return response
-
-    async def _save_user_to_oauth(
-            self,
-            user_info: OAuthUserModel,
-            tokens: OAuthToken,
-            user_id: str
-    ) -> bool:
-        exists = await self._postgres.get_yandex_oauth_user(user_info.email)
-        if exists:
-            return False
-        model = OAuthDBModel(
-            uuid=str(uuid.uuid4()),
-            email=user_info.email,
-            first_name=user_info.first_name,
-            last_name=user_info.last_name,
-            access_token=tokens.access_token,
-            refresh_token=tokens.refresh_token,
-            oauth_method='yandex',
-            token_type=tokens.token_type,
-            expires_in=tokens.expires_in,
-            user_id=user_id
-        )
-        await self._postgres.add_single_data(model, 'yandex_oauth')
-        return True
-
     async def _add_refresh_token(self, user: User, device_type: str) -> AccessTokenContainer:
         refresh_token = RefreshToken(
             uuid=str(uuid.uuid4()),
@@ -332,19 +270,6 @@ class UserService:
 
     async def _get_existing_user(self, email: str) -> User | dict:
         return await self._postgres.get_single_user('email', email)
-
-    async def _emit_user_token(
-            self,
-            user: User | dict,
-            user_info: OAuthUserModel,
-            tokens: OAuthToken,
-            user_device_type: str
-    ) -> AccessTokenContainer | None:
-        if isinstance(user, User):
-            result = await self._save_user_to_oauth(user_info, tokens, str(user.uuid))
-            logging.warning(f"Result of user creating {result}")
-            return await self._add_refresh_token(user, user_device_type)
-        return None
 
     def _generate_access_container(
             self,
