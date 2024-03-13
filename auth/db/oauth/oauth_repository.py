@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from db.models.oauth_models.oauth_token import OAuthToken
 
 
-class OAuthService(ABC):
+class OAuthRepository(ABC):
 
     @abstractmethod
     async def exchange_code(self, code: str) -> OAuthToken:

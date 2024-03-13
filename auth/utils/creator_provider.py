@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from db.auth.user_storage import UserStorage
 from db.logout.redis_logout_storage import RedisLogoutStorage
 from db.postgres import PostgresInterface
 from db.storages_creator import StoragesCreator
@@ -45,6 +46,7 @@ from db.storages_creator import StoragesCreator
 def get_creator():
     creator = StoragesCreator(
         RedisLogoutStorage(),
+        UserStorage(),
         PostgresInterface()
     )
     return creator

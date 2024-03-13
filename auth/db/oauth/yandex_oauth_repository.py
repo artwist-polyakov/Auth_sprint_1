@@ -1,15 +1,16 @@
 import base64
 from functools import lru_cache
+from http import HTTPStatus
 
 import aiohttp
 from configs.settings import get_settings
 from db.models.oauth_models.oauth_token import OAuthToken
-from db.oauth.oauth_service import OAuthService
+from db.oauth.oauth_repository import OAuthRepository
 
 
-class YandexOAuthService(OAuthService):
-    _YANDEX_LOGIN_URL = "https://login.yandex.ru/info"
-    _YANDEX_REVOKE_TOKEN_URL = "https://oauth.yandex.ru/revoke_token"
+class YandexOAuthRepository(OAuthRepository):
+    _YANDEX_LOGIN_URL = get_settings().yandex_login_url
+    _YANDEX_REVOKE_TOKEN_URL = get_settings().yandex_revoke_token_url
 
     def __init__(self):
         self._settings = get_settings()
@@ -25,7 +26,7 @@ class YandexOAuthService(OAuthService):
         url = self._YANDEX_REVOKE_TOKEN_URL
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=data, headers=headers) as response:
-                if response.status != 200:
+                if response.status != HTTPStatus.OK:
                     self._raise_exception(response)
         return None
 
@@ -33,7 +34,7 @@ class YandexOAuthService(OAuthService):
         headers = self._get_token_headers(token)
         async with aiohttp.ClientSession() as session:
             async with session.get(self._YANDEX_LOGIN_URL, headers=headers) as response:
-                if response.status == 200:
+                if response.status == HTTPStatus.OK:
                     user_info = await response.json()
                     return user_info
                 else:
@@ -59,7 +60,7 @@ class YandexOAuthService(OAuthService):
         url = self._settings.yandex_oauth_url
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=data, headers=headers) as response:
-                if response.status == 200:
+                if response.status == HTTPStatus.OK:
                     # Успешный обмен
                     tokens = await response.json()
                     return OAuthToken(**tokens)
@@ -83,5 +84,5 @@ class YandexOAuthService(OAuthService):
 
 
 @lru_cache
-def get_yandex_oauth_service() -> YandexOAuthService:
-    return YandexOAuthService()
+def get_yandex_oauth_rep() -> YandexOAuthRepository:
+    return YandexOAuthRepository()

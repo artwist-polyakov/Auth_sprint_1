@@ -10,6 +10,7 @@ from sqlalchemy import engine_from_config, pool
 # from db.auth.role import Role
 # from db.auth.user import User
 # from db.auth.yandex_oauth import YandexOAuth
+# from db.auth.oauth import OAuth
 
 
 config = context.config
