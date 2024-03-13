@@ -27,7 +27,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     refresh_tokens = relationship('RefreshToken', back_populates='user',
                                   cascade="all, delete-orphan")
-    yandex_oauth = relationship('YandexOAuth', back_populates='user',
+    yandex_oauth = relationship('OAuth', back_populates='user',
                                 cascade="all, delete-orphan")
 
     def __init__(self,
