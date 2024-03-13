@@ -9,8 +9,8 @@ from db.oauth.oauth_service import OAuthService
 
 
 class YandexOAuthService(OAuthService):
-    _YANDEX_LOGIN_URL = "https://login.yandex.ru/info"
-    _YANDEX_REVOKE_TOKEN_URL = "https://oauth.yandex.ru/revoke_token"
+    _YANDEX_LOGIN_URL = get_settings().yandex_login_url
+    _YANDEX_REVOKE_TOKEN_URL = get_settings().yandex_revoke_token_url
 
     def __init__(self):
         self._settings = get_settings()
