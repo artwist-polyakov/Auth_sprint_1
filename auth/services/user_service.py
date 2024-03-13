@@ -16,7 +16,7 @@ from db.models.oauth_models.oauth_token import OAuthToken
 from db.models.oauth_models.user_model import OAuthUserModel
 from db.models.token_models.access_token_container import AccessTokenContainer
 from db.models.token_models.refresh_token import RefreshToken
-from db.oauth.yandex_oauth_service import get_yandex_oauth_service
+from db.oauth.yandex_oauth_service import get_yandex_oauth_rep
 from db.postgres import PostgresInterface
 from middlewares.rbac import has_permission
 from services.models.permissions import RBACInfo
@@ -24,25 +24,6 @@ from services.models.signup import PasswordModel, ProfileModel, SignupModel
 from utils.creator_provider import get_creator
 
 PAGE_SIZE = 10
-
-
-def generate_access_container(
-        user_id: str,
-        refresh_id: str,
-        user_device_type: str
-) -> AccessTokenContainer:
-    result = AccessTokenContainer(
-        user_id=user_id,
-        role="user",
-        is_superuser=False,
-        verified=True,
-        subscribed=False,
-        created_at=int(datetime.now().timestamp()),
-        refresh_id=refresh_id,
-        refreshed_at=int(datetime.now().timestamp()),
-        user_device_type=user_device_type
-    )
-    return result
 
 
 class UserService:
@@ -197,7 +178,7 @@ class UserService:
                 'content': 'Refresh token has expired'
             }
 
-        token_to_blacklist = generate_access_container(user_id, refresh_id, user_device_type)
+        token_to_blacklist = self._generate_access_container(user_id, refresh_id, user_device_type)
         await self._enters_storage.logout_current_session(token_to_blacklist)
 
         new_refresh_token = RefreshToken(
@@ -273,11 +254,11 @@ class UserService:
             code: str,
             device_type: str
     ) -> AccessTokenContainer | dict:
-        tokens = await get_yandex_oauth_service().exchange_code(code)
-        user_info = OAuthUserModel(**await get_yandex_oauth_service()
+        tokens = await get_yandex_oauth_rep().exchange_code(code)
+        user_info = OAuthUserModel(**await get_yandex_oauth_rep()
                                    .get_user_info(tokens.access_token))
         model = SignupModel(
-            email=user_info.default_email,
+            email=user_info.email,
             password=PasswordModel.generate_password(),
             first_name=user_info.first_name,
             last_name=user_info.last_name
@@ -309,16 +290,17 @@ class UserService:
             tokens: OAuthToken,
             user_id: str
     ) -> bool:
-        exists = await self._postgres.get_yandex_oauth_user(user_info.default_email)
+        exists = await self._postgres.get_yandex_oauth_user(user_info.email)
         if exists:
             return False
         model = OAuthDBModel(
             uuid=str(uuid.uuid4()),
-            default_email=user_info.default_email,
+            email=user_info.email,
             first_name=user_info.first_name,
             last_name=user_info.last_name,
             access_token=tokens.access_token,
             refresh_token=tokens.refresh_token,
+            oauth_method='yandex',
             token_type=tokens.token_type,
             expires_in=tokens.expires_in,
             user_id=user_id
@@ -363,6 +345,25 @@ class UserService:
             logging.warning(f"Result of user creating {result}")
             return await self._add_refresh_token(user, user_device_type)
         return None
+
+    def _generate_access_container(
+            self,
+            user_id: str,
+            refresh_id: str,
+            user_device_type: str
+    ) -> AccessTokenContainer:
+        result = AccessTokenContainer(
+            user_id=user_id,
+            role="user",
+            is_superuser=False,
+            verified=True,
+            subscribed=False,
+            created_at=int(datetime.now().timestamp()),
+            refresh_id=refresh_id,
+            refreshed_at=int(datetime.now().timestamp()),
+            user_device_type=user_device_type
+        )
+        return result
 
 
 @lru_cache
