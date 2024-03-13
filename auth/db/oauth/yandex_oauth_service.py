@@ -5,10 +5,10 @@ from http import HTTPStatus
 import aiohttp
 from configs.settings import get_settings
 from db.models.oauth_models.oauth_token import OAuthToken
-from db.oauth.oauth_service import OAuthService
+from db.oauth.oauth_service import OAuthRepository
 
 
-class YandexOAuthService(OAuthService):
+class YandexOAuthRepository(OAuthRepository):
     _YANDEX_LOGIN_URL = get_settings().yandex_login_url
     _YANDEX_REVOKE_TOKEN_URL = get_settings().yandex_revoke_token_url
 
@@ -84,5 +84,5 @@ class YandexOAuthService(OAuthService):
 
 
 @lru_cache
-def get_yandex_oauth_service() -> YandexOAuthService:
-    return YandexOAuthService()
+def get_yandex_oauth_service() -> YandexOAuthRepository:
+    return YandexOAuthRepository()
