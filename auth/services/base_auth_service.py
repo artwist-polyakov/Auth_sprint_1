@@ -36,7 +36,7 @@ class BaseAuthService(ABC):
             last_name=user_info.last_name,
             access_token=tokens.access_token,
             refresh_token=tokens.refresh_token,
-            oauth_method=self._oauth_method,
+            oauth_source=self._oauth_method,
             token_type=tokens.token_type,
             expires_in=tokens.expires_in,
             user_id=user_id
