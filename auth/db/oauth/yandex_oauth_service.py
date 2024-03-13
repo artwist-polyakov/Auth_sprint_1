@@ -84,5 +84,5 @@ class YandexOAuthRepository(OAuthRepository):
 
 
 @lru_cache
-def get_yandex_oauth_service() -> YandexOAuthRepository:
+def get_yandex_oauth_rep() -> YandexOAuthRepository:
     return YandexOAuthRepository()
