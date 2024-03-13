@@ -41,6 +41,10 @@ class Settings(BaseSettings):
 
     enable_tracing: bool = ...
 
+    yandex_login_url: str = "https://login.yandex.ru/info"
+    yandex_revoke_token_url: str = "https://oauth.yandex.ru/revoke_token"
+    yandex_oauth_method_name: str = "yandex"
+
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 

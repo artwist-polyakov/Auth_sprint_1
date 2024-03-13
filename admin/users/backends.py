@@ -1,9 +1,6 @@
-import asyncio
-import logging
 import secrets
 
 import requests
-
 from configs.settings import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
@@ -33,7 +30,6 @@ def get_response(
             cookies=cookies,
             headers=headers if headers else headers_x
         )
-        logging.warning(f"response: {response}")
         body = response.json()
         status = response.status_code
         return body, status
