@@ -1,3 +1,4 @@
+import logging
 import secrets
 import string
 
@@ -48,10 +49,15 @@ class PasswordModel(BaseModel):
         alphabet = string.ascii_letters + string.digits
         while True:
             password = ''.join(secrets.choice(alphabet) for _ in range(10))
-            if (any(c.islower() for c in password)
-                    and any(c.isupper() for c in password)
-                    and sum(c.isdigit() for c in password) >= 3):
+            try:
+                PasswordModel.check_pass(password)
+            except CustomValueError:
+                logging.warning(f"Generated password: {password} is invalind")
+                continue
+            else:
+                logging.warning(f"Generated password: {password} is valid")
                 break
+        logging.warning(f"Generated password: {password} returned to the user")
         return password
 
     @field_validator("password")

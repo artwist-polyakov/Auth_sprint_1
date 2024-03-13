@@ -2,11 +2,11 @@ import logging
 from http import HTTPStatus
 
 from configs.settings import pstg_dsn
+from db.auth.oauth import OAuth
 from db.auth.refresh_token import RefreshToken
 from db.auth.role import Role
 from db.auth.user import User
 from db.auth.user_storage import UserStorage
-from db.auth.yandex_oauth import YandexOAuth
 from db.models.oauth_models.oauth_db import OAuthDBModel
 from pydantic import BaseModel
 from sqlalchemy import func, insert, select, update
@@ -30,6 +30,7 @@ class PostgresInterface(UserStorage):
             entity: str
     ) -> dict:
         # INSERT запрос
+        query = None
         async with self._async_session() as session:
             try:
                 match entity:
@@ -67,10 +68,10 @@ class PostgresInterface(UserStorage):
                                 verb=request.verb
                             )
                         )
-                    case 'yandex_oauth':
+                    case 'oauth':
                         if isinstance(request, OAuthDBModel):
                             query = (
-                                insert(YandexOAuth)
+                                insert(OAuth)
                                 .values(
                                     **request.model_dump()
                                 )
@@ -88,7 +89,7 @@ class PostgresInterface(UserStorage):
         # SELECT запрос
         async with self._async_session() as session:
             try:
-                query = select(YandexOAuth).where(YandexOAuth.email == email)
+                query = select(OAuth).where(OAuth.email == email)
                 result = await session.execute(query)
                 user = result.scalar_one_or_none()
                 if not user:
