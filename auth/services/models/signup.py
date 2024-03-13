@@ -42,6 +42,9 @@ class PasswordModel(BaseModel):
 
     @staticmethod
     def generate_password() -> str:
+
+        # todo использовать check_pass для проверки пароля
+
         alphabet = string.ascii_letters + string.digits
         while True:
             password = ''.join(secrets.choice(alphabet) for _ in range(10))
