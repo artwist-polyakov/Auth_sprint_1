@@ -11,8 +11,11 @@ from db.models.token_models.access_token_container import AccessTokenContainer
 from fastapi import APIRouter, Cookie, Depends, Query, Request
 from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
+from services.oauth_service import OAUTHService
 from services.user_service import UserService, get_user_service
 from user_agents import parse
+
+from services.yandex_oauth_service import get_yandex_oauth_service
 from utils.jwt_toolkit import dict_from_jwt, get_jwt_settings
 from utils.wrappers import value_error_handler
 
@@ -373,7 +376,7 @@ async def check_permissions(
 async def yandex_login(
         code: str,
         request: Request,
-        service: UserService = Depends(get_user_service)
+        service: OAUTHService = Depends(get_yandex_oauth_service)
 ) -> Response:
     device_type = get_device_type(request)
     try:
