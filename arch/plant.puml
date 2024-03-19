@@ -1,0 +1,50 @@
+@startuml
+skinparam componentStyle uml2
+actor Клиент as Client
+component WebApp
+component LegacyWebBackend
+database PostgresReplica
+database LegacyElastic
+
+Client -> WebApp: Просмотр истории бонусов
+WebApp -> LegacyWebBackend: Просмотр истории бонусов
+LegacyWebBackend -> PostgresReplica
+LegacyWebBackend -down-> LegacyElastic
+@enduml
+
+@startuml
+== Передача общего секрета ==
+WebClient -> Service: Запрос аутентификации
+activate WebClient
+activate Service
+Service --> WebClient: Аутентификация успешна
+WebClient -> WebClient: Сгенерировать RSA-ключи
+WebClient -> Service: Получить session_key (отдаём RSA pub)
+Service -> Service: Сгенерировать session_key
+Service -> Service: Зашифровать session_key
+Service --> WebClient: Отдать зашифрованный session_key
+deactivate Service
+WebClient -> WebClient: Расшифровать session_key
+alt Успешно расшифровано
+    WebClient -> WebClient: Сохранить session_key
+else Ошибка расшифровки
+    WebClient -> WebClient: Не удалось расшифровать сообщение
+end
+deactivate WebClient
+
+== Шифрование клиентских данных ==
+WebClient -> Service: Получить персональные данные
+activate WebClient
+activate Service
+Service -> Service: Получить персональные данные
+Service -> Service: Зашифровать персональные данные (AES+session_key)
+Service -> WebClient: Отдать зашифрованные данные
+deactivate Service
+WebClient -> WebClient: Расшифровать сообщение
+alt Успешно расшифровано
+    WebClient -> WebClient: Отобразить сообщение клиенту
+else Ошибка расшифровки
+    WebClient -> WebClient: Не удалось расшифровать сообщение
+end
+deactivate WebClient
+@enduml
