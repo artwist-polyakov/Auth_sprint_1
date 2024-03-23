@@ -40,9 +40,13 @@ note left of StatApi
 
     MAIN TASK: validation of request
 end note
+alt some failure
 StatApi -> StatApi: If request is invalid,\nreturn error
 
 StatApi -> StatClient: Return error to StatClient
+else
+autonumber stop
+autonumber  2
 StatApi -> StatService: Send request to StatService
 note right of StatService
     StatService decides
@@ -56,19 +60,23 @@ StatService -> Kafka: Send data to kafka
 StatService -> StatApi: Return response to StatApi
 
 StatApi -> StatClient: Return response to StatClient
-
-
+end
+autonumber stop
 
 == ViewsETL ==
-
+autonumber
+loop every 1 minute
 ViewsETL -> Kafka: Ask new view data from kafka
 Kafka -> ViewsETL: Return view data to StatETL
 ViewsETL -> Clickhouse: Save view data to Clickhouse
-
+end
+autonumber stop
 == EventsETL ==
-
+autonumber
+loop every 1 minute
 EventsETL -> Kafka: Ask new events data from kafka
 Kafka -> EventsETL: Return events data to StatETL
 EventsETL -> Clickhouse: Save events data to Clickhouse
-
+end
+autonumber stop
 @enduml
