@@ -8,7 +8,7 @@ actor StatClient
 participant StatApi [
     =StatApi
     ----
-    Endpoint to send
+    Flask endpoint to send
     event or view data
 ]
 participant StatService[
@@ -40,8 +40,10 @@ note left of StatApi
 
     MAIN TASK: validation of request
 end note
-StatApi -> StatService: Send request to StatService
+StatApi -> StatApi: If request is invalid,\nreturn error
 
+StatApi -> StatClient: Return error to StatClient
+StatApi -> StatService: Send request to StatService
 note right of StatService
     StatService decides
     which queue to send
