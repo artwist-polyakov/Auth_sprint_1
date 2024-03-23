@@ -1,11 +1,72 @@
 @startuml
 'https://plantuml.com/sequence-diagram
 
+
+actor StatClient
+
+
+participant StatApi [
+    =StatApi
+    ----
+    Endpoint to send
+    event or view data
+]
+participant StatService[
+    =StatService
+    ----
+    Logic layer to
+    process data into
+    queue
+]
+queue Kafka
+control ViewsETL
+control EventsETL
+database Clickhouse
+
+
 autonumber
 
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+== StatAPI ==
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+StatClient -> StatApi: Send event or view data
+note left of StatApi
+    StatApi has POST endpoint
+    to send event or view data
+    url — is required
+    event-type - enum: event, view
+    event-attribute - string
+    if event — event-attribute is event name
+    if view — event-attribute is "pageview"
+
+    MAIN TASK: validation of request
+end note
+StatApi -> StatService: Send request to StatService
+
+note right of StatService
+    StatService decides
+    which queue to send
+    based on the data
+end note
+
+StatService -> Kafka: Send data to kafka
+
+
+StatService -> StatApi: Return response to StatApi
+
+StatApi -> StatClient: Return response to StatClient
+
+
+
+== ViewsETL ==
+
+ViewsETL -> Kafka: Ask new view data from kafka
+Kafka -> ViewsETL: Return view data to StatETL
+ViewsETL -> Clickhouse: Save view data to Clickhouse
+
+== EventsETL ==
+
+EventsETL -> Kafka: Ask new events data from kafka
+Kafka -> EventsETL: Return events data to StatETL
+EventsETL -> Clickhouse: Save events data to Clickhouse
+
 @enduml
