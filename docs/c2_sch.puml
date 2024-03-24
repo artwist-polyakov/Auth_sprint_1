@@ -1,0 +1,42 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+skinparam componentStyle uml2
+LAYOUT_WITH_LEGEND()
+LAYOUT_LANDSCAPE()
+skinparam componentStyle uml2
+
+ title
+<b>Movies containers #2</b>
+end title
+Boundary(users, "Users") {
+    Person(analyst, "Analyst")
+    Person(client, "StatClient")
+}
+
+System_Boundary(UGCApi, "UGC API") {
+    Container(API, "APIStat", "Statistic endpoint")
+    Container(Service, "APIService", "Service for processing requests")
+}
+System_Boundary(Message_Queue, "Messages Queue") {
+    SystemQueue_Ext(Queue, "Queue", "Some message queue")
+}
+
+System_Boundary(ETL, "ETL Pipeline") {
+    Container(ETLScript, "ETLEvents", "ETL for events processing")
+}
+
+System_Boundary(OLAP, "OLAP Database") {
+    ContainerDb_Ext(DB, "DB", "Some database")
+}
+
+Rel_D(client, API, "Use")
+Rel(API, Service, "Call")
+Rel(Service, Queue, "Send")
+Rel_U(ETLScript, Queue, "Request")
+Rel(Queue, ETLScript, "Response")
+Rel_U(ETLScript, DB, "Save")
+Rel_R(analyst, DB, "Use")
+
+
+@enduml
