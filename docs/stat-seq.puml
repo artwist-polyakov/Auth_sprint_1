@@ -32,21 +32,22 @@ StatClient -> StatApi: POST /event
 note left of StatApi
     StatApi has POST endpoint
     to send event or view data
-    url — is required
-    event-type - enum: event, view
+    uuid — is required
+    event-type - enum: event, view, player-event
     event-attribute - string
     if event — event-attribute is event name
     if view — event-attribute is "pageview"
-
+    if player-event — event-attribute is  enum
     MAIN TASK: validation of request
 end note
 alt some failure
 StatApi -> StatApi: If request is invalid,\nreturn error
-
 StatApi -> StatClient: Return error to StatClient
 else
+end
 autonumber stop
 autonumber  2
+alt success
 StatApi -> StatService: Send request to StatService
 note right of StatService
     StatService decides
@@ -55,10 +56,7 @@ note right of StatService
 end note
 
 StatService -> Kafka: Send data to kafka
-
-
 StatService -> StatApi: Return response to StatApi
-
 StatApi -> StatClient: Return response to StatClient
 end
 autonumber stop

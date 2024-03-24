@@ -1,5 +1,9 @@
 @startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
 skinparam componentStyle uml2
+actor Analyst
 actor StatClient
 component APIStat
 component APIService
@@ -8,6 +12,7 @@ database Clickhouse
 control ETLEvents
 control ETLViews
 
+Analyst -up-> APIStat
 StatClient -> APIStat
 APIStat -> APIService
 APIService -> Kafka
@@ -15,4 +20,16 @@ Kafka -> ETLEvents
 ETLEvents -down-> Clickhouse
 Kafka -down-> ETLViews
 ETLViews -down-> Clickhouse
+
+ legend right
+ |Компонент|Описание|
+ |Analyst|Аналитик, использующий систему|
+ |StatClient|Клиент системы статистики|
+ |APIStat|API для статистики|
+ |APIService|Сервис обработки запросов|
+ |Kafka|Очередь сообщений Kafka|
+ |Clickhouse|База данных Clickhouse|
+ |ETLEvents|ETL для обработки событий|
+ |ETLViews|ETL для обработки просмотров|
+ end legend
 @enduml
