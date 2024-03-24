@@ -42,11 +42,12 @@ note left of StatApi
 end note
 alt some failure
 StatApi -> StatApi: If request is invalid,\nreturn error
-
 StatApi -> StatClient: Return error to StatClient
 else
+end
 autonumber stop
 autonumber  2
+alt success
 StatApi -> StatService: Send request to StatService
 note right of StatService
     StatService decides
@@ -55,10 +56,7 @@ note right of StatService
 end note
 
 StatService -> Kafka: Send data to kafka
-
-
 StatService -> StatApi: Return response to StatApi
-
 StatApi -> StatClient: Return response to StatClient
 end
 autonumber stop

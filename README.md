@@ -2,6 +2,71 @@
 
 # Проектная работа 8 спринта
 
+## Функциональные требования
+
+### Клиент статистики
+- Записывать события просмотра фильмов
+- Записывать события просмотра отдельных страниц от всех типов пользователей
+- Записывать action (even или view) — id фильма, id пользователя, тип события, дополнительные данные
+
+### Клиент аналитики
+
+- Получить данные аналитики если есть доступ уровня аналитика
+
+### Клиент UGC
+
+- Не допустить к UGC незарегистрированного пользовтеля
+- Позволяет лайкнуть / дизлайкнуть
+- Позволяет оставить комментарий
+- Позволяет добавить фильм в избранное или удалить из него
+- Позволяет посмотреть список избранных
+
+
+## Нефункциональные требования
+
+- Сервисы должны быть масштабируемыми
+- Падение сервиса не должно приводить к падению других сервисов
+
+## Архитектура
+
+— Сервис 1: UGC-сервис на flask
+
+Умеет проверять авторизован ли пользователь и его uuid.
+Позволяет оставить комментарий (обзор), поставить лайк, добавить фильм по uuid в избранное.
+
+— Сервис 2: Stat-сервис на flask
+Умеет отправить информацию о каком-то событии в кафку.
+Если умирает не приводит к тому, что сервис UGC стал недоступен
+
+— Сервис 3: Kafka
+
+Хранит очереди сообщений
+Разделение очередей продумывает ответственный за кафку. Кажется что у нас могут быть события типа event и события типа view.
+
+— Сервис 4: Скрипт etl между кафкой и clickhouse для записи событий
+
+Умеет забрать событие и преобразовать его в запись в колоночной субд
+
+— Сервис 5: скрипт etl между кафкой и кх для записи просмотров
+
+Таких событий будет сильно больше чем событий сервиса 4. Поэтому предлагаю выделить его в отдельный поток.
+
+Решения за 4-5 связано с решением разделения очередей в кафка.
+
+— Сервис 6. Кликхаус для хранения данных аналитки.
+
+## Сема последовательности:
+
+— статистика ([ссылка](https://www.plantuml.com/plantuml/uml/ZLJ1RXCn4BtxAuPUk3H4S8oqg14gKjK25Qcu00TtCybQyNeMUpPLRtm4NyYNu77YTgAcAhbaPzwRyRotuprBR2EFlJUlkCCUOV3M1VEwOnxIR3hDOH3uJKlzDE6l4KEBawMpwsXxOunjcI8isF87xp1mJWsveMlTa0iBC1ySV3UGVyq-BC4a_yh3Hs_J1Z0i1tAvX0bI3Wg4MymPYh1rU0TBozRyVD9_WN7hMjmVeJA7nrpHshNWxJr6O2gf8LABAPN6uC8-cpMEcCyf_t1fLnjhMWeSoSEtF4SwlxbwI9pBX2KZJMvjGiX6j9kEneJYpyWKnluMep5Di_FZ-WAQnfX7qs3olZerW-ilYnkO5kKc42DuN37G2hHvrTVEfbr1jK_GQk4n-mGUeuU_l_-0In3p6tKHbTiJlXyG9e1vwjakTLhg5SKoHtSxil1IVWph0hhL3fVcJvWkxS5WUwnqwViS-sImQnJ2YIdqJ_EBpt0pNrpEO6kzoseS1V55D61Y8uh5C6CzGw8UOMMT7oEQwfQs-UAXK0vpeVGy_H4YyXW3O8mKZQfKEpw3hue4J0epw1Egjmw9QT0nl5DDzVxEO24Awb1C6jnjGdJhhgw2Nd8Tmn9RjyHKydUTQxlTGX_SAzdJ9L00xh3inQDvHlMI2Sl-xsSJflJPICuSKfMtrPw8QQ2GvEYAlU2eBb6mJFV4KxbEzJf2qoZSUA91LYhUmrleNHWPJQKgJVEqWO1tZxS3Lf7wlRh24N8jh3Cg-dx83EhswWEGVRDRFAXGw55PJLE_AVybgtAFwSA2FQ-ir6ffkaABgyJZwdJHo_hESdBi_Jy0))
+
+— ugc ([ссылка](http://www.plantuml.com/plantuml/uml/nPHFRvmm4CNl_XJJKqyfodKbggmIcaPfGjL03xqWBqo25V-Xjjb3FttjbcsDev2LXRHxMknXteytpxumbcex2axUsHu5mi0fa-HzR-rWDbdc7gNV_j0gaHdyEQ9iyQnZz4bJGOXbbYFKrvVmCEqHGbkhD6n7solDVc5N6zJJOYtfV7bmugnbWnFnNRO38nsrT4SD-kUhwJ_nlpo7BpUt1MphwdFvxUP7SGLvJbn39KUnGqtcad3sSMgvWQ_bGmKP7LYsFyyuUqOOHzP13ZkbEFbRvUi3oGqOkaVmnIHO3hkMjy6hSt6_6Q21iMeWuSBv0krryH-McSOZT7-0NoDjUsoVrqKzc5tVp-oEli7FytZFNzejQOHIQArqJEDXBikxk-A-YeOV6NeKYWkoG6bV6XgFVYeyvVGfvys4OHQ1dz32eN0ruC3sE0PfAGYjJuX1B9fcOOAmT-BJzhlx_2g-Vf8YwEFLMDKyqhshjlXs5W-LAyqsYLgZK8xxKIlnZtmvbVwDqy57rwZtiGjTDulNwUhKynIb7AY48BqIyFIZbP28OmzPp90-s0Jr2vJTAFXl))
+
+## Схема модулей
+
+— статистика ([ссылка](http://www.plantuml.com/plantuml/uml/RL1DIiOm4DtFASO3TEC1f29TY2w4Ylin7MbeVceoQV7sJYKqHRvDyl9-yeRfir2IuXtSoSoUSNLa0-J5XfKIUJJHhp5ma55-7ACwxu6Cn8IZa3mvgnAS9dnyUrR-FyDfiuRXkt1XVA6lXM0YeK_AZFg5MUPOCcieI8eEX_VNOTDilZ8VblSCq5gnUpZhwgtKjQz15MhlttayMyc9i9lY7bHhCrL_5TeS5ToCz1ocOwE_))
+
+— ugc ([ссылка](http://www.plantuml.com/plantuml/uml/LOr12W8n34NtEKKyW1iF83CeU03f0U8qCCKsBMcwqDEhM2kpIlBuBt-gHcejHTZPoecnH0e2zHwaa5B29QUIXSMkzeYCx-G1QB6iE3TRiuOdUrTPEtH2MpnyT9VJN09uChfHvSzzxZi0RB_X_lZBVqS7GnWzGsZbxqmilgNu0W00))
+
 1. Описаны схема модуля статистики и его API в папке `./docsв
 
 Для просмотра документации следует установить поддержку UML на устройство https://plantuml.com/ru/starting
