@@ -1,0 +1,80 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+
+actor StatClient
+
+
+participant StatApi [
+    =StatApi
+    ----
+    Flask endpoint to send
+    event or view data
+]
+participant StatService[
+    =StatService
+    ----
+    Logic layer to
+    process data into
+    queue
+]
+queue Kafka
+control ViewsETL
+control EventsETL
+database Clickhouse
+
+
+autonumber
+
+== StatAPI ==
+
+StatClient -> StatApi: POST /event
+note left of StatApi
+    StatApi has POST endpoint
+    to send event or view data
+    url — is required
+    event-type - enum: event, view
+    event-attribute - string
+    if event — event-attribute is event name
+    if view — event-attribute is "pageview"
+
+    MAIN TASK: validation of request
+end note
+alt some failure
+StatApi -> StatApi: If request is invalid,\nreturn error
+StatApi -> StatClient: Return error to StatClient
+else
+end
+autonumber stop
+autonumber  2
+alt success
+StatApi -> StatService: Send request to StatService
+note right of StatService
+    StatService decides
+    which queue to send
+    based on the data
+end note
+
+StatService -> Kafka: Send data to kafka
+StatService -> StatApi: Return response to StatApi
+StatApi -> StatClient: Return response to StatClient
+end
+autonumber stop
+
+== ViewsETL ==
+autonumber
+loop every 1 minute
+ViewsETL -> Kafka: Ask new view data from kafka
+Kafka -> ViewsETL: Return view data to StatETL
+ViewsETL -> Clickhouse: Save view data to Clickhouse
+end
+autonumber stop
+== EventsETL ==
+autonumber
+loop every 1 minute
+EventsETL -> Kafka: Ask new events data from kafka
+Kafka -> EventsETL: Return events data to StatETL
+EventsETL -> Clickhouse: Save events data to Clickhouse
+end
+autonumber stop
+@enduml
