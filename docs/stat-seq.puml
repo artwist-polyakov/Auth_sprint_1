@@ -18,10 +18,9 @@ participant StatService[
     process data into
     queue
 ]
-queue Kafka
-control ViewsETL
-control EventsETL
-database Clickhouse
+queue Messages_Queue
+control ETL
+database OLAP_DB
 
 
 autonumber
@@ -55,26 +54,19 @@ note right of StatService
     based on the data
 end note
 
-StatService -> Kafka: Send data to kafka
+StatService -> Messages_Queue: Send data to Messages_Queue
 StatService -> StatApi: Return response to StatApi
 StatApi -> StatClient: Return response to StatClient
 end
 autonumber stop
 
-== ViewsETL ==
+== ETL ==
 autonumber
 loop every 1 minute
-ViewsETL -> Kafka: Ask new view data from kafka
-Kafka -> ViewsETL: Return view data to StatETL
-ViewsETL -> Clickhouse: Save view data to Clickhouse
+ETL -> Messages_Queue: Ask new view data from Messages_Queue
+Messages_Queue -> ETL: Return view data to StatETL
+ETL -> OLAP_DB: Save view data to OLAP_DB
 end
 autonumber stop
-== EventsETL ==
-autonumber
-loop every 1 minute
-EventsETL -> Kafka: Ask new events data from kafka
-Kafka -> EventsETL: Return events data to StatETL
-EventsETL -> Clickhouse: Save events data to Clickhouse
-end
-autonumber stop
+
 @enduml
