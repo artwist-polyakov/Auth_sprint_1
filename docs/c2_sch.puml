@@ -12,6 +12,16 @@ end title
 Boundary(users, "Users") {
     Person(analyst, "Analyst")
     Person(client, "StatClient")
+    Person(visitor, "Visitor")
+    Person(admin, "Admin")
+    Person(superuser, "SuperUser")
+}
+
+System_Boundary(Movies, "Movies API") {
+    Container(MoviesAPI, "APIStat", "Statistic endpoint")
+    Container(MoviesService, "APIService", "Service for processing requests")
+    ContainerDb_Ext(MoviesDB, "DB", "Database")
+    ContainerDb_Ext(MoviesCache, "Cache", "Cache")
 }
 
 System_Boundary(UGCApi, "UGC API") {
@@ -37,6 +47,11 @@ Rel_U(ETLScript, Queue, "Request")
 Rel(Queue, ETLScript, "Response")
 Rel_U(ETLScript, DB, "Save")
 Rel_R(analyst, DB, "Use")
-
-
+Rel_R(visitor, MoviesAPI, "Use")
+Rel_R(MoviesAPI, MoviesService, "Use")
+Rel_L(MoviesService, MoviesCache, "Save")
+Rel_L(MoviesService, MoviesCache, "Request")
+Rel_L(MoviesCache, MoviesService, "Result")
+Rel_L(MoviesService, MoviesDB, "Request")
+Rel_L(MoviesDB, MoviesService, "Result")
 @enduml
