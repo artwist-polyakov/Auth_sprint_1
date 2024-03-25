@@ -34,7 +34,6 @@ System_Boundary(Auth, "Auth") {
     Container(AuthAPI, "AuthAPI", "Auth endpoint")
     Container(RBACAPI, "RBAC API", "Auth endpoint")
     Container(RBACService, "RBACService", "Service for processing requests")
-
     Container(AuthService, "AuthService", "Service for processing requests")
     ContainerDb_Ext(LogoutCache, "Logout Cache", "Cache")
     ContainerDb_Ext(AuthDB, "DB", "Database")
@@ -47,16 +46,8 @@ cloud oauth {
 System_Boundary(UGCApi, "UGC API") {
     Container(API, "APIStat", "Statistic endpoint")
     Container(Service, "APIService", "Service for processing requests")
-}
-System_Boundary(Message_Queue, "Messages Queue") {
     SystemQueue_Ext(Queue, "Queue", "Some message queue")
-}
-
-System_Boundary(ETL, "ETL Pipeline") {
     Container(ETLScript, "ETLEvents", "ETL for events processing")
-}
-
-System_Boundary(OLAP, "OLAP Database") {
     ContainerDb_Ext(DB, "DB", "Some database")
 }
 
@@ -69,11 +60,8 @@ Rel_U(ETLScript, DB, "Save")
 Rel_R(analyst, DB, "Use")
 Rel_R(visitor, MoviesAPI, "Use")
 Rel_R(MoviesAPI, MoviesService, "Use")
-Rel_L(MoviesService, MoviesCache, "Save")
-Rel_L(MoviesService, MoviesCache, "Request")
-Rel_L(MoviesCache, MoviesService, "Result")
-Rel_L(MoviesService, MoviesDB, "Request")
-Rel_L(MoviesDB, MoviesService, "Result")
+Rel_R(MoviesService, MoviesCache, "get or save to cache")
+Rel_R(MoviesService, MoviesDB, "Get result")
 Rel_U(visitor, OAuth, "Auth")
 Rel_U(visitor, AuthAPI, "Auth")
 Rel_U(OAuth, AuthAPI, "Auth")
