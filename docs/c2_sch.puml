@@ -17,11 +17,31 @@ Boundary(users, "Users") {
     Person(superuser, "SuperUser")
 }
 
+System_Boundary(Content, "Movies Admin") {
+    Container(CMS, "CMS", "CMS interface")
+    ContainerDb_Ext(AdminDB, "DB", "Database")
+
+}
+
 System_Boundary(Movies, "Movies API") {
-    Container(MoviesAPI, "APIStat", "Statistic endpoint")
+    Container(MoviesAPI, "API Movies", "Statistic endpoint")
     Container(MoviesService, "APIService", "Service for processing requests")
     ContainerDb_Ext(MoviesDB, "DB", "Database")
     ContainerDb_Ext(MoviesCache, "Cache", "Cache")
+}
+
+System_Boundary(Auth, "Auth") {
+    Container(AuthAPI, "AuthAPI", "Auth endpoint")
+    Container(RBACAPI, "RBAC API", "Auth endpoint")
+    Container(RBACService, "RBACService", "Service for processing requests")
+
+    Container(AuthService, "AuthService", "Service for processing requests")
+    ContainerDb_Ext(LogoutCache, "Logout Cache", "Cache")
+    ContainerDb_Ext(AuthDB, "DB", "Database")
+}
+
+cloud oauth {
+    Container(OAuth, "OAuth", "OAuth server")
 }
 
 System_Boundary(UGCApi, "UGC API") {
@@ -54,4 +74,20 @@ Rel_L(MoviesService, MoviesCache, "Request")
 Rel_L(MoviesCache, MoviesService, "Result")
 Rel_L(MoviesService, MoviesDB, "Request")
 Rel_L(MoviesDB, MoviesService, "Result")
+Rel_U(visitor, OAuth, "Auth")
+Rel_U(visitor, AuthAPI, "Auth")
+Rel_U(OAuth, AuthAPI, "Auth")
+Rel_R(visitor, RBACAPI, "middleware \n i able to do")
+Rel_R(AuthAPI, AuthService, "Ask token")
+Rel_U(AuthService, AuthDB, "Save or update")
+Rel_R(visitor, LogoutCache, "middleware \n is logged out")
+Rel_R(admin, LogoutCache, "middleware \n is logged out")
+Rel_R(superuser, LogoutCache, "middleware \n is logged out")
+Rel_L(AuthService, LogoutCache, "Logout")
+Rel_R(admin, RBACAPI, "modify")
+Rel_R(superuser, RBACAPI, "modify")
+Rel_R(RBACService, AuthDB, "Save or update")
+Rel_R(RBACAPI, RBACService, "Call")
+Rel_U(admin, CMS, "Use")
+Rel_R(CMS, AdminDB, "Save or update")
 @enduml
