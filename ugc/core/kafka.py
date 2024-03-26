@@ -1,8 +1,7 @@
-from kafka import KafkaConsumer
 from time import sleep
 
+from kafka import KafkaConsumer, KafkaProducer
 from settings import settings
-
 
 connection = f'{settings.kafka.host}:{settings.kafka.port_4}'
 
