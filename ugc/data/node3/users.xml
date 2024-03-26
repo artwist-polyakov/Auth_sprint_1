@@ -27,6 +27,17 @@
             </networks>
             <quota>default</quota>
         </admin>
+        <data_analyst>
+            <password>data_analyst_pass</password>
+            <grants>
+                <query>GRANT SHOW ON *.*</query>
+                <query>GRANT SELECT ON system.*</query>
+            </grants>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <quota>default</quota>
+        </data_analyst>
     </users>
 
     <quotas>
