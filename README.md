@@ -209,7 +209,7 @@ docker exec -it auth python superuser.py <email> <pass>
 
 
 
-# Проектная работа 7 спринта
+# Проектная работа 8 спринта
 
 Как подключиться к ClickHouse через консоль.
 ```shell
