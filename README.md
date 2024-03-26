@@ -206,3 +206,32 @@ docker exec -it auth python superuser.py <email> <pass>
 **Дополнительное задание**
 
 Реализуйте кнопку «Выйти из остальных аккаунтов», не прибегая к хранению в БД активных access-токенов.
+
+
+
+# Проектная работа 7 спринта
+
+Как подключиться к ClickHouse через консоль.
+```shell
+
+docker exec -it clickhouse-node1 bash
+
+```
+
+как админ
+
+```shell
+
+clickhouse-client -u admin --password 123 -d default
+
+```
+
+
+как дата аналитик
+
+```shell
+
+clickhouse-client -u data_analyst --password data_analyst_pass -d default
+
+```
+
