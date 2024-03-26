@@ -234,3 +234,26 @@ clickhouse-client -u data_analyst --password data_analyst_pass -d default
 
 ```
 
+Как подключиться к ClickHouse через DBeaver
+
+
+как админ
+```shell
+
+host = localhost
+port = 8123
+login = data_analyst
+password = data_analyst_pass
+
+```
+
+
+как дата аналитик
+```shell
+
+host = localhost
+port = 8123
+login = admin
+password = 123
+
+```
