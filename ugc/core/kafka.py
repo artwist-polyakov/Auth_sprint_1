@@ -1,8 +1,12 @@
 from kafka import KafkaConsumer
 from time import sleep
 
+from settings import settings
 
-producer = KafkaProducer(bootstrap_servers=['localhost:9094'])
+
+connection = f'{settings.kafka.host}:{settings.kafka.port_4}'
+
+producer = KafkaProducer(bootstrap_servers=[connection])
 
 producer.send(
     topic='messages',
@@ -13,7 +17,7 @@ producer.send(
 
 consumer = KafkaConsumer(
     'messages',
-    bootstrap_servers=['localhost:9094'],
+    bootstrap_servers=[connection],
     auto_offset_reset='earliest',
     group_id='echo-messages-to-stdout',
 )
