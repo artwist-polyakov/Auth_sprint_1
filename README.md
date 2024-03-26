@@ -218,6 +218,14 @@ docker exec -it clickhouse-node1 bash
 
 ```
 
+как админ
+
+```shell
+
+clickhouse-client -u admin --password 123 -d default
+
+```
+
 
 как дата аналитик
 
