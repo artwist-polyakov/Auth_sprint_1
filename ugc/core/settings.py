@@ -28,10 +28,18 @@ class KafkaSettings(_BaseSettings):
     port_4: int
 
 
+class ClickHouseSettings(_BaseSettings):
+    """Настройки clickhouse."""
+
+    model_config = SettingsConfigDict(env_prefix="clickhouse_")
+    host: str
+
+
 class Settings(CommonSettings):
     """Настройки проекта."""
 
     kafka: KafkaSettings = KafkaSettings()
+    clickhouse: ClickHouseSettings = ClickHouseSettings()
 
 
 settings = Settings()
