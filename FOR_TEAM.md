@@ -210,3 +210,50 @@ pip install -r requirements.txt
 docker exec -it auth python utils/uuid_generator.py
 
 ```
+
+
+Как подключиться к ClickHouse через консоль.
+```shell
+
+docker exec -it clickhouse-node1 bash
+
+```
+
+как админ
+```shell
+
+clickhouse-client -u admin --password 123 -d default
+
+```
+
+
+как дата аналитик
+```shell
+
+clickhouse-client -u data_analyst --password data_analyst_pass -d default
+
+```
+
+Как подключиться к ClickHouse через DBeaver
+
+
+как админ
+```shell
+
+host = localhost
+port = 8123
+login = data_analyst
+password = data_analyst_pass
+
+```
+
+
+как дата аналитик
+```shell
+
+host = localhost
+port = 8123
+login = admin
+password = 123
+
+```

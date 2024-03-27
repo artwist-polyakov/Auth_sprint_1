@@ -3,14 +3,13 @@ from contextlib import contextmanager
 from dataclasses import astuple, fields
 
 import psycopg2
+from core import config
 from models.postgres_models import (PostgreFilmWork, PostgreGenre,
                                     PostgreGenreFilmWork, PostgrePerson,
                                     PostgrePersonFilmWork)
 from psycopg2.extensions import cursor
 from psycopg2.extras import DictCursor
 from utils.utils import configure_logger
-
-from core import config
 
 
 class PGClient:
