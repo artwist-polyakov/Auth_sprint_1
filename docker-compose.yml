@@ -145,6 +145,14 @@ services:
     env_file:
       - .env
 
+  flask_app:
+    container_name: flask_app
+    build: ./flask_app
+    ports:
+      - ${FLASK_PORTS}
+    env_file:
+      - .env
+
 volumes:
     static_volume:
     media_volume:

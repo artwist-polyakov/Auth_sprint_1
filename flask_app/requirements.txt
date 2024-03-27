@@ -1,0 +1,4 @@
+pydantic==2.5.3
+pydantic-settings==2.1.0
+flask==3.0.2
+gevent==24.2.1
