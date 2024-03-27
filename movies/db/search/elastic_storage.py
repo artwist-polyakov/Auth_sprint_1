@@ -176,11 +176,7 @@ class ElasticStorage(SearchStorage):
         return await self._elastic.search(index='movies', body=search_result.to_dict())
 
     @initialize
-    async def _paginate_genres_request(
-            self,
-            search_result: Search,
-            request: BaseRequest
-    ) -> dict:
+    async def _paginate_genres_request(self,search_result: Search,request: BaseRequest) -> dict:
         start = (request.page - 1) * request.size
         search_result = search_result[start:start + request.size]
 
