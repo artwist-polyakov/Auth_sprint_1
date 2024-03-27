@@ -267,9 +267,9 @@ services:
     env_file:
       - .env
 
-  flask_app:
-    container_name: flask_app
-    build: ./flask_app
+  ugc:
+    container_name: ugc
+    build: ./ugc
     ports:
       - ${FLASK_PORTS}
     env_file:
