@@ -252,7 +252,7 @@ services:
     container_name: redis
     image: redis:latest
     volumes:
-      - ./redis/redis.conf:/redis.conf
+      - ./core/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
 
 
