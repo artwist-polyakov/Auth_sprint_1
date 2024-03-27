@@ -2,26 +2,22 @@ from functools import wraps
 
 from configs.settings import ElasticSettings
 from db.models.search_requests.base_request import BaseRequest
-from db.models.search_requests.films.search_all_films_request import \
-    SearchAllFilmsRequest
-from db.models.search_requests.films.search_film_request import \
-    SearchFilmRequest
-from db.models.search_requests.films.single_film_request import \
-    SingleFilmRequest
-from db.models.search_requests.genres.all_genres_request import \
-    AllGenresRequest
-from db.models.search_requests.genres.single_genre_request import \
-    SingleGenreRequest
-from db.models.search_requests.persons.all_persons_request import \
-    AllPersonsRequest
-from db.models.search_requests.persons.films_by_person_request import \
-    FilmsByPersonRequest
-from db.models.search_requests.persons.list_of_films_by_person_request import \
-    ListOfFilmsByPersonRequest
-from db.models.search_requests.persons.search_person_request import \
-    SearchPersonRequest
-from db.models.search_requests.persons.single_person_request import \
-    SinglePersonRequest
+from db.models.search_requests.films.search_all_films_request import (
+    SearchAllFilmsRequest,
+)
+from db.models.search_requests.films.search_film_request import SearchFilmRequest
+from db.models.search_requests.films.single_film_request import SingleFilmRequest
+from db.models.search_requests.genres.all_genres_request import AllGenresRequest
+from db.models.search_requests.genres.single_genre_request import SingleGenreRequest
+from db.models.search_requests.persons.all_persons_request import AllPersonsRequest
+from db.models.search_requests.persons.films_by_person_request import (
+    FilmsByPersonRequest,
+)
+from db.models.search_requests.persons.list_of_films_by_person_request import (
+    ListOfFilmsByPersonRequest,
+)
+from db.models.search_requests.persons.search_person_request import SearchPersonRequest
+from db.models.search_requests.persons.single_person_request import SinglePersonRequest
 from db.models.search_responses.base_response import BaseResponse
 from db.search.search_storage import SearchStorage
 from elasticsearch import AsyncElasticsearch, NotFoundError
@@ -176,7 +172,7 @@ class ElasticStorage(SearchStorage):
         return await self._elastic.search(index='movies', body=search_result.to_dict())
 
     @initialize
-    async def _paginate_genres_request(self,search_result: Search,request: BaseRequest) -> dict:
+    async def _paginate_genres_request(self, search_result: Search, request: BaseRequest) -> dict:
         start = (request.page - 1) * request.size
         search_result = search_result[start:start + request.size]
 

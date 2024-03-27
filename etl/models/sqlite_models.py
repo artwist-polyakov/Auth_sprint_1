@@ -2,9 +2,13 @@ import datetime
 import uuid
 from dataclasses import dataclass, field
 
-from etl.models.postgres_models import (PostgreFilmWork, PostgreGenre,
-                                        PostgreGenreFilmWork, PostgrePerson,
-                                        PostgrePersonFilmWork)
+from etl.models.postgres_models import (
+    PostgreFilmWork,
+    PostgreGenre,
+    PostgreGenreFilmWork,
+    PostgrePerson,
+    PostgrePersonFilmWork,
+)
 
 
 @dataclass

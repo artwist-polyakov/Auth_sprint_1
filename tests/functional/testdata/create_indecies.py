@@ -1,8 +1,11 @@
 import time
 
 from configs.test_settings import logger, settings
-from elastic_shemas_config import (GENRES_INDEX_SCHEMA, MOVIES_INDEX_SCHEMA,
-                                   PERSONS_INDEX_SCHEMA)
+from elastic_shemas_config import (
+    GENRES_INDEX_SCHEMA,
+    MOVIES_INDEX_SCHEMA,
+    PERSONS_INDEX_SCHEMA,
+)
 from elasticsearch import Elasticsearch
 
 

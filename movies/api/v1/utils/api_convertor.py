@@ -11,10 +11,8 @@ from db.models.search_responses.base_response import BaseResponse
 from db.models.search_responses.films.film_result import FilmResult
 from db.models.search_responses.genres.genre_result import GenreResult
 from db.models.search_responses.paginated_result import PaginatedResult
-from db.models.search_responses.persons.films_brief_result import \
-    ListFilmBriefResult
-from db.models.search_responses.persons.person_work_result import \
-    PersonWorkResult
+from db.models.search_responses.persons.films_brief_result import ListFilmBriefResult
+from db.models.search_responses.persons.person_work_result import PersonWorkResult
 
 
 class APIConvertor:

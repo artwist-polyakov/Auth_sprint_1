@@ -1,36 +1,35 @@
 from typing import Type
 
 from db.models.search_requests.base_request import BaseRequest
-from db.models.search_requests.films.search_all_films_request import \
-    SearchAllFilmsRequest
-from db.models.search_requests.films.search_film_request import \
-    SearchFilmRequest
-from db.models.search_requests.films.single_film_request import \
-    SingleFilmRequest
-from db.models.search_requests.genres.all_genres_request import \
-    AllGenresRequest
-from db.models.search_requests.genres.single_genre_request import \
-    SingleGenreRequest
-from db.models.search_requests.persons.all_persons_request import \
-    AllPersonsRequest
-from db.models.search_requests.persons.films_by_person_request import \
-    FilmsByPersonRequest
-from db.models.search_requests.persons.list_of_films_by_person_request import \
-    ListOfFilmsByPersonRequest
-from db.models.search_requests.persons.search_person_request import \
-    SearchPersonRequest
-from db.models.search_requests.persons.single_person_request import \
-    SinglePersonRequest
+from db.models.search_requests.films.search_all_films_request import (
+    SearchAllFilmsRequest,
+)
+from db.models.search_requests.films.search_film_request import SearchFilmRequest
+from db.models.search_requests.films.single_film_request import SingleFilmRequest
+from db.models.search_requests.genres.all_genres_request import AllGenresRequest
+from db.models.search_requests.genres.single_genre_request import SingleGenreRequest
+from db.models.search_requests.persons.all_persons_request import AllPersonsRequest
+from db.models.search_requests.persons.films_by_person_request import (
+    FilmsByPersonRequest,
+)
+from db.models.search_requests.persons.list_of_films_by_person_request import (
+    ListOfFilmsByPersonRequest,
+)
+from db.models.search_requests.persons.search_person_request import SearchPersonRequest
+from db.models.search_requests.persons.single_person_request import SinglePersonRequest
 from db.models.search_responses.base_response import BaseResponse
 from db.models.search_responses.films.film_result import FilmResult
 from db.models.search_responses.genres.genre_result import GenreResult
 from db.models.search_responses.paginated_result import PaginatedResult
 from db.models.search_responses.persons.film_role_result import (
-    FilmRoleResult, ListFilmRoleResult)
+    FilmRoleResult,
+    ListFilmRoleResult,
+)
 from db.models.search_responses.persons.films_brief_result import (
-    FilmBriefResult, ListFilmBriefResult)
-from db.models.search_responses.persons.person_work_result import \
-    PersonWorkResult
+    FilmBriefResult,
+    ListFilmBriefResult,
+)
+from db.models.search_responses.persons.person_work_result import PersonWorkResult
 from db.search.search_converter import SearchConverter
 
 

@@ -1,21 +1,18 @@
 from functools import lru_cache
 
 from db.cache.cache_storage import CacheStorage
-from db.models.search_requests.persons.all_persons_request import \
-    AllPersonsRequest
-from db.models.search_requests.persons.films_by_person_request import \
-    FilmsByPersonRequest
-from db.models.search_requests.persons.list_of_films_by_person_request import \
-    ListOfFilmsByPersonRequest
-from db.models.search_requests.persons.search_person_request import \
-    SearchPersonRequest
-from db.models.search_requests.persons.single_person_request import \
-    SinglePersonRequest
+from db.models.search_requests.persons.all_persons_request import AllPersonsRequest
+from db.models.search_requests.persons.films_by_person_request import (
+    FilmsByPersonRequest,
+)
+from db.models.search_requests.persons.list_of_films_by_person_request import (
+    ListOfFilmsByPersonRequest,
+)
+from db.models.search_requests.persons.search_person_request import SearchPersonRequest
+from db.models.search_requests.persons.single_person_request import SinglePersonRequest
 from db.models.search_responses.paginated_result import PaginatedResult
-from db.models.search_responses.persons.films_brief_result import \
-    ListFilmBriefResult
-from db.models.search_responses.persons.person_work_result import \
-    PersonWorkResult
+from db.models.search_responses.persons.films_brief_result import ListFilmBriefResult
+from db.models.search_responses.persons.person_work_result import PersonWorkResult
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 from services.base_service import BaseService

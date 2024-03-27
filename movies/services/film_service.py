@@ -1,12 +1,11 @@
 from functools import lru_cache
 
 from db.cache.cache_storage import CacheStorage
-from db.models.search_requests.films.search_all_films_request import \
-    SearchAllFilmsRequest
-from db.models.search_requests.films.search_film_request import \
-    SearchFilmRequest
-from db.models.search_requests.films.single_film_request import \
-    SingleFilmRequest
+from db.models.search_requests.films.search_all_films_request import (
+    SearchAllFilmsRequest,
+)
+from db.models.search_requests.films.search_film_request import SearchFilmRequest
+from db.models.search_requests.films.single_film_request import SingleFilmRequest
 from db.models.search_responses.films.film_result import FilmResult
 from db.models.search_responses.paginated_result import PaginatedResult
 from elasticsearch import AsyncElasticsearch
