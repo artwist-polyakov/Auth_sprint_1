@@ -181,6 +181,4 @@ volumes:
     elasticsearch_data:
     redis_data:
     postgres_data:
-    kafka_0_data:
-    kafka_1_data:
-    kafka_2_data:
+    kafka_data:
