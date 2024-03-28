@@ -150,6 +150,7 @@ services:
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT_PLAINTEXT},CONTROLLER://:${KAFKA_PORT_CONTROLLER},EXTERNAL://:${KAFKA_PORT}
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:${KAFKA_PORT_PLAINTEXT},EXTERNAL://127.0.0.1:${KAFKA_PORT}
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+
     volumes:
       - kafka_data:/bitnami/kafka
 
@@ -175,7 +176,7 @@ services:
     container_name: redis
     image: redis:latest
     volumes:
-      - ./redis/redis.conf:/redis.conf
+      - ./core/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
 
 
@@ -187,6 +188,14 @@ services:
       - ${JAEGER_PORTS_2}
     environment:
       - LOG_LEVEL=debug
+    env_file:
+      - .env
+
+  ugc:
+    container_name: ugc
+    build: ./ugc
+    ports:
+      - ${FLASK_PORTS}
     env_file:
       - .env
 
