@@ -35,11 +35,19 @@ class ClickHouseSettings(_BaseSettings):
     host: str
 
 
+class FlaskSettings(_BaseSettings):
+    """Настройки Flask"""
+
+    model_config = SettingsConfigDict(env_prefix="flask_")
+    port: int
+
+
 class Settings(CommonSettings):
     """Настройки проекта."""
 
     kafka: KafkaSettings = KafkaSettings()
     clickhouse: ClickHouseSettings = ClickHouseSettings()
+    flask: FlaskSettings = FlaskSettings()
 
 
 settings = Settings()

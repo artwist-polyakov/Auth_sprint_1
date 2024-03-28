@@ -267,6 +267,14 @@ services:
     env_file:
       - .env
 
+  ugc:
+    container_name: ugc
+    build: ./ugc
+    ports:
+      - ${FLASK_PORTS}
+    env_file:
+      - .env
+
 volumes:
     static_volume:
     media_volume:
