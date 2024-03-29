@@ -24,17 +24,24 @@ System_Boundary(Content, "Movies Admin") {
 }
 
 System_Boundary(Movies, "Movies API") {
+Package (MOVIES_ENDPOINT) {
     Container(MoviesAPI, "API Movies", "Statistic endpoint")
     Container(MoviesService, "APIService", "Service for processing requests")
+}
     ContainerDb_Ext(MoviesDB, "DB", "Database")
     ContainerDb_Ext(MoviesCache, "Cache", "Cache")
 }
 
 System_Boundary(Auth, "Auth") {
-    Container(AuthAPI, "AuthAPI", "Auth endpoint")
+Package (RBAC_ENDPOINT) {
     Container(RBACAPI, "RBAC API", "Auth endpoint")
     Container(RBACService, "RBACService", "Service for processing requests")
+
+}
+Package (AUTH_ENDPOINT) {
+    Container(AuthAPI, "AuthAPI", "Auth endpoint")
     Container(AuthService, "AuthService", "Service for processing requests")
+}
     ContainerDb_Ext(LogoutCache, "Logout Cache", "Cache")
     ContainerDb_Ext(AuthDB, "DB", "Database")
 }
@@ -44,38 +51,40 @@ cloud oauth {
 }
 
 System_Boundary(UGCApi, "UGC API") {
+Package (UGC_ENDPOINT) {
     Container(API, "APIStat", "Statistic endpoint")
     Container(Service, "APIService", "Service for processing requests")
+}
     SystemQueue_Ext(Queue, "Queue", "Some message queue")
     Container(ETLScript, "ETLEvents", "ETL for events processing")
     ContainerDb_Ext(DB, "DB", "Some database")
 }
 
-Rel_D(client, API, "Use")
-Rel(API, Service, "Call")
-Rel(Service, Queue, "Send")
-Rel_U(ETLScript, Queue, "Request")
-Rel(Queue, ETLScript, "Response")
-Rel_U(ETLScript, DB, "Save")
+Rel_D(client, API, "Send events")
+Rel(API, Service, "Call method batch loading")
+Rel(Service, Queue, "Save events to queue")
+Rel_U(ETLScript, Queue, "Request new data")
+Rel(Queue, ETLScript, "Receive new data")
+Rel_U(ETLScript, DB, "Save received content to DB")
 Rel_R(analyst, DB, "Use")
-Rel_R(visitor, MoviesAPI, "Use")
-Rel_R(MoviesAPI, MoviesService, "Use")
+Rel_R(visitor, MoviesAPI, "Send request")
+Rel_R(MoviesAPI, MoviesService, "Use service to process request")
 Rel_R(MoviesService, MoviesCache, "get or save to cache")
 Rel_R(MoviesService, MoviesDB, "Get result")
-Rel_U(visitor, OAuth, "Auth")
-Rel_U(visitor, AuthAPI, "Auth")
-Rel_U(OAuth, AuthAPI, "Auth")
-Rel_R(visitor, RBACAPI, "middleware \n i able to do")
+Rel_U(visitor, OAuth, "Oauth scenario")
+Rel_U(visitor, AuthAPI, "Auth request")
+Rel_U(OAuth, AuthAPI, "Send user code")
+Rel_R(visitor, RBACAPI, "middleware \n is i able to do")
 Rel_R(AuthAPI, AuthService, "Ask token")
 Rel_U(AuthService, AuthDB, "Save or update")
 Rel_R(visitor, LogoutCache, "middleware \n is logged out")
 Rel_R(admin, LogoutCache, "middleware \n is logged out")
 Rel_R(superuser, LogoutCache, "middleware \n is logged out")
-Rel_L(AuthService, LogoutCache, "Logout")
-Rel_R(admin, RBACAPI, "modify")
-Rel_R(superuser, RBACAPI, "modify")
-Rel_R(RBACService, AuthDB, "Save or update")
-Rel_R(RBACAPI, RBACService, "Call")
-Rel_U(admin, CMS, "Use")
-Rel_R(CMS, AdminDB, "Save or update")
+Rel_L(AuthService, LogoutCache, "Save user token")
+Rel_R(admin, RBACAPI, "Modify roles")
+Rel_R(superuser, RBACAPI, "Modify roles")
+Rel_R(RBACService, AuthDB, "Save or update roles")
+Rel_R(RBACAPI, RBACService, "Use to process request")
+Rel_U(admin, CMS, "Modify content")
+Rel_R(CMS, AdminDB, "Save or update content")
 @enduml
