@@ -1,30 +1,45 @@
 import logging
-from abc import ABC
+from functools import lru_cache
 
 from core.settings import settings
 from kafka import KafkaConsumer, KafkaProducer
-from services.kafka.message_broker_storage import AbstractMessageBrokerStorage
+from services.kafka.message_broker_storage import MessageBrokerProducer, MessageBrokerConsumer
 
 
-class KafkaStorage(AbstractMessageBrokerStorage, ABC):
-    connection = f'{settings.kafka.host}:{settings.kafka.port}'
+class KafkaCore:
+    _connection = f'{settings.kafka.host}:{settings.kafka.port}'
 
-    async def write_message(self, topic, key, value):
+    async def close(self):
+        ...
+
+
+class KafkaRepository(KafkaCore, MessageBrokerProducer, MessageBrokerConsumer):
+
+    async def producer(self, data):
         try:
-            producer = KafkaProducer(bootstrap_servers=[self.connection])
-            return producer.send(topic=topic, key=key.encode('UTF-8'), value=value.encode('UTF-8'))
-        except Exception as e:
-            logging.info(e)
-            raise e
-
-    async def read_message(self, topic, group_id, auto_offset_reset='earliest'):
-        try:
-            return KafkaConsumer(
-                topic=topic,
-                bootstrap_servers=[self.connection],
-                auto_offset_reset=auto_offset_reset,
-                group_id=group_id
+            producer = KafkaProducer(bootstrap_servers=[self._connection])
+            return producer.send(
+                topic=data.topic,
+                key=data.key.encode('UTF-8'),
+                value=data.value.encode('UTF-8')
             )
         except Exception as e:
             logging.info(e)
             raise e
+
+    async def consumer(self, data):
+        try:
+            return KafkaConsumer(
+                topic=data.topic,
+                bootstrap_servers=[self._connection],
+                auto_offset_reset=data.auto_offset_reset,
+                group_id=data.group_id
+            )
+        except Exception as e:
+            logging.info(e)
+            raise e
+
+
+@lru_cache
+def get_kafka():
+    return KafkaRepository()

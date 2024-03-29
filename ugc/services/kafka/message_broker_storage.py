@@ -3,12 +3,15 @@ from abc import ABC, abstractmethod
 from utils.abstract_utils import SingletonMeta
 
 
-class AbstractMessageBrokerStorage(ABC, metaclass=SingletonMeta):
+class MessageBrokerProducer(ABC, metaclass=SingletonMeta):
 
     @abstractmethod
-    async def producer(self, topic, value, key) -> str:
+    async def producer(self, data: dict):  # , topic, value, key) -> str:
         ...
 
+
+class MessageBrokerConsumer(ABC, metaclass=SingletonMeta):
+
     @abstractmethod
-    async def consumer(self, topic, connection, auto_offset_reset, group_id):
+    async def consumer(self, data: dict):  # , topic, connection, auto_offset_reset):
         ...
