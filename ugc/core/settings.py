@@ -24,8 +24,8 @@ class KafkaSettings(_BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="kafka_")
     host: str
-    port_ui: str
-    port_4: int
+    port_ui: int
+    port: int
 
 
 class ClickHouseSettings(_BaseSettings):
