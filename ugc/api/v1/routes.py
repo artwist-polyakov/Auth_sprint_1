@@ -1,34 +1,63 @@
-from flask import Blueprint, jsonify, request
+from typing import List
 
-routes = Blueprint('routes', __name__)
+from app import app, events
+from pydantic import BaseModel, Field
 
-
-@routes.route('/view_event', methods=['POST'])
-async def view_event():
-    data = request.get_json()
-    # user_uuid = data.get('user_uuid')
-    # film_uuid = data.get('film_uuid')
-
-    return jsonify({'message': f'View event recorded {data}'})
+API_PREFIX = '/ugc/v1'
 
 
-@routes.route('/player_event', methods=['POST'])
-async def player_event():
-    data = request.get_json()
-    # user_uuid = data.get('user_uuid')
-    # film_uuid = data.get('film_uuid')
-    # event_type = data.get('event_type')
-    # timestamp = data.get('timestamp')
-
-    return jsonify({'message': f'Player event recorded {data}'})
+# Модели Pydantic
+class ViewEvent(BaseModel):
+    user_uuid: str
+    film_uuid: str
 
 
-@routes.route('/custom_event', methods=['POST'])
-async def custom_event():
-    data = request.get_json()
+class PlayerEvent(BaseModel):
+    user_uuid: str
+    film_uuid: str
+    event_type: str
+    timestamp: int
 
-    return jsonify({'message': f'Custom event recorded {data}'})
+
+class CustomEvent(BaseModel):
+    user_uuid: str
+    event_type: str
+    timestamp: int
 
 
-def register_routes(app):
-    app.register_blueprint(routes)
+# curl -X POST http://localhost:5555/ugc/v1/view_event \
+#  -H "Content-Type: application/json" \
+#  -d '{
+#    "events": [
+#      {
+#        "user_uuid": "user1",
+#        "film_uuid": "film1"
+#      },
+#      {
+#        "user_uuid": "user2",
+#        "film_uuid": "film2"
+#      }
+#    ]
+#  }'
+# {"status":"ok"}
+#     :param query:
+#     :return:
+#     """
+
+class ListOfViewEvents(BaseModel):
+    events: List[ViewEvent] = Field(..., description="List of view events")
+
+
+@app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
+def view_event(query: ViewEvent):
+    return {"status": "ok"}
+
+
+@app.post(f'{API_PREFIX}/player_event', summary="Record a player event", tags=[events])
+def player_event(query: PlayerEvent):
+    return {"status": "ok"}
+
+
+@app.post(f'{API_PREFIX}/custom_event', summary="Record a custom event", tags=[events])
+def custom_event(query: CustomEvent):
+    return {"status": "ok"}
