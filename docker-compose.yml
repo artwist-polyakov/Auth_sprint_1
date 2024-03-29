@@ -167,6 +167,8 @@ services:
       - ${CLICKHOUSE_CLIENT_PORT}:${CLICKHOUSE_CLIENT_PORT}
     volumes:
       - ./ugc/data/node1:/etc/clickhouse-server
+    env_file:
+      - .env
     depends_on:
       - zookeeper
 
