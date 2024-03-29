@@ -150,10 +150,8 @@ services:
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT_PLAINTEXT},CONTROLLER://:${KAFKA_PORT_CONTROLLER},EXTERNAL://:${KAFKA_PORT}
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:${KAFKA_PORT_PLAINTEXT},EXTERNAL://127.0.0.1:${KAFKA_PORT}
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-
     volumes:
       - kafka_data:/bitnami/kafka
-
 
   zookeeper:
     image: zookeeper:${ZOOKEEPER_VERSION}
@@ -179,7 +177,6 @@ services:
       - ./core/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
 
-
   jaeger:
     container_name: jaeger
     image: jaegertracing/all-in-one:${JAEGER_VERSION}
@@ -198,6 +195,9 @@ services:
       - ${FLASK_PORTS}
     env_file:
       - .env
+    depends_on:
+      - clickhouse-node
+      - kafka
 
 volumes:
     static_volume:
