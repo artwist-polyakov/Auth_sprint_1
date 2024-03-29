@@ -1,28 +1,9 @@
-from typing import List
-
+from api.v1.models.custom_event import CustomEvent
+from api.v1.models.player_event import PlayerEvent
+from api.v1.models.view_event import ViewEvent
 from app import app, events
-from pydantic import BaseModel, Field
 
 API_PREFIX = '/ugc/v1'
-
-
-# Модели Pydantic
-class ViewEvent(BaseModel):
-    user_uuid: str
-    film_uuid: str
-
-
-class PlayerEvent(BaseModel):
-    user_uuid: str
-    film_uuid: str
-    event_type: str
-    timestamp: int
-
-
-class CustomEvent(BaseModel):
-    user_uuid: str
-    event_type: str
-    timestamp: int
 
 
 # curl -X POST http://localhost:5555/ugc/v1/view_event \
@@ -43,10 +24,6 @@ class CustomEvent(BaseModel):
 #     :param query:
 #     :return:
 #     """
-
-class ListOfViewEvents(BaseModel):
-    events: List[ViewEvent] = Field(..., description="List of view events")
-
 
 @app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
 def view_event(query: ViewEvent):
