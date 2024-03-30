@@ -12,6 +12,22 @@ from kafka import KafkaConsumer, KafkaProducer
 class KafkaCore:
     _connection = f'{settings.kafka.host}:{settings.kafka.port}'
 
+    def __init__(self):
+        self._producer = KafkaProducer(bootstrap_servers=[self._connection])
+
+    @staticmethod
+    def refresh_producer(func):
+        @wraps(func)
+        async def inner(self, *args, **kwargs):
+            try:
+                return func(self, *args, **kwargs)
+            except Exception as e:
+                logging.warning(f'error: {e}, {traceback.format_exc()}')
+                self._producer = KafkaProducer(bootstrap_servers=[self._connection])
+                return func(self, *args, **kwargs)
+
+        return inner
+
     async def close(self):
         ...
 
