@@ -166,7 +166,7 @@ services:
     container_name: redis
     image: redis:latest
     volumes:
-      - ./core/redis.conf:/redis.conf
+      - ./movies/core/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
 
   jaeger:
@@ -201,7 +201,7 @@ services:
       - "6650:6650"
     restart: always
     volumes:
-      - "./data:/pulsar/data"
+      - pulsar_data:/pulsar/data
 
 volumes:
     static_volume:
@@ -212,3 +212,4 @@ volumes:
     redis_data:
     postgres_data:
     kafka_data:
+    pulsar_data:
