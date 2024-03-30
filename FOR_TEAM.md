@@ -261,3 +261,14 @@ login = admin
 password = 123
 
 ```
+
+##  БЕНЧМАРКИ
+
+старт locust
+
+```shell
+ locust -f .\ugc\core\locustfile.py
+```
+
+http://localhost:8089
+
