@@ -1,9 +1,10 @@
 import logging
 from functools import lru_cache
-
+import traceback
 from core.settings import settings
 from kafka import KafkaConsumer, KafkaProducer
-from services.kafka.message_broker_storage import MessageBrokerProducer, MessageBrokerConsumer
+from db.queue.message_broker_storage import MessageBrokerProducer, MessageBrokerConsumer
+from db.queue.models.kafka_models import KafkaModel
 
 
 class KafkaCore:
@@ -15,19 +16,26 @@ class KafkaCore:
 
 class KafkaRepository(KafkaCore, MessageBrokerProducer, MessageBrokerConsumer):
 
-    async def producer(self, data):
+    def produce(self, data: KafkaModel):
         try:
+            logging.warning(f'before produce int kafka: {self._connection}')
             producer = KafkaProducer(bootstrap_servers=[self._connection])
-            return producer.send(
+            logging.warning(f'producer created')
+            future = producer.send(
                 topic=data.topic,
                 key=data.key.encode('UTF-8'),
                 value=data.value.encode('UTF-8')
             )
+            # Ожидаем, пока сообщение будет отправлено
+            result = future.get(timeout=10)
+            logging.warning(f'after produce: {result}')
+            # producer.close()
+            return result
         except Exception as e:
-            logging.info(e)
+            logging.warning(f'error: {e}, {traceback.format_exc()}')
             raise e
 
-    async def consumer(self, data):
+    async def consume(self, data):
         try:
             return KafkaConsumer(
                 topic=data.topic,
