@@ -12,11 +12,12 @@ class EventType(str, Enum):
     MUTE = 'mute'
     UNMUTE = 'unmute'
     CHANGE_LANGUAGE = 'change_language'
+    COMPLETE = 'complete'
 
 
 class PlayerEvent(BaseModel):
     user_uuid: str
     film_uuid: str
     event_type: EventType
-    event_value: str
+    event_value: str | None = None
     timestamp: int
