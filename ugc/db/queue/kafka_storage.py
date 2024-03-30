@@ -18,7 +18,7 @@ class KafkaCore:
     @staticmethod
     def refresh_producer(func):
         @wraps(func)
-        async def inner(self, *args, **kwargs):
+        def inner(self, *args, **kwargs):
             try:
                 return func(self, *args, **kwargs)
             except Exception as e:
@@ -28,20 +28,18 @@ class KafkaCore:
 
         return inner
 
-    async def close(self):
-        ...
-
 
 class KafkaRepository(KafkaCore, MessageBrokerProducer, MessageBrokerConsumer):
-
     @KafkaCore.refresh_producer
     def produce(self, data: KafkaModel):
         try:
-            return self._producer.send(
+            future = self._producer.send(
                 topic=data.topic,
                 key=data.key.encode('UTF-8'),
                 value=data.value.encode('UTF-8')
             )
+            future.get(timeout=60)
+            return True
         except Exception as e:
             raise e
 
