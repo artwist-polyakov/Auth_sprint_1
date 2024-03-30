@@ -26,15 +26,15 @@ API_PREFIX = '/ugc/v1'
 #     """
 
 @app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
-def view_event(query: ViewEvent):
+async def view_event(query: ViewEvent):
     return {"status": "ok"}
 
 
 @app.post(f'{API_PREFIX}/player_event', summary="Record a player event", tags=[events])
-def player_event(query: PlayerEvent):
+async def player_event(query: PlayerEvent):
     return {"status": "ok"}
 
 
 @app.post(f'{API_PREFIX}/custom_event', summary="Record a custom event", tags=[events])
-def custom_event(query: CustomEvent):
+async def custom_event(query: CustomEvent):
     return {"status": "ok"}
