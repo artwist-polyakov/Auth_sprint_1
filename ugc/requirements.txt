@@ -7,3 +7,4 @@ flask==3.0.2
 flask[async]
 gevent==24.2.1
 clickhouse-migrations==0.5.0
+sqlalchemy-utils==0.41.2
