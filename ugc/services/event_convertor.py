@@ -1,9 +1,8 @@
-from pydantic import BaseModel
-
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
 from api.v1.models.view_event import ViewEvent
 from db.queue.models.kafka_models import KafkaModel
+from pydantic import BaseModel
 
 
 class EventConvertor:

@@ -1,10 +1,12 @@
 import logging
-from functools import lru_cache
 import traceback
+from functools import lru_cache
+
 from core.settings import settings
-from kafka import KafkaConsumer, KafkaProducer
-from db.queue.message_broker_storage import MessageBrokerProducer, MessageBrokerConsumer
+from db.queue.message_broker_storage import (MessageBrokerConsumer,
+                                             MessageBrokerProducer)
 from db.queue.models.kafka_models import KafkaModel
+from kafka import KafkaConsumer, KafkaProducer
 
 
 class KafkaCore:
@@ -20,7 +22,7 @@ class KafkaRepository(KafkaCore, MessageBrokerProducer, MessageBrokerConsumer):
         try:
             logging.warning(f'before produce int kafka: {self._connection}')
             producer = KafkaProducer(bootstrap_servers=[self._connection])
-            logging.warning(f'producer created')
+            logging.warning('producer created')
             future = producer.send(
                 topic=data.topic,
                 key=data.key.encode('UTF-8'),

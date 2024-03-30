@@ -1,9 +1,9 @@
 import logging
 from functools import lru_cache
-from pydantic import BaseModel
 from http import HTTPStatus
-from api.v1.models.custom_event import CustomEvent
-from db.queue.kafka_storage import KafkaRepository, get_kafka
+
+from db.queue.kafka_storage import get_kafka
+from pydantic import BaseModel
 from services.base_service import BaseService
 from services.event_convertor import EventConvertor
 

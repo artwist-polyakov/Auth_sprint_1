@@ -1,11 +1,13 @@
+import time
 from http import HTTPStatus
-from flask import jsonify, Response
+
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
 from api.v1.models.view_event import ViewEvent
 from app import app, events
+from flask import Response, jsonify
 from services.queue_service import get_queue_service
-import time
+
 API_PREFIX = '/ugc/v1'
 
 
