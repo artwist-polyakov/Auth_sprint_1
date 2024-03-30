@@ -1,7 +1,6 @@
 version: '3'
 
 services:
-
   nginx:
    container_name: nginx
    build: ./nginx
@@ -17,7 +16,6 @@ services:
      - "8000:80"
      - "443:443"
 
-
   admin:
     container_name: admin
     build: ./admin
@@ -29,7 +27,6 @@ services:
       - .env
     depends_on:
       - postgres
-
 
   movies:
     container_name: movies
@@ -45,7 +42,6 @@ services:
       - redis
       - jaeger
 
-
   auth:
     container_name: auth
     build: ./auth
@@ -58,7 +54,6 @@ services:
       - redis
       - jaeger
 
-
   etl:
     container_name: etl
     build: ./etl
@@ -70,8 +65,6 @@ services:
       - elasticsearch-node2
       - redis
 
-
-
   postgres:
     container_name: postgres
     image: postgres:${POSTGRES_VERSION}
@@ -81,8 +74,6 @@ services:
       - ./etl/core/postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
-
-
 
   elasticsearch-node1:
     image: elasticsearch:${STACK_VERSION}
@@ -102,7 +93,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-
 
   elasticsearch-node2:
     image: elasticsearch:${STACK_VERSION}
