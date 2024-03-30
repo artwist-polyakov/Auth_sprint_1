@@ -1,34 +1,60 @@
-from flask import Blueprint, jsonify, request
+import time
+from http import HTTPStatus
 
-routes = Blueprint('routes', __name__)
+from api.v1.models.custom_event import CustomEvent
+from api.v1.models.player_event import PlayerEvent
+from api.v1.models.view_event import ViewEvent
+from app import app, events
+from flask import Response, jsonify
+from services.queue_service import get_queue_service
 
-
-@routes.route('/view_event', methods=['POST'])
-async def view_event():
-    data = request.get_json()
-    # user_uuid = data.get('user_uuid')
-    # film_uuid = data.get('film_uuid')
-
-    return jsonify({'message': f'View event recorded {data}'})
-
-
-@routes.route('/player_event', methods=['POST'])
-async def player_event():
-    data = request.get_json()
-    # user_uuid = data.get('user_uuid')
-    # film_uuid = data.get('film_uuid')
-    # event_type = data.get('event_type')
-    # timestamp = data.get('timestamp')
-
-    return jsonify({'message': f'Player event recorded {data}'})
+API_PREFIX = '/ugc/v1'
 
 
-@routes.route('/custom_event', methods=['POST'])
-async def custom_event():
-    data = request.get_json()
+# curl -X POST http://localhost:5555/ugc/v1/view_event \
+#  -H "Content-Type: application/json" \
+#  -d '{
+#    "events": [
+#      {
+#        "user_uuid": "user1",
+#        "film_uuid": "film1"
+#      },
+#      {
+#        "user_uuid": "user2",
+#        "film_uuid": "film2"
+#      }
+#    ]
+#  }'
+# {"status":"ok"}
+#     :param query:
+#     :return:
+#     """
 
-    return jsonify({'message': f'Custom event recorded {data}'})
+@app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
+def view_event(query: ViewEvent) -> tuple[Response, int]:
+    start_time = time.time()
+    status, result = get_queue_service().process_event(query)
+    if status == HTTPStatus.OK:
+        return jsonify({"status": f"ok, speed = {time.time()-start_time} s"}), HTTPStatus.OK
+    else:
+        return jsonify({"status": "error", "details": result}), status
 
 
-def register_routes(app):
-    app.register_blueprint(routes)
+@app.post(f'{API_PREFIX}/player_event', summary="Record a player event", tags=[events])
+def player_event(query: PlayerEvent) -> tuple[Response, int]:
+    start_time = time.time()
+    status, result = get_queue_service().process_event(query)
+    if status == HTTPStatus.OK:
+        return jsonify({"status": f"ok, speed = {time.time()-start_time} s"}), HTTPStatus.OK
+    else:
+        return jsonify({"status": "error", "details": result}), status
+
+
+@app.post(f'{API_PREFIX}/custom_event', summary="Record a custom event", tags=[events])
+def custom_event(query: CustomEvent) -> tuple[Response, int]:
+    start_time = time.time()
+    status, result = get_queue_service().process_event(query)
+    if status == HTTPStatus.OK:
+        return jsonify({"status": f"ok, speed = {time.time()-start_time} s"}), HTTPStatus.OK
+    else:
+        return jsonify({"status": "error", "details": result}), status

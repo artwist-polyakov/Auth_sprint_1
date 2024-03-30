@@ -13,9 +13,9 @@
     </query_log>
 
     <listen_host>0.0.0.0</listen_host>
-    <http_port>8123</http_port>
-    <tcp_port>9000</tcp_port>
-    <interserver_http_host>clickhouse-node1</interserver_http_host>
+    <http_port from_env="CLICKHOUSE_HTTP_PORT"/>
+    <tcp_port from_env="CLICKHOUSE_CLIENT_PORT"/>
+    <interserver_http_host from_env="CLICKHOUSE_HOST"/>
     <interserver_http_port>9009</interserver_http_port>
 
     <max_connections>4096</max_connections>
@@ -38,26 +38,9 @@
         <company_cluster>
             <shard>
                 <replica>
-                    <default_database>shard</default_database>
-                    <host>clickhouse-node1</host>
-                    <port>9000</port>
-                </replica>
-                <replica>
-                    <default_database>replica</default_database>
-                    <host>clickhouse-node2</host>
-                    <port>9000</port>
-                </replica>
-            </shard>
-            <shard>
-                <replica>
-                    <default_database>shard</default_database>
-                    <host>clickhouse-node3</host>
-                    <port>9000</port>
-                </replica>
-                <replica>
-                    <default_database>replica</default_database>
-                    <host>clickhouse-node4</host>
-                    <port>9000</port>
+                    <default_database from_env="CLICKHOUSE_DB"/>
+                    <host from_env="CLICKHOUSE_HOST"/>
+                    <port from_env="CLICKHOUSE_CLIENT_PORT"/>
                 </replica>
             </shard>
         </company_cluster>
@@ -65,15 +48,15 @@
 
     <zookeeper>
         <node index="1">
-            <host>zookeeper</host>
-            <port>2181</port>
+            <host from_env="ZOOKEEPER_HOST"/>
+            <port from_env="ZOOKEEPER_PORT"/>
         </node>
     </zookeeper>
 
     <macros>
         <cluster>company_cluster</cluster>
         <shard>1</shard>
-        <replica>clickhouse-node1</replica>
+        <replica from_env="CLICKHOUSE_HOST"/>
     </macros>
 
     <distributed_ddl>

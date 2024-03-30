@@ -1,7 +1,6 @@
+import redis
 from configs.test_settings import settings
 from utils.wrappers import backoff, ping_service
-
-import redis
 
 
 @backoff()

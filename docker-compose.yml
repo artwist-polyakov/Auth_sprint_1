@@ -138,7 +138,7 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:${KAFKA_PORT_CONTROLLER}
       - KAFKA_KRAFT_CLUSTER_ID=${KAFKA_KRAFT_CLUSTER_ID}
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT_PLAINTEXT},CONTROLLER://:${KAFKA_PORT_CONTROLLER},EXTERNAL://:${KAFKA_PORT}
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:${KAFKA_PORT_PLAINTEXT},EXTERNAL://127.0.0.1:${KAFKA_PORT}
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:${KAFKA_PORT_PLAINTEXT},EXTERNAL://kafka:${KAFKA_PORT}
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
     volumes:
       - kafka_data:/bitnami/kafka
@@ -157,6 +157,8 @@ services:
       - ${CLICKHOUSE_CLIENT_PORT}:${CLICKHOUSE_CLIENT_PORT}
     volumes:
       - ./ugc/data/node1:/etc/clickhouse-server
+    env_file:
+      - .env
     depends_on:
       - zookeeper
 
@@ -185,6 +187,9 @@ services:
       - ${FLASK_PORTS}
     env_file:
       - .env
+    depends_on:
+      - clickhouse-node
+      - kafka
 
 volumes:
     static_volume:

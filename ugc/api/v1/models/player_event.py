@@ -1,0 +1,22 @@
+from enum import Enum
+
+from pydantic import BaseModel
+
+
+class EventType(str, Enum):
+    PLAY = 'play'
+    PAUSE = 'pause'
+    STOP = 'stop'
+    SEEK = 'seek'
+    CHANGE_QUALITY = 'change_quality'
+    MUTE = 'mute'
+    UNMUTE = 'unmute'
+    CHANGE_LANGUAGE = 'change_language'
+
+
+class PlayerEvent(BaseModel):
+    user_uuid: str
+    film_uuid: str
+    event_type: EventType
+    event_value: str
+    timestamp: int

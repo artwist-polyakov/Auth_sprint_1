@@ -11,13 +11,6 @@ participant StatApi [
     Flask endpoint to send
     event or view data
 ]
-participant StatService[
-    =StatService
-    ----
-    Logic layer to
-    process data into
-    queue
-]
 queue Messages_Queue
 control ETL
 database OLAP_DB
@@ -47,15 +40,8 @@ end
 autonumber stop
 autonumber  2
 alt success
-StatApi -> StatService: Send request to StatService
-note right of StatService
-    StatService decides
-    which queue to send
-    based on the data
-end note
+StatApi -> Messages_Queue: Send data to Messages_Queue
 
-StatService -> Messages_Queue: Send data to Messages_Queue
-StatService -> StatApi: Return response to StatApi
 StatApi -> StatClient: Return response to StatClient
 end
 autonumber stop
