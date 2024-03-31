@@ -22,6 +22,7 @@ API_PREFIX = '/ugc/v1'
 #     :return:
 #     """
 
+
 @app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
 def view_event(query: ViewEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
