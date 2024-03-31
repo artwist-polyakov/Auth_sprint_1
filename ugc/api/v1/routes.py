@@ -13,7 +13,7 @@ API_PREFIX = '/ugc/v1'
 
 # curl -X POST http://localhost:5555/ugc/v1/view_event \
 #  -H "Content-Type: application/json" \
-#  -d '
+#  -d '{
 #    "events": [
 #      {
 #        "user_uuid": "user1",
@@ -28,6 +28,7 @@ API_PREFIX = '/ugc/v1'
 # {"status":"ok"}
 #     :param query:
 #     :return:
+#     """
 
 @app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
 def view_event(query: ViewEvent) -> tuple[Response, int]:
