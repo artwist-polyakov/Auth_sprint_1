@@ -1,6 +1,6 @@
 Ссылка на приватный репозиторий с командной работой https://github.com/artwist-polyakov/Auth_sprint_1
 
-Интерфейс работы с UGC http://localhost:8000/ugc/openapi/
+Интерфейс работы с UGC http://localhost:8000/ugc/openapi/http://localhost:8000/ugc/openapi/
 
 # Проектная работа 8 спринта
 
