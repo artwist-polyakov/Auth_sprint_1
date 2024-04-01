@@ -191,17 +191,17 @@ services:
       - clickhouse-node
       - kafka
 
-#  pulsar:
-#    image: apachepulsar/pulsar:latest
-#    command: bin/pulsar standalone
-#    hostname: pulsar
-#    container_name: pulsar
-#    ports:
-#      - "8090:8090"
-#      - "6650:6650"
-#    restart: always
-#    volumes:
-#      - pulsar_data:/pulsar/data
+  pulsar:
+    image: apachepulsar/pulsar:latest
+    command: bin/pulsar standalone
+    hostname: pulsar
+    container_name: pulsar
+    ports:
+      - "8090:8090"
+      - "6650:6650"
+    restart: always
+    volumes:
+      - pulsar_data:/pulsar/data
 
 volumes:
     static_volume:
@@ -212,4 +212,4 @@ volumes:
     redis_data:
     postgres_data:
     kafka_data:
-#    pulsar_data:
+    pulsar_data:
