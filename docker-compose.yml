@@ -194,18 +194,22 @@ services:
   locust:
     container_name: locust
     image: locustio/locust:master
-    ports:
-     - "8089:8089"
     volumes:
       - ./locust:/locust
-    command: -f /locust/locustfile.py --master -H http://locust:8089
+    env_file:
+      - .env
+    ports:
+      - ${LOCUST_PORT}:${LOCUST_PORT}
+    command: -f /locust/locustfile.py --master -H http://${LOCUST_HOST}:${LOCUST_PORT}
 
   locust-worker:
     container_name: locust-worker
     image: locustio/locust:master
     volumes:
       - ./locust:/locust
-    command: -f /locust/locustfile.py --worker --master-host locust
+    env_file:
+      - .env
+    command: -f /locust/locustfile.py --worker --master-host ${LOCUST_HOST}
 
 volumes:
     static_volume:
