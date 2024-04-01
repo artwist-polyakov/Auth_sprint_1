@@ -192,13 +192,13 @@ services:
       - kafka
 
   pulsar:
+    container_name: pulsar
     image: apachepulsar/pulsar:latest
     command: bin/pulsar standalone
-    hostname: pulsar
-    container_name: pulsar
+    hostname: ${PULSAR_HOST}
     ports:
-      - "8090:8090"
-      - "6650:6650"
+      - ${PULSAR_PORT_1}:${PULSAR_PORT_1}
+      - ${PULSAR_PORT_2}:${PULSAR_PORT_2}
     restart: always
     volumes:
       - pulsar_data:/pulsar/data
