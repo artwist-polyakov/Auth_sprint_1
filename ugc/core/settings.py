@@ -28,6 +28,16 @@ class KafkaSettings(_BaseSettings):
     port: int
 
 
+class PulsarSettings(_BaseSettings):
+    """Настройки pulsar."""
+
+    model_config = SettingsConfigDict(env_prefix="pulsar_")
+    host: str
+    port_1: int
+    port_2: int
+    broker: str
+
+
 class ClickHouseSettings(_BaseSettings):
     """Настройки clickhouse."""
 
@@ -46,6 +56,7 @@ class Settings(CommonSettings):
     """Настройки проекта."""
 
     kafka: KafkaSettings = KafkaSettings()
+    pulsar: PulsarSettings = PulsarSettings()
     clickhouse: ClickHouseSettings = ClickHouseSettings()
     flask: FlaskSettings = FlaskSettings()
 

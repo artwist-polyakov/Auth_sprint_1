@@ -8,7 +8,10 @@ from app import app, events
 from flask import Response, jsonify
 from services.queue_service import get_queue_service
 
+from core.settings import settings
+
 API_PREFIX = '/ugc/v1'
+BROKER = settings.pulsar.broker
 
 
 # curl -X POST http://localhost:5555/ugc/v1/view_event \
@@ -33,7 +36,7 @@ API_PREFIX = '/ugc/v1'
 @app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
 def view_event(query: ViewEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
-    status, result = get_queue_service().process_event(query)
+    status, result = get_queue_service(BROKER).process_event(query)
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
     else:
@@ -43,7 +46,7 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
 @app.post(f'{API_PREFIX}/player_event', summary="Record a player event", tags=[events])
 def player_event(query: PlayerEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
-    status, result = get_queue_service().process_event(query)
+    status, result = get_queue_service(BROKER).process_event(query)
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
     else:
@@ -53,7 +56,7 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
 @app.post(f'{API_PREFIX}/custom_event', summary="Record a custom event", tags=[events])
 def custom_event(query: CustomEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
-    status, result = get_queue_service().process_event(query)
+    status, result = get_queue_service(BROKER).process_event(query)
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
     else:
