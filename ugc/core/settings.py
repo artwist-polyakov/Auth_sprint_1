@@ -33,7 +33,7 @@ class PulsarSettings(_BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="pulsar_")
     host: str
-    port_1: int
+    port: int
     port_2: int
     broker: str
 

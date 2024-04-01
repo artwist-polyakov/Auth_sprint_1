@@ -197,8 +197,8 @@ services:
     command: bin/pulsar standalone
     hostname: ${PULSAR_HOST}
     ports:
-      - ${PULSAR_PORT_1}:${PULSAR_PORT_1}
       - ${PULSAR_PORT_2}:${PULSAR_PORT_2}
+      - ${PULSAR_PORT}:${PULSAR_PORT}
     restart: always
     volumes:
       - pulsar_data:/pulsar/data

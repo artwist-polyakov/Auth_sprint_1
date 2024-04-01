@@ -3,13 +3,15 @@ import traceback
 from functools import lru_cache, wraps
 
 import pulsar
+
+from core.settings import settings
 from db.queue.message_broker_storage import (MessageBrokerConsumer,
                                              MessageBrokerProducer)
 from db.queue.models.pulsar_models import PulsarModel
 
 
 class PulsarCore:
-    uri = 'pulsar://localhost:6650'
+    uri = f'pulsar://localhost:{settings.pulsar.port}'
     topic = 'persistent://public/default/sample'
     subscription_name = "topic-sub-1"
 
