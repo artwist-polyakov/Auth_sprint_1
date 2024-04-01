@@ -17,11 +17,11 @@ wait_for_kafka() {
 }
 
 wait_for_pulsar() {
-   echo "Waiting for Kafka..."
+   echo "Waiting for Pulsar..."
    while ! nc -z "$PULSAR_HOST" "$PULSAR_PORT"; do
      sleep 1
    done
-   echo "Kafka is ready!"
+   echo "Pulsar is ready!"
 }
 
 wait_for_clickhouse
