@@ -3,6 +3,7 @@ from functools import lru_cache
 from http import HTTPStatus
 
 from db.queue.kafka_repository import get_kafka
+from db.queue.pulsar_repository import get_pulsar
 from pydantic import BaseModel
 from services.base_service import BaseService
 from services.event_convertor import EventConvertor
@@ -20,5 +21,7 @@ class QueueService(BaseService):
 
 
 @lru_cache
-def get_queue_service():
+def get_queue_service(queue_name: str) -> QueueService:
+    if queue_name == 'pulsar':
+        return QueueService(get_pulsar())
     return QueueService(get_kafka())
