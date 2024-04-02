@@ -154,7 +154,7 @@ services:
     container_name: clickhouse-node
     hostname: clickhouse-node
     ports:
-      - ${CLICKHOUSE_HTTP_PORT}:${CLICKHOUSE_HTTP_PORT}
+      - ${CLICKHOUSE_PORT}:${CLICKHOUSE_PORT}
       - ${CLICKHOUSE_CLIENT_PORT}:${CLICKHOUSE_CLIENT_PORT}
     volumes:
       - ./ugc/data/node1:/etc/clickhouse-server
