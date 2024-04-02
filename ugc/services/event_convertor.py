@@ -6,17 +6,12 @@ from pydantic import BaseModel
 
 
 class EventConvertor:
-
     @staticmethod
     def map(event: BaseModel) -> KafkaModel:
-        content = ''
-        match (event):
+        content = ""
+        match(event):
             case PlayerEvent() | ViewEvent() | CustomEvent() as e:
                 content = e.json()
             case _:
-                raise ValueError('Unknown event type')
-        return KafkaModel(
-            topic='events',
-            key=event.user_uuid,
-            value=content
-        )
+                raise ValueError("Unknown event type")
+        return KafkaModel(topic="events", key=event.user_uuid, value=content)

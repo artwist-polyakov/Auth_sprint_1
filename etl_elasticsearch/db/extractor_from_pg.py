@@ -152,7 +152,7 @@ class PostgresExtractor:
     @backoff()
     def _move_overquantity_to_queue(self, data: list[str]):
         if len(data) > self._batch_size:
-            for item in data[self._batch_size :]:
+            for item in data[self._batch_size:]:
                 self._redis_companion.save_to_queue(item)
             return data[: self._batch_size]
         return data
