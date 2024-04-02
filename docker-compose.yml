@@ -76,7 +76,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./etl_elasticsearch/core/postgres/:/docker-entrypoint-initdb.d/
+      - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
     restart: on-failure
