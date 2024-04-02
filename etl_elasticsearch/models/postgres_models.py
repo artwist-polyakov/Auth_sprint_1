@@ -9,9 +9,9 @@ class PostgreFilmWork:
     title: str
     description: str
     creation_date: datetime.date = field(default=datetime.date.today)
-    file_path: str = field(default='')
+    file_path: str = field(default="")
     rating: float = field(default=0.0)
-    type: str = field(default='movie')
+    type: str = field(default="movie")
     created: datetime.datetime = field(default=datetime.datetime.now)
     modified: datetime.datetime = field(default=datetime.datetime.now)
 
@@ -53,46 +53,48 @@ class PostgrePersonFilmWork:
 # объявим датаклассы для передачи в ES
 @dataclass
 class FilmworkToTransform:
-    """Класс конечных файлов, получаемых из таблицы Poastgres"""
-    id: str = field(default='')
-    title: str = field(default='')
-    description: str = field(default='')
+    """Класс конечных файлов, получаемых из таблицы Poastgres."""
+
+    id: str = field(default="")
+    title: str = field(default="")
+    description: str = field(default="")
     rating: float = field(default=0.0)
-    type: str = field(default='movie')
+    type: str = field(default="movie")
     created: datetime.datetime = field(default=datetime.datetime.now)
     modified: datetime.datetime = field(default=datetime.datetime.now)
-    role: str = field(default='')
+    role: str = field(default="")
     person_id: uuid.UUID = field(default_factory=uuid.uuid4)
-    person_full_name: str = field(default='')
+    person_full_name: str = field(default="")
     genre_id: uuid.UUID = field(default_factory=uuid.uuid4)
-    genre_name: str = field(default='')
-    genre_description: str = field(default='')
+    genre_name: str = field(default="")
+    genre_description: str = field(default="")
 
 
 @dataclass
 class GenreUpdate:
-    id: str = field(default='')
-    name: str = field(default='')
-    description: str = field(default='')
+    id: str = field(default="")
+    name: str = field(default="")
+    description: str = field(default="")
     modified: datetime.datetime = field(default=datetime.datetime.now)
 
 
 @dataclass
 class PersonUpdate:
-    id: str = field(default='')
-    full_name: str = field(default='')
+    id: str = field(default="")
+    full_name: str = field(default="")
     modified: datetime.datetime = field(default=datetime.datetime.now)
 
 
 @dataclass
 class FilmWorkUpdate:
-    id: str = field(default='')
+    id: str = field(default="")
     modified: datetime.datetime = field(default=datetime.datetime.now)
 
 
 @dataclass
 class BatchUpdate:
-    """Класс для передачи данных из PostgresExtractor в загрузчик"""
+    """Класс для передачи данных из PostgresExtractor в загрузчик."""
+
     film_work_data: list[FilmworkToTransform] = field(default_factory=list)
     person_data: list[PersonUpdate] = field(default_factory=list)
     genre_data: list[GenreUpdate] = field(default_factory=list)

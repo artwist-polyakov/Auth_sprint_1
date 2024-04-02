@@ -3,9 +3,13 @@ from contextlib import contextmanager
 from dataclasses import astuple, fields
 
 import psycopg2
-from models.postgres_models import (PostgreFilmWork, PostgreGenre,
-                                    PostgreGenreFilmWork, PostgrePerson,
-                                    PostgrePersonFilmWork)
+from models.postgres_models import (
+    PostgreFilmWork,
+    PostgreGenre,
+    PostgreGenreFilmWork,
+    PostgrePerson,
+    PostgrePersonFilmWork,
+)
 from psycopg2.extensions import cursor
 from psycopg2.extras import DictCursor
 from utils.utils import configure_logger
@@ -38,11 +42,11 @@ def conn_context_sqlite():
 
 
 TABLE_NAMES_AND_DATACLASSES = {
-    'film_work': PostgreFilmWork,
-    'genre': PostgreGenre,
-    'person': PostgrePerson,
-    'genre_film_work': PostgreGenreFilmWork,
-    'person_film_work': PostgrePersonFilmWork
+    "film_work": PostgreFilmWork,
+    "genre": PostgreGenre,
+    "person": PostgrePerson,
+    "genre_film_work": PostgreGenreFilmWork,
+    "person_film_work": PostgrePersonFilmWork,
 }
 
 
@@ -50,7 +54,7 @@ class LoaderToPostgres:
     batch_size = 500
 
     def __init__(self):
-        self.schema_name = 'content'
+        self.schema_name = "content"
         self.pg_client = PGClient()
         self.sqlite_rows = []
         self.table_objects = []
@@ -69,23 +73,24 @@ class LoaderToPostgres:
         table_class = TABLE_NAMES_AND_DATACLASSES[table_name]
         column_names = [field.name for field in fields(table_class)]
 
-        column_names_str = ', '.join(column_names)
-        col_count = ', '.join(['%s'] * len(column_names))  # '%s, %s
-        bind_values = ','.join(
-            curs.mogrify(f"({col_count})",
-                         astuple(table_object)).decode('utf-8') for table_object in
-            self.table_objects)
+        column_names_str = ", ".join(column_names)
+        col_count = ", ".join(["%s"] * len(column_names))  # '%s, %s
+        bind_values = ",".join(
+            curs.mogrify(f"({col_count})", astuple(table_object)).decode("utf-8")
+            for table_object in self.table_objects
+        )
 
-        query = (f'INSERT INTO {self.schema_name}.{table_name} ({column_names_str}) '
-                 f'VALUES {bind_values}'
-                 f' ON CONFLICT (id) DO NOTHING'
-                 )
+        query = (
+            f"INSERT INTO {self.schema_name}.{table_name} ({column_names_str}) "
+            f"VALUES {bind_values}"
+            f" ON CONFLICT (id) DO NOTHING"
+        )
         curs.execute(query)
 
     def etl_to_postgres(self):
         with (
             conn_context_sqlite() as sqlite_conn,
-            self.pg_client.conn_context_postgres() as pg_conn
+            self.pg_client.conn_context_postgres() as pg_conn,
         ):
             # Открыть curses
             sqlite_curs = sqlite_conn.cursor()
@@ -114,7 +119,7 @@ class LoaderToPostgres:
             pg_curs.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     configure_logger()
     loader = LoaderToPostgres()
     loader.etl_to_postgres()
