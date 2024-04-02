@@ -1,4 +1,6 @@
 from locust import HttpUser, between, task
+
+
 class UGCTest(HttpUser):
     wait_time = between(1, 5)
 
@@ -11,33 +13,30 @@ class UGCTest(HttpUser):
         # }
         self.client.post("/ugc/v1/custom_event?user_uuid=1234&event_type=1234&timestamp=1234")
 
-    # @task(100)
-    # def player_event(self):
-    #     data = {
-    #         "user_uuid": "1234",
-    #         "film_uuid": "1234",
-    #         "event_type": "seek",
-    #         "event_value": "1234",
-    #         "timestamp": "1234"
-    #     }
-    #     with self.client.post(
-    #             "/ugc/v1/player_event",
-    #             data=data,
-    #             catch_response=True
-    #     ) as response:
-    #         print(response)
+    @task
+    def player_event(self):
+        # data = {
+        #     "user_uuid": "1234",
+        #     "film_uuid": "1234",
+        #     "event_type": "seek",
+        #     "event_value": "1234",
+        #     "timestamp": "1234"
+        # }
+        self.client.post(
+            "/ugc/v1/player_event?user_uuid=1234&event_type=seek&timestamp=1234&film_uuid=123&event_value=459")
+
     #
     #
     #
     #
-    #         #
-    # # @task(100)
-    # # def view_event(self):
-    # #     data = {
-    # #         "user_uuid": "1234",
-    # #         "film_uuid": "1234"
-    # #     }
-    # #     self.client.post("/ugc/v1/view_event", data=data)
+    #
+    @task
+    def view_event(self):
+        # data = {
+        #     "user_uuid": "1234",
+        #     "film_uuid": "1234"
+        # }
+        self.client.post("/ugc/v1/view_event?user_uuid=123&film_uuid=123")
     #
     # # @task
     # # def viewCart(self):
@@ -48,8 +47,6 @@ class UGCTest(HttpUser):
     # #         print(f"{response.json()}")
     # #         # if '"prod_id":1' not in response.text:
     # #         #     response.failure("Assert failure, response does not contain expected prod_id")
-
-
 
 # import requests
 #
