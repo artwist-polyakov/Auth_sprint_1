@@ -10,25 +10,18 @@ from services.queue_service import get_queue_service
 
 API_PREFIX = '/ugc/v1'
 
-
+# """
 # curl -X POST http://localhost:5555/ugc/v1/view_event \
 #  -H "Content-Type: application/json" \
 #  -d '{
-#    "events": [
-#      {
 #        "user_uuid": "user1",
 #        "film_uuid": "film1"
-#      },
-#      {
-#        "user_uuid": "user2",
-#        "film_uuid": "film2"
-#      }
-#    ]
-#  }'
+#      }'
 # {"status":"ok"}
 #     :param query:
 #     :return:
 #     """
+
 
 @app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
 def view_event(query: ViewEvent) -> tuple[Response, int]:
