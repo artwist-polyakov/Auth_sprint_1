@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,12 +30,16 @@ class KafkaSettings(_BaseSettings):
 class ClickHouseSettings(_BaseSettings):
     """Настройки clickhouse."""
 
-    model_config = SettingsConfigDict(env_prefix="clickhouse_")
-    host: str
+    model_config = SettingsConfigDict(
+        env_prefix="clickhouse_", env_file_encoding="utf-8"
+    )
+    host: str = ...
+    port: int = ...
+    database: str = ...
 
 
 class FlaskSettings(_BaseSettings):
-    """Настройки Flask"""
+    """Настройки Flask."""
 
     model_config = SettingsConfigDict(env_prefix="flask_")
     port: int
