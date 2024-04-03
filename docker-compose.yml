@@ -211,6 +211,17 @@ services:
       - .env
     command: -f /locust/locustfile.py --worker --master-host ${LOCUST_HOST}
 
+  event-generator:
+    container_name: event-generator
+    build: ./event-generator
+    ports:
+      - ${GENERATOR_PORTS}
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - kafka
+
 volumes:
     static_volume:
     media_volume:
