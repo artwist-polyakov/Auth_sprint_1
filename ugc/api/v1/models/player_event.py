@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 
 from pydantic import BaseModel
@@ -20,4 +21,4 @@ class PlayerEvent(BaseModel):
     film_uuid: str
     event_type: EventType
     event_value: str | None = None
-    timestamp: int
+    timestamp: int = time.monotonic_ns()
