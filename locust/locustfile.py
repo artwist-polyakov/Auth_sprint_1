@@ -30,4 +30,5 @@ class UGCTest(HttpUser):
             "/ugc/v1/view_event"
             "?user_uuid=1234"
             "&film_uuid=1234"
+            "&timestamp=1234"
         )
