@@ -32,13 +32,15 @@ class ClickHouseSettings(_BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="clickhouse_")
     host: str
+    http_port: int
+    database: str
 
 
 class Settings(CommonSettings):
     """Настройки проекта."""
 
     kafka: KafkaSettings = KafkaSettings()
-    postgres: ClickHouseSettings = ClickHouseSettings()
+    clickhouse: ClickHouseSettings = ClickHouseSettings()
 
 
 settings = Settings()
