@@ -21,4 +21,4 @@ class PlayerEvent(BaseModel):
     film_uuid: str
     event_type: EventType
     event_value: str | None = None
-    timestamp: int = time.monotonic_ns()
+    timestamp: int = time.time_ns()
