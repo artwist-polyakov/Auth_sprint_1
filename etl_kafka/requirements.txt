@@ -5,4 +5,4 @@ pydantic==2.5.3
 pydantic-settings==2.1.0
 sqlalchemy-utils==0.41.2
 asyncpg==0.29.0
-clickhouse-connect
+clickhouse-connect==0.7.7
