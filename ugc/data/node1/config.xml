@@ -13,7 +13,7 @@
     </query_log>
 
     <listen_host>0.0.0.0</listen_host>
-    <http_port from_env="CLICKHOUSE_HTTP_PORT"/>
+    <http_port from_env="CLICKHOUSE_PORT"/>
     <tcp_port from_env="CLICKHOUSE_CLIENT_PORT"/>
     <interserver_http_host from_env="CLICKHOUSE_HOST"/>
     <interserver_http_port>9009</interserver_http_port>
