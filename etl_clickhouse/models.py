@@ -15,5 +15,3 @@ class Movie(BaseModel):
     director: list[str]
     actors_names: list[str]
     writers_names: list[str]
-    actors: list[dict[str, str]]
-    writers: list[dict[str, str]]
