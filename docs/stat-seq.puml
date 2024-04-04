@@ -1,0 +1,58 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+
+actor StatClient
+
+
+participant StatApi [
+    =StatApi
+    ----
+    Flask endpoint to send
+    event or view data
+]
+queue Messages_Queue
+control ETL
+database OLAP_DB
+
+
+autonumber
+
+== StatAPI ==
+
+StatClient -> StatApi: POST /event
+note left of StatApi
+    StatApi has POST endpoint
+    to send event or view data
+    uuid — is required
+    event-type - enum: event, view, player-event
+    event-attribute - string
+    if event — event-attribute is event name
+    if view — event-attribute is "pageview"
+    if player-event — event-attribute is  enum
+    MAIN TASK: validation of request
+end note
+alt some failure
+StatApi -> StatApi: If request is invalid,\nreturn error
+StatApi -> StatClient: Return error to StatClient
+else
+end
+autonumber stop
+autonumber  2
+alt success
+StatApi -> Messages_Queue: Send data to Messages_Queue
+
+StatApi -> StatClient: Return response to StatClient
+end
+autonumber stop
+
+== ETL ==
+autonumber
+loop every 1 minute
+ETL -> Messages_Queue: Ask new view data from Messages_Queue
+Messages_Queue -> ETL: Return view data to StatETL
+ETL -> OLAP_DB: Save view data to OLAP_DB
+end
+autonumber stop
+
+@enduml

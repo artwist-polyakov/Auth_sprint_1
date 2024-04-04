@@ -100,11 +100,15 @@ openssl x509 -req -sha256 -days 1024 -in localhost.csr -CA RootCA.pem -CAkey Roo
 5. Делаем сертификат `RootCA.crt` доверенным в браузере
 
 
-## Ручное применение существующих миграций
+## Применение миграций сервиса UGC (Clickhouse)
+```clickhouse-migrations --db-host localhost --migrations-dir ./migrations```
+
+
+## Ручное применение существующих миграций сервиса авторизации
 
 На данный момент миграции выполняются автоматически. При необходимости можно сделать это вручную:
 
-1. Установить библиотеку: 
+1. Установить библиотеку:
 ```shell
 pip install alembic==1.13.1
 ```
@@ -120,7 +124,7 @@ alembic upgrade head
 
 ## Инструкция по работе с миграциями (alembic)
 
-1. Установка библиотеки: 
+1. Установка библиотеки:
 ```shell
 pip install alembic==1.13.1
 ```
@@ -176,7 +180,7 @@ alembic revision
 
 1. Если миграции запускаются из контейнера, в файле `./auth/migrations/.env` должно быть указано имя контейнера, иначе - имя локального хоста (например, `localhost`)
 
-2. На всем пути работы `alembic` не должно быть импортов `./auth/configs/settings.py` (включая файлы с моделями `./auth/db/auth`). 
+2. На всем пути работы `alembic` не должно быть импортов `./auth/configs/settings.py` (включая файлы с моделями `./auth/db/auth`).
 Это связано с тем, что скрипт `alembic` не сможет прочитать `.env`, который находится в корне проекта `cd .`
 
 3. Если возвращается ошибка `Foreign key couldn't find column` или `print ...`, необходимо прописать импорты моделей из `./auth/db/auth` в `./auth/migrations/env.py`; импорта `Base`, от которого наследуются другие модели, недостаточно
@@ -210,3 +214,63 @@ pip install -r requirements.txt
 docker exec -it auth python utils/uuid_generator.py
 
 ```
+
+
+Как подключиться к ClickHouse через консоль.
+```shell
+
+docker exec -it clickhouse-node1 bash
+
+```
+
+как админ
+```shell
+
+clickhouse-client -u admin --password 123 -d default
+
+```
+
+
+как дата аналитик
+```shell
+
+clickhouse-client -u data_analyst --password data_analyst_pass -d default
+
+```
+
+Как подключиться к ClickHouse через DBeaver
+
+
+как админ
+```shell
+
+host = localhost
+port = 8123
+db = movies
+login = data_analyst
+password = data_analyst_pass
+
+```
+
+
+как дата аналитик
+```shell
+
+host = localhost
+port = 8123
+login = admin
+password = 123
+
+```
+
+
+Подключение к Locust
+
+http://localhost:8089/
+
+
+количество пользователей ```2000```
+трамплин графика ```400```
+в url указать ```http://ugs:5555```
+время проведения теста ```90s```
+

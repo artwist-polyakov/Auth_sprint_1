@@ -1,0 +1,90 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+skinparam componentStyle uml2
+LAYOUT_WITH_LEGEND()
+LAYOUT_LANDSCAPE()
+skinparam componentStyle uml2
+
+ title
+<b>Movies containers #2</b>
+end title
+Boundary(users, "Users") {
+    Person(analyst, "Analyst")
+    Person(client, "StatClient")
+    Person(visitor, "Visitor")
+    Person(admin, "Admin")
+    Person(superuser, "SuperUser")
+}
+
+System_Boundary(Content, "Movies Admin") {
+    Container(CMS, "CMS", "CMS interface")
+    ContainerDb_Ext(AdminDB, "DB", "Database")
+
+}
+
+System_Boundary(Movies, "Movies API") {
+Package (MOVIES_ENDPOINT) {
+    Container(MoviesAPI, "API Movies", "Statistic endpoint")
+    Container(MoviesService, "APIService", "Service for processing requests")
+}
+    ContainerDb_Ext(MoviesDB, "DB", "Database")
+    ContainerDb_Ext(MoviesCache, "Cache", "Cache")
+}
+
+System_Boundary(Auth, "Auth") {
+Package (RBAC_ENDPOINT) {
+    Container(RBACAPI, "RBAC API", "Auth endpoint")
+    Container(RBACService, "RBACService", "Service for processing requests")
+
+}
+Package (AUTH_ENDPOINT) {
+    Container(AuthAPI, "AuthAPI", "Auth endpoint")
+    Container(AuthService, "AuthService", "Service for processing requests")
+}
+    ContainerDb_Ext(LogoutCache, "Logout Cache", "Cache")
+    ContainerDb_Ext(AuthDB, "DB", "Database")
+}
+
+cloud oauth {
+    Container(OAuth, "OAuth", "OAuth server")
+}
+
+System_Boundary(UGCApi, "UGC API") {
+Package (UGC_ENDPOINT) {
+    Container(API, "APIStat", "Statistic endpoint")
+    Container(Service, "APIService", "Service for processing requests")
+}
+    SystemQueue_Ext(Topic, "Topic", "Some message topic")
+    Container(ETLScript, "ETLEvents", "ETL for events processing")
+    ContainerDb_Ext(DB, "DB", "Some OLAP database")
+}
+
+Rel_D(client, API, "Send events")
+Rel(API, Service, "Call method batch loading")
+Rel(Service, Topic, "Save events to log")
+Rel_U(ETLScript, Topic, "Request new data")
+Rel(Topic, ETLScript, "Receive new data")
+Rel_U(ETLScript, DB, "Save received content to DB")
+Rel_R(analyst, DB, "Use")
+Rel_R(visitor, MoviesAPI, "Send request")
+Rel_R(MoviesAPI, MoviesService, "Use service to process request")
+Rel_R(MoviesService, MoviesCache, "get or save to cache")
+Rel_R(MoviesService, MoviesDB, "Get result")
+Rel_U(visitor, OAuth, "Oauth scenario")
+Rel_U(visitor, AuthAPI, "Auth request")
+Rel_U(OAuth, AuthAPI, "Send user code")
+Rel_R(visitor, RBACAPI, "middleware \n is i able to do")
+Rel_R(AuthAPI, AuthService, "Ask token")
+Rel_U(AuthService, AuthDB, "Save or update")
+Rel_R(visitor, AuthAPI, "middleware \n is logged out")
+Rel_R(admin, AuthAPI, "middleware \n is logged out")
+Rel_R(superuser, AuthAPI, "middleware \n is logged out")
+Rel_L(AuthService, LogoutCache, "Save user token")
+Rel_R(admin, RBACAPI, "Modify roles")
+Rel_R(superuser, RBACAPI, "Modify roles")
+Rel_R(RBACService, AuthDB, "Save or update roles")
+Rel_R(RBACAPI, RBACService, "Use to process request")
+Rel_U(admin, CMS, "Modify content")
+Rel_R(CMS, AdminDB, "Save or update content")
+@enduml

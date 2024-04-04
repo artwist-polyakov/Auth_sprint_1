@@ -1,0 +1,14 @@
+kafka-python==2.0.2
+# clickhouse-driver==0.2.7
+clickhouse-connect==0.7.6
+aiochclient[aiohttp]==2.6.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+flask==3.0.2
+gevent==24.2.1
+clickhouse-migrations==0.5.0
+sqlalchemy-utils==0.41.2
+flask-openapi3==3.1.0
+Flask-Cors==4.0.0
+locust==2.24.1
+
