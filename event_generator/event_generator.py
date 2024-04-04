@@ -9,17 +9,13 @@ from models.custom_event import CustomEvent
 
 
 class EventGenerator:
-    def __init__(self, pg_instance):
-        self._pg_instance = pg_instance
+    def __init__(self):
         self.films = None
         self.events_generators = [
             self.generate_custom_event,
             self.generate_view_event,
             self.generate_player_event
         ]
-
-    async def get_films(self):
-        self.films = await self._pg_instance.get_films()
 
     def get_random_film_uuid(self):
         if not self.films:
@@ -43,5 +39,5 @@ class EventGenerator:
 
     def generate_view_event(self):
         user_uuid = str(uuid.uuid4())
-        film_uuid = str(self.get_random_film_uuid())
+        film_uuid = str(uuid.uuid4())
         return ViewEvent(user_uuid=user_uuid, film_uuid=film_uuid)

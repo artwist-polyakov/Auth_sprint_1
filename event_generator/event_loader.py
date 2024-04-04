@@ -14,11 +14,10 @@ from models.view_event import ViewEvent
 class EventLoader:
     def __init__(self):
         self._pg_instance = PostgresClient()
-        self._generator = EventGenerator(self._pg_instance)
+        self._generator = EventGenerator()
         self._kafka = get_kafka()
 
     async def load(self):
-        await self._generator.get_films()
 
         counter = 1
         while True:
