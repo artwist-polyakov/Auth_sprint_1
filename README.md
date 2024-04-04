@@ -1,7 +1,5 @@
 Ссылка на приватный репозиторий с командной работой https://github.com/artwist-polyakov/Auth_sprint_1
 
-Интерфейс работы с UGC http://localhost:8000/ugc/openapi/
-
 # Проектная работа 8 спринта
 
 ## Функциональные требования
@@ -64,7 +62,13 @@ docker-compose up -d --build
 3. Добавлен сервис UGC — http://localhost:8000/ugc/openapi/swagger
 4. Локуст для проверки нагрузки на сервис UGC — http://localhost:8089/
 
+пользователей 3000
 
+Ramp 200
+
+Host: http://ugc:5555
+
+![](https://media.cleanshot.cloud/media/7299/DlMJy5Smw82oFlqC3hwKvMHr1MRTFLRwd2kwH9E6.jpeg?Expires=1712285686&Signature=bJX71nMO~93ACgYEuC4stV9tkkT~62HbqZLkf4ZYhiXRJBEUwt-PzAVaxopMFhKNR13BMfOp2rhsfOz~BG9gHiwXRQAYQD0H1eBaOSQNAh18uQVCPpCBEPvBPZVzcvXRiFFLHLOZySCKRNL-3HXHporaa5GSWOfWu0kpj3TVM6Re4u6k9tB32fHSI35XYRWmdb-nH4peBeP5ozH0IRNO~zy0-WJfUox1bSYNF1tipIRi1xlpfL1Jzo-TKQZFz5aZvijvDkr2UaMdbVJFXJ-4MKa67a0huboKYZNUkMK8JKW61Zv8MdAGPsYzLxLly83bBOhHk-r-lixtAtPSb2Wf6Q__&Key-Pair-Id=K269JMAT9ZF4GZ)
 
 
 # Проектная работа 7 спринта
