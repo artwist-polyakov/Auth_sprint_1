@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from pydantic import BaseModel, Field
@@ -6,6 +7,7 @@ from pydantic import BaseModel, Field
 class ViewEvent(BaseModel):
     user_uuid: str
     film_uuid: str
+    timestamp: int = time.time_ns()
 
 
 class ListOfViewEvents(BaseModel):

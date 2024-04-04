@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS player_event (
     id UUID,
-    user_id UUID,
-    movie_id UUID,
+    user_id String,
+    movie_id String,
     type String,
-    depth Int32,
-    created DateTime
+    event_value String,
+    timestamp DateTime64(9, 'Europe/Moscow')
 ) ENGINE = MergeTree()
-ORDER BY created;
+ORDER BY timestamp;

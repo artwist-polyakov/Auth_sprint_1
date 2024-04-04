@@ -2,19 +2,20 @@ version: '3'
 
 services:
   nginx:
-   container_name: nginx
-   build: ./nginx
-   volumes:
-     - static_volume:/var/www/static
-     - media_volume:/var/www/media
-     - admin_volume:/var/www/static/admin
-   depends_on:
-     - movies
-     - auth
-     - admin
-   ports:
-     - "8000:80"
-     - "443:443"
+    container_name: nginx
+    build: ./nginx
+    volumes:
+      - static_volume:/var/www/static
+      - media_volume:/var/www/media
+      - admin_volume:/var/www/static/admin
+    depends_on:
+      - movies
+      - auth
+      - admin
+    ports:
+      - "8000:80"
+      - "443:443"
+    restart: on-failure
 
   admin:
     container_name: admin
@@ -27,6 +28,7 @@ services:
       - .env
     depends_on:
       - postgres
+    restart: on-failure
 
   movies:
     container_name: movies
@@ -41,6 +43,7 @@ services:
       - elasticsearch-node2
       - redis
       - jaeger
+    restart: on-failure
 
   auth:
     container_name: auth
@@ -53,10 +56,11 @@ services:
       - postgres
       - redis
       - jaeger
+    restart: on-failure
 
-  etl:
-    container_name: etl
-    build: ./etl
+  etl-elasticsearch:
+    container_name: etl-elasticsearch
+    build: ./etl_elasticsearch
     env_file:
       - .env
     depends_on:
@@ -64,6 +68,7 @@ services:
       - elasticsearch-node1
       - elasticsearch-node2
       - redis
+    restart: on-failure
 
   postgres:
     container_name: postgres
@@ -71,9 +76,10 @@ services:
     env_file:
       - .env
     volumes:
-      - ./etl/core/postgres/:/docker-entrypoint-initdb.d/
+      - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
+    restart: on-failure
 
   elasticsearch-node1:
     image: elasticsearch:${STACK_VERSION}
@@ -84,7 +90,7 @@ services:
       - node.name=elasticsearch-node1
       - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
       - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
-      - cluster.name=${CLUSTER_NAME}
+      - cluster.name=${ELASTIC_CLUSTER_NAME}
       - bootstrap.memory_lock=${MEMORY_LOCK}
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - xpack.security.enabled=false
@@ -93,6 +99,7 @@ services:
       memlock:
         soft: -1
         hard: -1
+    restart: on-failure
 
   elasticsearch-node2:
     image: elasticsearch:${STACK_VERSION}
@@ -103,7 +110,7 @@ services:
       - node.name=elasticsearch-node2
       - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
       - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
-      - cluster.name=${CLUSTER_NAME}
+      - cluster.name=${ELASTIC_CLUSTER_NAME}
       - bootstrap.memory_lock=${MEMORY_LOCK}
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - xpack.security.enabled=false
@@ -114,6 +121,7 @@ services:
       memlock:
         soft: -1
         hard: -1
+    restart: on-failure
 
   kafka-ui:
     container_name: kafka-ui
@@ -123,6 +131,7 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka:9092
       - KAFKA_CLUSTERS_0_NAME=kraft
+    restart: on-failure
 
   kafka:
     container_name: kafka
@@ -142,18 +151,20 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
     volumes:
       - kafka_data:/bitnami/kafka
+    restart: on-failure
 
   zookeeper:
     image: zookeeper:${ZOOKEEPER_VERSION}
     container_name: zookeeper
     hostname: zookeeper
+    restart: on-failure
 
   clickhouse-node:
     image: clickhouse/clickhouse-server:${CLICKHOUSE_VERSION}
     container_name: clickhouse-node
     hostname: clickhouse-node
     ports:
-      - ${CLICKHOUSE_HTTP_PORT}:${CLICKHOUSE_HTTP_PORT}
+      - ${CLICKHOUSE_PORT}:${CLICKHOUSE_PORT}
       - ${CLICKHOUSE_CLIENT_PORT}:${CLICKHOUSE_CLIENT_PORT}
     volumes:
       - ./ugc/data/node1:/etc/clickhouse-server
@@ -161,6 +172,18 @@ services:
       - .env
     depends_on:
       - zookeeper
+    restart: on-failure
+
+  etl-clickhouse:
+    build: ./etl_clickhouse
+    container_name: etl-clickhouse
+    command: bash -c "python main.py"
+    env_file:
+      - ./.env
+    depends_on:
+      - clickhouse-node
+      - postgres
+    restart: on-failure
 
   redis:
     container_name: redis
@@ -168,6 +191,7 @@ services:
     volumes:
       - ./core/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
+    restart: on-failure
 
   jaeger:
     container_name: jaeger
@@ -179,6 +203,7 @@ services:
       - LOG_LEVEL=debug
     env_file:
       - .env
+    restart: on-failure
 
   ugc:
     container_name: ugc
@@ -190,26 +215,29 @@ services:
     depends_on:
       - clickhouse-node
       - kafka
+    restart: on-failure
 
-  locust:
-    container_name: locust
-    image: locustio/locust:master
-    volumes:
-      - ./locust:/locust
-    env_file:
-      - .env
+  event-generator:
+    container_name: event-generator
+    build: ./event_generator
     ports:
-      - ${LOCUST_PORT}:${LOCUST_PORT}
-    command: -f /locust/locustfile.py --master -H http://${LOCUST_HOST}:${LOCUST_PORT}
-
-  locust-worker:
-    container_name: locust-worker
-    image: locustio/locust:master
-    volumes:
-      - ./locust:/locust
+      - ${GENERATOR_PORTS}
     env_file:
       - .env
-    command: -f /locust/locustfile.py --worker --master-host ${LOCUST_HOST}
+    depends_on:
+      - postgres
+      - kafka
+
+  etl-kafka:
+    container_name: etl-kafka
+    build: ./etl_kafka
+    ports:
+      - ${ETL_KAFKA_PORTS}
+    env_file:
+      - .env
+    depends_on:
+      - clickhouse-node
+      - kafka
 
 volumes:
     static_volume:

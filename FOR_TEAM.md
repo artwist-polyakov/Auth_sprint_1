@@ -246,6 +246,7 @@ clickhouse-client -u data_analyst --password data_analyst_pass -d default
 
 host = localhost
 port = 8123
+db = movies
 login = data_analyst
 password = data_analyst_pass
 
