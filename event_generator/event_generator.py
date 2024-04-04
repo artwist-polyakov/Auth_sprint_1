@@ -1,4 +1,5 @@
 import asyncio
+import time
 import uuid
 import random
 from datetime import datetime
@@ -25,17 +26,14 @@ class EventGenerator:
     def generate_custom_event(self):
         user_uuid = str(uuid.uuid4())
         event_type = random.choice(['custom_event_type1', 'custom_event_type2', 'custom_event_type3'])
-        timestamp = int(datetime.now().timestamp())
-        return CustomEvent(user_uuid=user_uuid, event_type=event_type, timestamp=timestamp)
+        return CustomEvent(user_uuid=user_uuid, event_type=event_type)
 
     def generate_player_event(self):
         user_uuid = str(uuid.uuid4())
         film_uuid = str(self.get_random_film_uuid())
         event_type = random.choice(list(EventType))
         event_value = random.choice(['value1', 'value2', 'value3'])
-        timestamp = int(datetime.now().timestamp())
-        return PlayerEvent(user_uuid=user_uuid, film_uuid=film_uuid, event_type=event_type, event_value=event_value,
-                           timestamp=timestamp)
+        return PlayerEvent(user_uuid=user_uuid, film_uuid=film_uuid, event_type=event_type, event_value=event_value)
 
     def generate_view_event(self):
         user_uuid = str(uuid.uuid4())

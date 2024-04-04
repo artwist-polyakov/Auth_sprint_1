@@ -40,4 +40,7 @@ class EventLoader:
                 logging.warning(f"Ошибка при отправке события #{counter} {event.json()}")
             finally:
                 counter += 1
-                await asyncio.sleep(2)
+                if counter % 100 == 0:
+                    logging.info(f"Отправлено {counter} событий")
+                    await asyncio.sleep(1)
+
