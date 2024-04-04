@@ -11,3 +11,4 @@ sqlalchemy-utils==0.41.2
 flask-openapi3==3.1.0
 Flask-Cors==4.0.0
 locust==2.24.1
+
