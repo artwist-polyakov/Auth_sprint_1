@@ -248,7 +248,7 @@ services:
       - .env
     ports:
       - ${LOCUST_PORT}:${LOCUST_PORT}
-    command: -f /locust/locustfile.py --master -H http://${LOCUST_HOST}:${LOCUST_PORT}
+    command: -f /locust/locustfile.py --master -H http://${FLASK_HOST}:${FLASK_PORT}
 
   locust-worker:
     container_name: locust-worker
@@ -258,6 +258,7 @@ services:
     env_file:
       - .env
     command: -f /locust/locustfile.py --worker --master-host ${LOCUST_HOST}
+
 
 volumes:
     static_volume:
