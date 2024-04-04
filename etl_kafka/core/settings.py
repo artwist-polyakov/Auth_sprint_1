@@ -32,8 +32,10 @@ class ClickHouseSettings(_BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="clickhouse_")
     host: str
-    http_port: int
+    port: int
     database: str
+    username: str
+    password: str
 
 
 class Settings(CommonSettings):
