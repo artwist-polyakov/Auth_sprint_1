@@ -1,8 +1,12 @@
 # # СИНХРОННЫЙ
-# from clickhouse_driver import Client
+# import clickhouse_connect
 # from settings import settings
-#
-# client = Client(host=settings.clickhouse.host)
+
+# client = clickhouse_connect.get_client(
+#             host=settings.clickhouse.host,
+#             port=settings.clickhouse.port,
+#             database=settings.clickhouse.database
+#         )
 
 # АСИНХРОННЫЙ
 from aiochclient import ChClient

@@ -13,14 +13,14 @@ class Settings(BaseSettings):
     postgres_password: str = ...
 
     class Config:
-        env_file = '.env'
+        env_file = ".env"
 
 
 settings = Settings()
 
 
 class ElasticDsn(BaseSettings):
-    scheme: str = 'http'
+    scheme: str = "http"
     host: str = settings.elastic_host
     port: int = settings.elastic_port
 

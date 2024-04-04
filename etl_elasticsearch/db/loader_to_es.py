@@ -7,7 +7,7 @@ from utils.utils import backoff
 
 
 class ElasticLoader(abc.ABC):
-    _index_name: str = ''
+    _index_name: str = ""
     _schema: dict = {}
     _dataclass = None
     _data: list[_dataclass] = []
@@ -27,11 +27,7 @@ class ElasticLoader(abc.ABC):
     @backoff()
     def load_data(self) -> None:
         actions = [
-            {
-                '_index': self._index_name,
-                '_id': item['id'],
-                '_source': item
-            }
+            {"_index": self._index_name, "_id": item["id"], "_source": item}
             for item in self._documents
         ]
         helpers.bulk(self._es, actions)
@@ -48,4 +44,4 @@ class ElasticLoader(abc.ABC):
     @backoff()
     def _create_index(self):
         self._es.indices.create(index=self._index_name, body=self._schema)
-        logging.info(f'ELASTIC Index {self._index_name} created')
+        logging.info(f"ELASTIC Index {self._index_name} created")

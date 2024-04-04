@@ -10,8 +10,11 @@ from db.loader_genres_to_es import GenresLoader
 from db.loader_persons_to_es import PersonsLoader
 from db.loader_to_es import ElasticLoader
 from psycopg2.extras import DictCursor
-from utils.mappers import (GenresPostgresDataMapper, PersonsPostgresDataMapper,
-                           PostgresDataMapper)
+from utils.mappers import (
+    GenresPostgresDataMapper,
+    PersonsPostgresDataMapper,
+    PostgresDataMapper,
+)
 from utils.redis_companion import RedisCompanion
 from utils.utils import configure_logger
 
@@ -27,21 +30,21 @@ class ETL:
         self.new_redis_keys = None
 
         self.fw = {
-            'data': None,
-            'mapper': PostgresDataMapper(),
-            'loader': FilmsLoader()
+            "data": None,
+            "mapper": PostgresDataMapper(),
+            "loader": FilmsLoader(),
         }
 
         self.genres = {
-            'data': None,
-            'mapper': GenresPostgresDataMapper(),
-            'loader': GenresLoader()
+            "data": None,
+            "mapper": GenresPostgresDataMapper(),
+            "loader": GenresLoader(),
         }
 
         self.persons = {
-            'data': None,
-            'mapper': PersonsPostgresDataMapper(),
-            'loader': PersonsLoader()
+            "data": None,
+            "mapper": PersonsPostgresDataMapper(),
+            "loader": PersonsLoader(),
         }
 
         self.indexes = [self.fw, self.genres, self.persons]
@@ -60,17 +63,17 @@ class ETL:
         self.new_redis_keys = data.new_keys_for_redis
         # внутри контейнера data также лежат
         # обновлённые ключи для Redis и person_data + genre_data
-        self.fw['data'] = data.film_work_data
-        if not self.fw['data']:
+        self.fw["data"] = data.film_work_data
+        if not self.fw["data"]:
             # если не пришло обновлений фильмов, то и другие сущности не обновлялись.
             logging.info("ETL no filmwork data to load — sleep 30 sec")
             time.sleep(30)
-        self.genres['data'] = data.genre_data
-        self.persons['data'] = data.person_data
+        self.genres["data"] = data.genre_data
+        self.persons["data"] = data.person_data
 
     def transform(self, i, mapper):
-        mapper.load_data(self.indexes[i]['data'])
-        self.indexes[i]['data'] = mapper.get_for_es()
+        mapper.load_data(self.indexes[i]["data"])
+        self.indexes[i]["data"] = mapper.get_for_es()
 
     def load(self, data, loader: ElasticLoader):
         loader.charge_data(data)
@@ -85,8 +88,8 @@ class ETL:
 
                 logging.info("ETL Start transforming and loading")
                 for i, index in enumerate(self.indexes):
-                    self.transform(i, index['mapper'])
-                    self.load(index['data'], index['loader'])
+                    self.transform(i, index["mapper"])
+                    self.load(index["data"], index["loader"])
 
                 logging.info("ETL Ended ETL iteration")
 
@@ -99,6 +102,6 @@ class ETL:
                 time.sleep(0.5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     etl = ETL()
     etl.etl()
