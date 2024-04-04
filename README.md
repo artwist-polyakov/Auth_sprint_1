@@ -151,8 +151,13 @@
 6. Запустите проект командой `docker-compose up -d --build`
 7. Приложение будет доступно по адресам: 
 
-- http://localhost:8000/auth/openapi http://localhost:8000/api/openapi если не нужен SSL
-- https://localhost/auth/openapi https://localhost/api/openapi если установили сертификаты
+если не нужен SSL
+- http://localhost:8000/auth/openapi
+- http://localhost:8000/api/openapi
+
+если установили сертификаты
+- https://localhost/auth/openapi
+- https://localhost/api/openapi
 
 Необходмо согласиться с недостоверным сертификатом или добавить самоподписанный сертификат по инструкции в файле `FOR_TEAM.md`
 
