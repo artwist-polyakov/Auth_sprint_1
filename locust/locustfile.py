@@ -1,3 +1,5 @@
+import time
+
 from locust import HttpUser, between, task
 
 
@@ -10,7 +12,7 @@ class UGCTest(HttpUser):
             "/ugc/v1/custom_event"
             "?user_uuid=1234"
             "&event_type=1234"
-            "&timestamp=1234"
+            f"&timestamp={time.time_ns()}"
         )
 
     @task(2)
@@ -21,7 +23,7 @@ class UGCTest(HttpUser):
             "&film_uuid=1234"
             "&event_type=seek"
             "&event_value=1234"
-            "&timestamp=1234"
+            f"&timestamp={time.time_ns()}"
         )
 
     @task(3)
@@ -30,5 +32,5 @@ class UGCTest(HttpUser):
             "/ugc/v1/view_event"
             "?user_uuid=1234"
             "&film_uuid=1234"
-            "&timestamp=1234"
+            f"&timestamp={time.time_ns()}"
         )
