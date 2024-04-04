@@ -5,10 +5,11 @@ import random
 from db.db_kafka.kafka_storage import get_kafka
 from db.db_kafka.models.kafka_models import KafkaModel
 from db.pg_client import PostgresClient
-from event_generator import EventGenerator
 from models.custom_event import CustomEvent
 from models.player_event import PlayerEvent
 from models.view_event import ViewEvent
+
+from event_generator import EventGenerator
 
 
 class EventLoader:
@@ -36,11 +37,10 @@ class EventLoader:
                 data = KafkaModel(topic=topic, key=event.user_uuid, value=event.json())
                 self._kafka.produce(data)
                 logging.info(f"Отправлено событие #{counter} {event.json()}")
-            except Exception as e:
+            except Exception:
                 logging.warning(f"Ошибка при отправке события #{counter} {event.json()}")
             finally:
                 counter += 1
-                if counter % 100 == 0:
+                if counter % 10 == 0:
                     logging.info(f"Отправлено {counter} событий")
-                    await asyncio.sleep(1)
-
+                    await asyncio.sleep(10)

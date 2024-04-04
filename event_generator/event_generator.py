@@ -1,12 +1,9 @@
-import asyncio
-import time
-import uuid
 import random
-from datetime import datetime
+import uuid
 
-from models.player_event import PlayerEvent, EventType
-from models.view_event import ViewEvent
 from models.custom_event import CustomEvent
+from models.player_event import EventType, PlayerEvent
+from models.view_event import ViewEvent
 
 
 class EventGenerator:
@@ -25,7 +22,11 @@ class EventGenerator:
 
     def generate_custom_event(self):
         user_uuid = str(uuid.uuid4())
-        event_type = random.choice(['custom_event_type1', 'custom_event_type2', 'custom_event_type3'])
+        event_type = random.choice([
+            'custom_event_type1',
+            'custom_event_type2',
+            'custom_event_type3'
+        ])
         return CustomEvent(user_uuid=user_uuid, event_type=event_type)
 
     def generate_player_event(self):
@@ -33,7 +34,12 @@ class EventGenerator:
         film_uuid = str(self.get_random_film_uuid())
         event_type = random.choice(list(EventType))
         event_value = random.choice(['value1', 'value2', 'value3'])
-        return PlayerEvent(user_uuid=user_uuid, film_uuid=film_uuid, event_type=event_type, event_value=event_value)
+        return PlayerEvent(
+            user_uuid=user_uuid,
+            film_uuid=film_uuid,
+            event_type=event_type,
+            event_value=event_value
+        )
 
     def generate_view_event(self):
         user_uuid = str(uuid.uuid4())

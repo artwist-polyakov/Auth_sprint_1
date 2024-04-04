@@ -1,8 +1,7 @@
+from core.settings import pstg_dsn
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-
-from core.settings import pstg_dsn
 
 
 class PostgresClient:
