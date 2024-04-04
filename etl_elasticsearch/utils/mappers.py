@@ -1,11 +1,8 @@
-from models.elastic_models import (
-    DataclassForElastic,
-    GenreDataForElastic,
-    GenreElement,
-    PersonDataForElastic,
-    PersonIdName,
-)
-from models.postgres_models import FilmworkToTransform, GenreUpdate, PersonUpdate
+from models.elastic_models import (DataclassForElastic, GenreDataForElastic,
+                                   GenreElement, PersonDataForElastic,
+                                   PersonIdName)
+from models.postgres_models import (FilmworkToTransform, GenreUpdate,
+                                    PersonUpdate)
 
 
 class PostgresDataMapper:

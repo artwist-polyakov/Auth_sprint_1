@@ -5,13 +5,8 @@ import time
 from dataclasses import dataclass
 from typing import TypeVar
 
-from models.postgres_models import (
-    BatchUpdate,
-    FilmworkToTransform,
-    FilmWorkUpdate,
-    GenreUpdate,
-    PersonUpdate,
-)
+from models.postgres_models import (BatchUpdate, FilmworkToTransform,
+                                    FilmWorkUpdate, GenreUpdate, PersonUpdate)
 from psycopg2.extensions import connection as _connection
 from utils.redis_companion import RedisCompanion
 from utils.utils import backoff

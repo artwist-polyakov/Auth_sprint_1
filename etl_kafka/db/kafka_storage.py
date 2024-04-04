@@ -1,11 +1,8 @@
-import logging
-import traceback
-from functools import lru_cache, wraps
+from functools import lru_cache
 
 from core.settings import settings
-from kafka import KafkaConsumer
-
 from db.message_broker_storage import MessageBrokerConsumer
+from kafka import KafkaConsumer
 
 
 class KafkaCore:

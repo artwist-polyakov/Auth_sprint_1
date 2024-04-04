@@ -10,11 +10,8 @@ from db.loader_genres_to_es import GenresLoader
 from db.loader_persons_to_es import PersonsLoader
 from db.loader_to_es import ElasticLoader
 from psycopg2.extras import DictCursor
-from utils.mappers import (
-    GenresPostgresDataMapper,
-    PersonsPostgresDataMapper,
-    PostgresDataMapper,
-)
+from utils.mappers import (GenresPostgresDataMapper, PersonsPostgresDataMapper,
+                           PostgresDataMapper)
 from utils.redis_companion import RedisCompanion
 from utils.utils import configure_logger
 
