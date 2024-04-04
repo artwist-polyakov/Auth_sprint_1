@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS click (
     id UUID,
-    user_id UUID,
-    movie_id UUID,
-    created DateTime
+    user_id String,
+    movie_id String,
+    timestamp DateTime,
 ) ENGINE = MergeTree()
-ORDER BY created;
+ORDER BY timestamp;
