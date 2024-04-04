@@ -34,8 +34,8 @@ class ClickHouseSettings(_BaseSettings):
     host: str
     port: int
     database: str
-    username: str
-    password: str
+    etl_username: str
+    etl_password: str
 
 
 class Settings(CommonSettings):
