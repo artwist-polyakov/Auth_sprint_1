@@ -34,7 +34,6 @@ def transform_movies(next_node: Generator) -> Generator[None, list[dict], None]:
         for movie_dict in movie_dicts:
             logger.info(movie_dict)
             movie = Movie.model_validate(movie_dict)
-            movie.title = movie.title.upper()
             logger.info(movie.model_dump())
             batch.append(movie)
         next_node.send(batch)
@@ -53,7 +52,7 @@ def save_movies(
         movie_list = [list(movie.model_dump().values()) for movie in movies]
 
         clickhouse_engine.insert(
-            "movie", movie_list, column_names=list(Movie.model_fields.keys())
+            "movies", movie_list, column_names=list(Movie.model_fields.keys())
         )
         state.set_state(STATE_KEY, str(movies[-1].modified))
 
