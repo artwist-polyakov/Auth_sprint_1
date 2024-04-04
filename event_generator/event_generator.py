@@ -1,11 +1,21 @@
-import asyncio
 import uuid
 import random
 from datetime import datetime
+from enum import Enum
 
-from models.player_event import PlayerEvent, EventType
-from models.view_event import ViewEvent
-from models.custom_event import CustomEvent
+from db.models import Click, PlayerEvent, OtherEvent
+
+
+class EventType(str, Enum):
+    PLAY = 'play'
+    PAUSE = 'pause'
+    STOP = 'stop'
+    SEEK = 'seek'
+    CHANGE_QUALITY = 'change_quality'
+    MUTE = 'mute'
+    UNMUTE = 'unmute'
+    CHANGE_LANGUAGE = 'change_language'
+    COMPLETE = 'complete'
 
 
 class EventGenerator:
@@ -13,9 +23,9 @@ class EventGenerator:
         self._pg_instance = pg_instance
         self.films = None
         self.events_generators = [
-            self.generate_custom_event,
-            self.generate_view_event,
-            self.generate_player_event
+            self.generate_click_event,
+            self.generate_player_event,
+            self.generate_other_event
         ]
 
     async def get_films(self):
@@ -26,22 +36,23 @@ class EventGenerator:
             return None
         return random.choice(self.films)
 
-    def generate_custom_event(self):
-        user_uuid = str(uuid.uuid4())
-        event_type = random.choice(['custom_event_type1', 'custom_event_type2', 'custom_event_type3'])
-        timestamp = int(datetime.now().timestamp())
-        return CustomEvent(user_uuid=user_uuid, event_type=event_type, timestamp=timestamp)
+    def generate_click_event(self):
+        user_id = str(uuid.uuid4())
+        movie_id = str(self.get_random_film_uuid())
+        created = int(datetime.now().timestamp())
+        return Click(user_id=user_id, movie_id=movie_id, created=created)
 
     def generate_player_event(self):
-        user_uuid = str(uuid.uuid4())
-        film_uuid = str(self.get_random_film_uuid())
-        event_type = random.choice(list(EventType))
-        event_value = random.choice(['value1', 'value2', 'value3'])
-        timestamp = int(datetime.now().timestamp())
-        return PlayerEvent(user_uuid=user_uuid, film_uuid=film_uuid, event_type=event_type, event_value=event_value,
-                           timestamp=timestamp)
+        user_id = str(uuid.uuid4())
+        movie_id = str(self.get_random_film_uuid())
+        type = random.choice(list(EventType))
+        depth = random.randint(1, 10)
+        created = int(datetime.now().timestamp())
+        return PlayerEvent(user_id=user_id, movie_id=movie_id, type=type, depth=depth, created=created)
 
-    def generate_view_event(self):
-        user_uuid = str(uuid.uuid4())
-        film_uuid = str(self.get_random_film_uuid())
-        return ViewEvent(user_uuid=user_uuid, film_uuid=film_uuid)
+    def generate_other_event(self):
+        user_id = str(uuid.uuid4())
+        movie_id = str(self.get_random_film_uuid())
+        type = random.choice(['custom_event_type1', 'custom_event_type2', 'custom_event_type3'])
+        created = int(datetime.now().timestamp())
+        return OtherEvent(user_id=user_id, movie_id=movie_id, type=type, created=created)

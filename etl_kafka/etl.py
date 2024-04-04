@@ -1,3 +1,7 @@
+import datetime
+import logging
+from uuid import UUID
+
 from kafka import KafkaConsumer
 import clickhouse_connect
 import json
@@ -5,12 +9,28 @@ import asyncio
 
 from core.settings import settings
 
+from db.models import PlayerEvent, Click, OtherEvent
+
 
 class ETL:
     _kafka_bootstrap_servers = [f'{settings.kafka.host}:{settings.kafka.port}']
 
     def __init__(self):
-        self.topics = ['player_events', 'view_events', 'custom_events']
+        self.topics = ['player_events', 'click_events', 'other_events']
+        self.events = {
+            'click_events': {
+                'table': 'click',
+                'model': Click
+            },
+            'player_events': {
+                'table': 'player_event',
+                'model': PlayerEvent
+            },
+            'other_events': {
+                'table': 'other_event',
+                'model': OtherEvent
+            }
+        }
 
     async def get_consumer(self):
         consumer_conf = {
@@ -22,41 +42,37 @@ class ETL:
         return consumer
 
     async def transform(self, msg):
-        if msg is None or msg.error():
-            return None, None
-
-        value = msg.value().decode('utf-8')
+        value = msg.value.decode('utf-8')
         event_data = json.loads(value)
+        topic = msg.topic
+        table = self.events.get(topic, {}).get('table')
+        model = self.events.get(topic, {}).get('model')
 
-        topic = msg.topic()
-        if topic == 'player_events':
-            event_type = 'PlayerEvent'
-        elif topic == 'view_events':
-            event_type = 'ViewEvent'
-        elif topic == 'custom_events':
-            event_type = 'CustomEvent'
-        else:
-            raise ValueError('Unknown event type')
+        # formatted_time
+        # timestamp_sec = msg.timestamp / 1000
+        # formatted_time = datetime.datetime.fromtimestamp(timestamp_sec).strftime('%Y-%m-%d %H:%M:%S')
+        return event_data, table, model
 
-        return event_data, event_type
-
-    async def load(self, client, event_data, event_type):
-        query = (f"INSERT INTO {settings.clickhouse.database}.events "
-                 f"(event_id, event_type, event_data, event_timestamp) "
-                 f"VALUES (?, ?, ?, NOW())")
-        params = (event_data['event_id'], event_type, json.dumps(event_data))
-        client.insert(query, params)
+    async def load(self, client, event_data: dict, table: str, model):
+        columns = list(model.model_fields.keys())
+        logging.warning(columns)
+        logging.warning(table)
+        event = model(**event_data)
+        data = list(event.model_dump().values())
+        logging.warning(data)
+        client.insert(table, data, column_names=columns)
 
     async def run(self, clickhouse):
         consumer = await self.get_consumer()
 
         try:
             for msg in consumer:
-                event_data, event_type = await self.transform(msg)
-                if event_data is None:
-                    continue
-
-                await self.load(clickhouse, event_data, event_type)
+                event_data, table, model = await self.transform(msg)
+                await self.load(
+                    client=clickhouse,
+                    event_data=event_data,
+                    table=table,
+                    model=model)
 
         finally:
             consumer.close()
@@ -66,8 +82,9 @@ if __name__ == "__main__":
     etl = ETL()
     with clickhouse_connect.get_client(
         host=settings.clickhouse.host,
-        port=settings.clickhouse.http_port,
+        port=settings.clickhouse.port,
         database=settings.clickhouse.database,
     ) as clickhouse:
         while True:
             asyncio.run(etl.run(clickhouse))
+            asyncio.sleep(5)

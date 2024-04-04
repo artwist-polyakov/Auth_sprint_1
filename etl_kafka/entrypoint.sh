@@ -2,7 +2,7 @@
 
 wait_for_clickhouse() {
    echo "Waiting for ClickHouse..."
-   while ! nc -z "$CLICKHOUSE_HOST" "$CLICKHOUSE_HTTP_PORT"; do
+   while ! nc -z "$CLICKHOUSE_HOST" "$CLICKHOUSE_PORT"; do
      sleep 1
    done
    echo "ClickHouse is ready!"
