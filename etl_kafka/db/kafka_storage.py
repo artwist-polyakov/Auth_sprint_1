@@ -1,9 +1,9 @@
 from functools import lru_cache
+
 import kafka
 from core.settings import settings
 from db.message_broker_storage import MessageBrokerConsumer
-from kafka import KafkaConsumer
-from kafka import OffsetAndMetadata
+from kafka import KafkaConsumer, OffsetAndMetadata
 
 
 class KafkaCore:

@@ -2,9 +2,10 @@ import asyncio
 import json
 import time
 import uuid
+
 import clickhouse_connect
 from core.settings import settings
-from db.kafka_storage import get_kafka, KafkaRepository
+from db.kafka_storage import KafkaRepository, get_kafka
 
 
 def terrible_list_to_dict(data):
