@@ -5,7 +5,7 @@ import uuid
 
 import clickhouse_connect
 from core.settings import settings
-from db.kafka_storage import get_kafka
+from db.kafka_storage import KafkaRepository, get_kafka
 
 
 def terrible_list_to_dict(data):
@@ -75,11 +75,16 @@ class ETL:
                 )
 
     async def run(self, clickhouse):
-        for msg in await get_kafka().consume():
-            data = json.loads(msg.value.decode('utf-8'))
-            topic = msg.topic
-            if data is not None:
-                await self.load(clickhouse, data, topic)
+        consumer = await get_kafka().consume()
+        try:
+            for msg in consumer:
+                data = json.loads(msg.value.decode('utf-8'))
+                topic = msg.topic
+                if data is not None:
+                    await self.load(clickhouse, data, topic)
+                    await KafkaRepository.commit(consumer, msg)
+        finally:
+            consumer.close()
 
 
 if __name__ == "__main__":
