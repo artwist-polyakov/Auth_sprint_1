@@ -1,5 +1,6 @@
 import time
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -17,7 +18,7 @@ class EventType(str, Enum):
 
 
 class PlayerEvent(BaseModel):
-    user_uuid: str
+    user_uuid: Optional[str] = None
     film_uuid: str
     event_type: EventType
     event_value: str | None = None
