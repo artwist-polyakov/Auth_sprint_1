@@ -29,8 +29,7 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
-    else:
-        return jsonify({"status": "error", "details": result}), status
+    return jsonify({"status": "error", "details": result}), status
 
 
 @app.post(f'{API_PREFIX}/player_event', summary="Record a player event", tags=[events])
@@ -39,8 +38,7 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
-    else:
-        return jsonify({"status": "error", "details": result}), status
+    return jsonify({"status": "error", "details": result}), status
 
 
 @app.post(f'{API_PREFIX}/custom_event', summary="Record a custom event", tags=[events])
@@ -49,5 +47,4 @@ def custom_event(query: CustomEvent) -> tuple[Response, int]:
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
-    else:
-        return jsonify({"status": "error", "details": result}), status
+    return jsonify({"status": "error", "details": result}), status
