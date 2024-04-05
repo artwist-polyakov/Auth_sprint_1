@@ -26,7 +26,7 @@ event_blueprint = APIBlueprint(
 #     """
 
 
-@event_blueprint.post(f"/view_event", summary="Record a view event")
+@event_blueprint.post("/view_event", summary="Record a view event")
 def view_event(query: ViewEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
@@ -35,7 +35,7 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
     return jsonify({"status": "error", "details": result}), status
 
 
-@event_blueprint.post(f"/player_event", summary="Record a player event")
+@event_blueprint.post("/player_event", summary="Record a player event")
 def player_event(query: PlayerEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
@@ -44,7 +44,7 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
     return jsonify({"status": "error", "details": result}), status
 
 
-@event_blueprint.post(f"/custom_event", summary="Record a custom event")
+@event_blueprint.post("/custom_event", summary="Record a custom event")
 def custom_event(query: CustomEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
