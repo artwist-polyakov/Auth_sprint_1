@@ -31,12 +31,8 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
-        return (
-            jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}),
-            HTTPStatus.OK,
-        )
-    else:
-        return jsonify({"status": "error", "details": result}), status
+        return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
+    return jsonify({"status": "error", "details": result}), status
 
 
 @event_blueprint.post(f"/player_event", summary="Record a player event")
@@ -44,12 +40,8 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
-        return (
-            jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}),
-            HTTPStatus.OK,
-        )
-    else:
-        return jsonify({"status": "error", "details": result}), status
+        return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
+    return jsonify({"status": "error", "details": result}), status
 
 
 @event_blueprint.post(f"/custom_event", summary="Record a custom event")
@@ -57,9 +49,5 @@ def custom_event(query: CustomEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
-        return (
-            jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}),
-            HTTPStatus.OK,
-        )
-    else:
-        return jsonify({"status": "error", "details": result}), status
+        return jsonify({"status": f"ok, speed = {time.monotonic()-start_time} s"}), HTTPStatus.OK
+    return jsonify({"status": "error", "details": result}), status
