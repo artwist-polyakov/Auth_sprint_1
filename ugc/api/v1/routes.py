@@ -56,7 +56,6 @@ def _get_token_from_cookie(request_container) -> str:
 def view_event(query: ViewEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     if not query.user_uuid:
-        print("User uuid not found")
         try:
             query.user_uuid = _get_token_from_cookie(request)
         except NoTokenError:
@@ -64,8 +63,6 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
         except InvalideTokenError:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
-    print(f"Status: {status}, result: {result}")
-
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}), HTTPStatus.OK
     return jsonify({"status": "error", "details": result}), status
@@ -75,7 +72,6 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
 def player_event(query: PlayerEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     if not query.user_uuid:
-        print("User uuid not found")
         try:
             query.user_uuid = _get_token_from_cookie(request)
         except NoTokenError:
@@ -83,7 +79,6 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
         except InvalideTokenError:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
-    print(f"Status: {status}, result: {result}")
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}), HTTPStatus.OK
     return jsonify({"status": "error", "details": result}), status
@@ -93,7 +88,6 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
 def custom_event(query: CustomEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     if not query.user_uuid:
-        print("User uuid not found")
         try:
             query.user_uuid = _get_token_from_cookie(request)
         except NoTokenError:
@@ -101,8 +95,6 @@ def custom_event(query: CustomEvent) -> tuple[Response, int]:
         except InvalideTokenError:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
-    print(f"Status: {status}, result: {result}")
-
     if status == HTTPStatus.OK:
         return jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}), HTTPStatus.OK
     return jsonify({"status": "error", "details": result}), status
