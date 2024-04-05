@@ -4,11 +4,14 @@ from http import HTTPStatus
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
 from api.v1.models.view_event import ViewEvent
-from app import app, events
+from app import API_PREFIX, events
 from flask import Response, jsonify
+from flask_openapi3 import APIBlueprint
 from services.queue_service import get_queue_service
 
-API_PREFIX = '/ugc/v1'
+event_blueprint = APIBlueprint(
+    "/events", __name__, url_prefix=API_PREFIX, abp_tags=[events], doc_ui=True
+)
 
 # """
 # curl -X POST http://localhost:5555/ugc/v1/view_event \
@@ -23,7 +26,7 @@ API_PREFIX = '/ugc/v1'
 #     """
 
 
-@app.post(f'{API_PREFIX}/view_event', summary="Record a view event", tags=[events])
+@event_blueprint.post("/view_event", summary="Record a view event")
 def view_event(query: ViewEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
@@ -32,7 +35,7 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
     return jsonify({"status": "error", "details": result}), status
 
 
-@app.post(f'{API_PREFIX}/player_event', summary="Record a player event", tags=[events])
+@event_blueprint.post("/player_event", summary="Record a player event")
 def player_event(query: PlayerEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
@@ -41,7 +44,7 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
     return jsonify({"status": "error", "details": result}), status
 
 
-@app.post(f'{API_PREFIX}/custom_event', summary="Record a custom event", tags=[events])
+@event_blueprint.post("/custom_event", summary="Record a custom event")
 def custom_event(query: CustomEvent) -> tuple[Response, int]:
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
