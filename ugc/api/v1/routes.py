@@ -1,15 +1,14 @@
-import jwt
 import time
 from http import HTTPStatus
 
+import jwt
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
 from api.v1.models.view_event import ViewEvent
 from app import API_PREFIX, events
+from core.settings import settings
 from flask import Response, jsonify, request
 from flask_openapi3 import APIBlueprint
-
-from core.settings import settings
 from services.queue_service import get_queue_service
 
 event_blueprint = APIBlueprint(

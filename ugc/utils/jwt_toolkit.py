@@ -1,8 +1,7 @@
 from functools import wraps
 
-from jose import JWTError, jwt
-
 from core.settings import settings
+from jose import JWTError, jwt
 
 
 def encode_jwt():

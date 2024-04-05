@@ -1,7 +1,7 @@
 import time
+from typing import Optional
 
 from pydantic import BaseModel
-from typing import Optional
 
 
 class CustomEvent(BaseModel):
