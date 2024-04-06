@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class ViewEvent(BaseModel):
-    user_uuid: Optional[str] = None
+    user_uuid: str | None = None
     film_uuid: str
     timestamp: int = time.time_ns()
 

@@ -18,7 +18,7 @@ class EventType(str, Enum):
 
 
 class PlayerEvent(BaseModel):
-    user_uuid: Optional[str] = None
+    user_uuid: str | None = None
     film_uuid: str
     event_type: EventType
     event_value: str | None = None
