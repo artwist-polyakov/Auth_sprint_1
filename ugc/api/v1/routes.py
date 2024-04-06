@@ -1,4 +1,3 @@
-import logging
 import time
 from http import HTTPStatus
 
@@ -29,7 +28,7 @@ event_blueprint = APIBlueprint(
 #     :return:
 #     """
 
-class InvalideTokenError(Exception):
+class InvalidTokenError(Exception):
     pass
 
 
@@ -48,8 +47,8 @@ def _get_token_from_cookie(request_container) -> str:
             algorithms=[settings.token.algorithm]
         )
         return decoded_token['user_id']
-    except Exception as e:
-        raise InvalideTokenError("Invalid token")
+    except Exception:
+        raise InvalidTokenError("Invalid token")
 
 
 @event_blueprint.post("/view_event", summary="Record a view event")
@@ -60,7 +59,7 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
             query.user_uuid = _get_token_from_cookie(request)
         except NoTokenError:
             return jsonify({"error": "Access token not found"}), HTTPStatus.UNAUTHORIZED
-        except InvalideTokenError:
+        except InvalidTokenError:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
@@ -76,7 +75,7 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
             query.user_uuid = _get_token_from_cookie(request)
         except NoTokenError:
             return jsonify({"error": "Access token not found"}), HTTPStatus.UNAUTHORIZED
-        except InvalideTokenError:
+        except InvalidTokenError:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
@@ -92,7 +91,7 @@ def custom_event(query: CustomEvent) -> tuple[Response, int]:
             query.user_uuid = _get_token_from_cookie(request)
         except NoTokenError:
             return jsonify({"error": "Access token not found"}), HTTPStatus.UNAUTHORIZED
-        except InvalideTokenError:
+        except InvalidTokenError:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
