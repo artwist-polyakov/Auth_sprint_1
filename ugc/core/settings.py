@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -41,15 +40,25 @@ class PulsarSettings(_BaseSettings):
 class ClickHouseSettings(_BaseSettings):
     """Настройки clickhouse."""
 
-    model_config = SettingsConfigDict(env_prefix="clickhouse_")
-    host: str
+    model_config = SettingsConfigDict(
+        env_prefix="clickhouse_", env_file_encoding="utf-8"
+    )
+    host: str = ...
+    port: int = ...
+    database: str = ...
 
 
 class FlaskSettings(_BaseSettings):
-    """Настройки Flask"""
+    """Настройки Flask."""
 
     model_config = SettingsConfigDict(env_prefix="flask_")
     port: int
+
+
+class JWTSecuritySettings(_BaseSettings):
+    """Настройки токенов."""
+    openssl_key: str = ...
+    algorithm: str = 'HS256'
 
 
 class Settings(CommonSettings):
@@ -59,6 +68,7 @@ class Settings(CommonSettings):
     pulsar: PulsarSettings = PulsarSettings()
     clickhouse: ClickHouseSettings = ClickHouseSettings()
     flask: FlaskSettings = FlaskSettings()
+    token: JWTSecuritySettings = JWTSecuritySettings()
 
 
 settings = Settings()

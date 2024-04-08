@@ -1,0 +1,6 @@
+psycopg[binary]==3.1.13
+pydantic==2.6.4
+loguru==0.7.2
+backoff==2.2.1
+clickhouse-connect==0.7.6
+pydantic-settings==2.1.0

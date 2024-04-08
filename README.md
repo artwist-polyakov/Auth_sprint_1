@@ -1,7 +1,5 @@
 Ссылка на приватный репозиторий с командной работой https://github.com/artwist-polyakov/Auth_sprint_1
 
-Интерфейс работы с UGC http://localhost:8000/ugc/openapi/
-
 # Проектная работа 8 спринта
 
 ## Функциональные требования
@@ -51,11 +49,27 @@
 
 # ИТОГО по спринту 8
 
-1. Описаны схема модуля статистики и его API в папке `./docsв
+1. Описаны схема модуля статистики и его API в папке `./docs
 
 Для просмотра документации следует установить поддержку UML на устройство https://plantuml.com/ru/starting
 
-2. 
+2. Запуск контейнеров с сервисами
+
+```shell
+docker-compose up -d --build
+```
+
+3. Добавлен сервис UGC — http://localhost:8000/ugc/openapi/swagger
+4. Локуст для проверки нагрузки на сервис UGC — http://localhost:8089/
+
+пользователей 3000
+
+Ramp 200
+
+Host: http://ugc:5555
+
+![](https://media.cleanshot.cloud/media/7299/DlMJy5Smw82oFlqC3hwKvMHr1MRTFLRwd2kwH9E6.jpeg?Expires=1712285686&Signature=bJX71nMO~93ACgYEuC4stV9tkkT~62HbqZLkf4ZYhiXRJBEUwt-PzAVaxopMFhKNR13BMfOp2rhsfOz~BG9gHiwXRQAYQD0H1eBaOSQNAh18uQVCPpCBEPvBPZVzcvXRiFFLHLOZySCKRNL-3HXHporaa5GSWOfWu0kpj3TVM6Re4u6k9tB32fHSI35XYRWmdb-nH4peBeP5ozH0IRNO~zy0-WJfUox1bSYNF1tipIRi1xlpfL1Jzo-TKQZFz5aZvijvDkr2UaMdbVJFXJ-4MKa67a0huboKYZNUkMK8JKW61Zv8MdAGPsYzLxLly83bBOhHk-r-lixtAtPSb2Wf6Q__&Key-Pair-Id=K269JMAT9ZF4GZ)
+
 
 # Проектная работа 7 спринта
 
@@ -151,8 +165,13 @@
 6. Запустите проект командой `docker-compose up -d --build`
 7. Приложение будет доступно по адресам: 
 
-- http://localhost:8000/auth/openapi http://localhost:8000/api/openapi если не нужен SSL
-- https://localhost/auth/openapi https://localhost/api/openapi если установили сертификаты
+если не нужен SSL
+- http://localhost:8000/auth/openapi
+- http://localhost:8000/api/openapi
+
+если установили сертификаты
+- https://localhost/auth/openapi
+- https://localhost/api/openapi
 
 Необходмо согласиться с недостоверным сертификатом или добавить самоподписанный сертификат по инструкции в файле `FOR_TEAM.md`
 

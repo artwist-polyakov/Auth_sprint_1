@@ -1,7 +1,9 @@
+import time
+
 from pydantic import BaseModel
 
 
 class CustomEvent(BaseModel):
-    user_uuid: str
+    user_uuid: str | None = None
     event_type: str
-    timestamp: int
+    timestamp: int = time.time_ns()

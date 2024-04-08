@@ -246,6 +246,7 @@ clickhouse-client -u data_analyst --password data_analyst_pass -d default
 
 host = localhost
 port = 8123
+db = movies
 login = data_analyst
 password = data_analyst_pass
 
@@ -282,3 +283,13 @@ CSRF_TOKEN=$(curl http://localhost:7750/pulsar-manager/csrf-token)
 - Password: apachepulsar
 
 - Подробнее по сылке: https://github.com/apache/pulsar-manager?tab=readme-ov-file
+
+## Подключение к Locust
+
+http://localhost:8089/
+
+
+количество пользователей ```2000```
+трамплин графика ```400```
+в url указать ```http://ugs:5555```
+время проведения теста ```90s```

@@ -29,10 +29,7 @@
         </admin>
         <data_analyst>
             <password>data_analyst_pass</password>
-            <grants>
-                <query>GRANT SHOW ON *.*</query>
-                <query>GRANT SELECT ON system.*</query>
-            </grants>
+            <profile>default</profile>
             <networks>
                 <ip>::/0</ip>
             </networks>
