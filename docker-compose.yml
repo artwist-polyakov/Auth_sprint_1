@@ -216,6 +216,11 @@ services:
       - clickhouse-node
       - kafka
     restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "10m"
 
   event-generator:
     container_name: event-generator
@@ -259,6 +264,47 @@ services:
       - .env
     command: -f /locust/locustfile.py --worker --master-host ${LOCUST_HOST}
 
+  logstash:
+      container_name: logstash
+      image: logstash:${LOGSTASH_VERSION}
+      volumes:
+        - ./configs/logstash/config.yml:/usr/share/logstash/config/logstash.yml:ro
+        - ./configs/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+        - ./configs/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
+      env_file:
+        - .env
+      environment:
+        LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+      ports:
+        - ${LOGSTASH_PORTS1}
+        - ${LOGSTASH_PORTS2}
+        - ${LOGSTASH_PORTS3}
+      depends_on:
+        - elasticsearch-node1
+
+  kibana:
+    container_name: kibana
+    image: kibana:${KIBANA_VERSION}
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./configs/kibana/config.yml:/usr/share/kibana/config/kibana.yml:ro
+    env_file:
+      - .env
+    ports:
+      - ${KIBANA_PORTS}
+
+  filebeat:
+    container_name: filebeat
+    image: elastic/filebeat:${FILEBEAT_VERSION}
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./configs/filebeat/config.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs/ugc_logs.log:/logs/ugc_logs.log:ro
+    env_file:
+      - .env
+    depends_on:
+      - elasticsearch-node1
 
 volumes:
     static_volume:
@@ -269,3 +315,4 @@ volumes:
     redis_data:
     postgres_data:
     kafka_data:
+    logs:

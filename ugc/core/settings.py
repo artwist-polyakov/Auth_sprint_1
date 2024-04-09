@@ -1,6 +1,9 @@
+import logging
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from core.logging_setup import setup_root_logger
 
 
 class _BaseSettings(BaseSettings):
@@ -61,3 +64,7 @@ class Settings(CommonSettings):
 
 
 settings = Settings()
+
+setup_root_logger()
+
+logger = logging.getLogger(__name__)
