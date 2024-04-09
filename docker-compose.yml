@@ -95,6 +95,7 @@ services:
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - xpack.security.enabled=false
       - xpack.monitoring.collection.enabled=false
+#      - xpack.license.self_generated.type=basic
     ulimits:
       memlock:
         soft: -1
@@ -115,6 +116,7 @@ services:
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - xpack.security.enabled=false
       - xpack.monitoring.collection.enabled=false
+#      - xpack.license.self_generated.type=basic
     depends_on:
       - elasticsearch-node1
     ulimits:
@@ -216,6 +218,8 @@ services:
       - clickhouse-node
       - kafka
     restart: on-failure
+    volumes:
+      - ./logs/logs.log:/logs/logs.log:rw
     logging:
       driver: "json-file"
       options:
@@ -266,7 +270,7 @@ services:
 
   logstash:
       container_name: logstash
-      image: logstash:${LOGSTASH_VERSION}
+      image: logstash:${STACK_VERSION}
       volumes:
         - ./configs/logstash/config.yml:/usr/share/logstash/config/logstash.yml:ro
         - ./configs/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
@@ -284,9 +288,9 @@ services:
 
   kibana:
     container_name: kibana
-    image: kibana:${KIBANA_VERSION}
+    image: kibana:${STACK_VERSION}
     depends_on:
-      - elasticsearch
+      - elasticsearch-node1
     volumes:
       - ./configs/kibana/config.yml:/usr/share/kibana/config/kibana.yml:ro
     env_file:
@@ -296,11 +300,11 @@ services:
 
   filebeat:
     container_name: filebeat
-    image: elastic/filebeat:${FILEBEAT_VERSION}
+    image: elastic/filebeat:${STACK_VERSION}
     command: filebeat -e -strict.perms=false
     volumes:
       - ./configs/filebeat/config.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./logs/ugc_logs.log:/logs/ugc_logs.log:ro
+      - ./logs/logs.log:/logs/logs.log:ro
     env_file:
       - .env
     depends_on:

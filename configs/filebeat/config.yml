@@ -3,12 +3,12 @@ filebeat.inputs:
     enabled: true
     # Я запущу filebeat в докере и проброшу логи приложения по данному пути
     paths:
-      - /host_metrics_app/host_metrics_app.log
+      - /logs/logs.log
     # В fields мы можем указать дополнительные поля, а затем в logstash вытаскивать их
     # и делать какую-нибудь дополнительную работу с логами
     fields:
       # Название нашего сервиса
-      service: host_metrics_app
+      service: logs
 
 output.logstash:
   # Будьте внимательны при запуске вне докера и вместо logstash укажите правильный адрес хоста с logstash.

@@ -22,7 +22,7 @@ def setup_root_logger():
 
     # Настройка хэндлера для записи в файл с ротацией
     file_handler = RotatingFileHandler(
-        filename="./logs/ugc_logs.log",
+        filename="./logs/logs.log",
         mode='a',
         maxBytes=15000000,
         backupCount=5)

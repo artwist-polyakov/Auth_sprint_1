@@ -66,5 +66,3 @@ class Settings(CommonSettings):
 settings = Settings()
 
 setup_root_logger()
-
-logger = logging.getLogger(__name__)
