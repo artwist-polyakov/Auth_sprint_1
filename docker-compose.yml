@@ -89,7 +89,7 @@ services:
     environment:
       - node.name=elasticsearch-node1
       - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
-      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1
       - cluster.name=${ELASTIC_CLUSTER_NAME}
       - bootstrap.memory_lock=${MEMORY_LOCK}
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
@@ -110,7 +110,7 @@ services:
     environment:
       - node.name=elasticsearch-node2
       - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
-      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1
       - cluster.name=${ELASTIC_CLUSTER_NAME}
       - bootstrap.memory_lock=${MEMORY_LOCK}
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"

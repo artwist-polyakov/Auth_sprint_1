@@ -279,7 +279,7 @@ http://localhost:8089/
 http://localhost:5601/app/management/kibana/indexPatterns
 - `Create data view`
 - проверить, что существует нужный источник, например, `logs_logs-2024.04.09`
-- заполнить поле `Index pattern` как `*logs_`
+- заполнить поле `Index pattern` как `logs_*`
 - `Save data view to Kibana`
 
 2. Посмотреть данные: `Analytics > Discover`
