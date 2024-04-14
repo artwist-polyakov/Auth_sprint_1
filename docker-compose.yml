@@ -259,6 +259,40 @@ services:
       - .env
     command: -f /locust/locustfile.py --worker --master-host ${LOCUST_HOST}
 
+  mongors1n1:
+    container_name: mongors1n1
+    image: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port ${MONGO_PORT}
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    expose:
+      - ${MONGO_PORT}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/mongo_cluster/data1:/data/db
+
+  mongocfg1:
+    container_name: mongocfg1
+    image: mongo
+    command: mongod --configsvr --replSet mongors1conf --dbpath /data/db --port ${MONGO_PORT}
+    expose:
+      - ${MONGO_PORT}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/mongo_cluster/config1:/data/db
+
+  mongos1:
+    container_name: mongos1
+    image: mongo
+    depends_on:
+      - mongocfg1
+    command: mongos --configdb mongors1conf/mongocfg1:${MONGO_PORT} --port ${MONGO_PORT} --bind_ip_all
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    expose:
+      - ${MONGO_PORT}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
 volumes:
     static_volume:
