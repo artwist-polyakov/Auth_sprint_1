@@ -44,6 +44,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=.env --exclude=.env.example
         # Generate HTML report
         flake8 . --format=html --htmldir=flake-report --exclude=.env,.env.example
+        ls -lah flake-report/
 
     - name: Upload HTML report as artifact
       uses: actions/upload-artifact@v2
