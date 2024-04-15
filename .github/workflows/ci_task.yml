@@ -28,6 +28,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8
+        pip install flake8 flake8-html
         pip install -r auth/requirements.txt
         pip install -r etl_kafka/requirements.txt
         pip install -r movies/requirements.txt
@@ -41,7 +42,8 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.env --exclude=.env.example
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=.env --exclude=.env.example
-        flake8 . --format=html --htmldir=flake-report --exclude=.env,.env.example
+        # Generate HTML report
+        flake8 . --format=html --exclude=.env,.env.example
 
     - name: Upload HTML report as artifact
       uses: actions/upload-artifact@v2
