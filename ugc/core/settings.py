@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from core.logging_setup import setup_root_logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,6 +26,14 @@ class KafkaSettings(_BaseSettings):
     host: str
     port_ui: int
     port: int
+
+
+class SentrySettings(_BaseSettings):
+    """Настройки sentry."""
+
+    model_config = SettingsConfigDict(env_prefix="sentry_")
+    dsn: str
+    enable_tracing: bool = True
 
 
 class ClickHouseSettings(_BaseSettings):
@@ -61,3 +70,5 @@ class Settings(CommonSettings):
 
 
 settings = Settings()
+
+setup_root_logger()

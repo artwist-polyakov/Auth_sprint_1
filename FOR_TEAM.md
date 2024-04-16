@@ -216,32 +216,32 @@ docker exec -it auth python utils/uuid_generator.py
 ```
 
 
-Как подключиться к ClickHouse через консоль.
+## Подключиться к ClickHouse
+
+1. Подключиться к ClickHouse через консоль
 ```shell
 
 docker exec -it clickhouse-node1 bash
 
 ```
 
-как админ
+- как админ
 ```shell
 
 clickhouse-client -u admin --password 123 -d default
 
 ```
 
-
-как дата аналитик
+- как дата аналитик
 ```shell
 
 clickhouse-client -u data_analyst --password data_analyst_pass -d default
 
 ```
 
-Как подключиться к ClickHouse через DBeaver
+2. Подключиться к ClickHouse через DBeaver
 
-
-как админ
+- как админ
 ```shell
 
 host = localhost
@@ -252,8 +252,7 @@ password = data_analyst_pass
 
 ```
 
-
-как дата аналитик
+- как дата аналитик
 ```shell
 
 host = localhost
@@ -264,13 +263,24 @@ password = 123
 ```
 
 
-Подключение к Locust
+## Подключиться к Locust
 
 http://localhost:8089/
 
-
 количество пользователей ```2000```
 трамплин графика ```400```
-в url указать ```http://ugs:5555```
+в url указать ```http://ugс:5555```
 время проведения теста ```90s```
 
+
+## Начало работы с Kibana
+
+1. Создать индекс: `Stack Management > Data views`
+http://localhost:5601/app/management/kibana/indexPatterns
+- `Create data view`
+- проверить, что существует нужный источник, например, `logs_logs-2024.04.09`
+- заполнить поле `Index pattern` как `logs_*`
+- `Save data view to Kibana`
+
+2. Посмотреть данные: `Analytics > Discover`
+http://localhost:5601/app/discover#/

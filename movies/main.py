@@ -1,9 +1,11 @@
+import sentry_sdk
 import uvicorn
 from api.v1 import films, genres, persons
 from configs.settings import get_settings
 from core.logger import LOGGING
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
+from middlewares.logging_middleware import LoggingMiddleware
 from middlewares.rbac import RBACMiddleware
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -39,6 +41,11 @@ def configure_tracer() -> None:
 if settings.enable_tracing:
     configure_tracer()
 
+sentry_sdk.init(
+    dsn=settings.sentry_dsn,
+    enable_tracing=settings.sentry_enable_tracing,
+)
+
 app = FastAPI(
     title=settings.project_name,
     docs_url='/api/openapi',
@@ -49,6 +56,7 @@ app = FastAPI(
 if settings.enable_tracing:
     FastAPIInstrumentor.instrument_app(app)
 
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(RBACMiddleware)
 
 

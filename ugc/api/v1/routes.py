@@ -16,18 +16,6 @@ event_blueprint = APIBlueprint(
 )
 
 
-# """
-# curl -X POST http://localhost:5555/ugc/v1/view_event \
-#  -H "Content-Type: application/json" \
-#  -d '{
-#        "user_uuid": "user1",
-#        "film_uuid": "film1"
-#      }'
-# {"status":"ok"}
-#     :param query:
-#     :return:
-#     """
-
 class InvalidTokenError(Exception):
     pass
 
@@ -53,6 +41,7 @@ def _get_token_from_cookie(request_container) -> str:
 
 @event_blueprint.post("/view_event", summary="Record a view event")
 def view_event(query: ViewEvent) -> tuple[Response, int]:
+    # 1/0 # for sentry test
     start_time = time.monotonic()
     if not query.user_uuid:
         try:
@@ -69,6 +58,7 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
 
 @event_blueprint.post("/player_event", summary="Record a player event")
 def player_event(query: PlayerEvent) -> tuple[Response, int]:
+    # 1/0 # for sentry test
     start_time = time.monotonic()
     if not query.user_uuid:
         try:
@@ -85,6 +75,7 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
 
 @event_blueprint.post("/custom_event", summary="Record a custom event")
 def custom_event(query: CustomEvent) -> tuple[Response, int]:
+    # 1/0 # for sentry test
     start_time = time.monotonic()
     if not query.user_uuid:
         try:
