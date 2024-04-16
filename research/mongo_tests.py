@@ -39,7 +39,11 @@ if __name__ == '__main__':
     found_user = find(collection=db.users, condition={'_id': user_id})
     print(f'Найден пользователь {found_user}')
 
-    update_document(collection=db.users, condition={'_id': user_id}, new_values={'name': 'Соловей Разбойник'})
+    update_document(collection=db.users, 
+                    condition={
+                        '_id': user_id}, 
+                        new_values={'name': 'Соловей Разбойник'}
+                   )
 
     found_users = find(collection=db.users, condition={}, multiple=True)
     print(f'Список пользователей {found_users[:2]}')
