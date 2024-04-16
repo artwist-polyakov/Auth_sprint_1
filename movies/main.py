@@ -1,9 +1,9 @@
+import sentry_sdk
 import uvicorn
 from api.v1 import films, genres, persons
 from configs.settings import get_settings
 from core.logger import LOGGING
 from fastapi import FastAPI, Request, status
-import sentry_sdk
 from fastapi.responses import ORJSONResponse
 from middlewares.logging_middleware import LoggingMiddleware
 from middlewares.rbac import RBACMiddleware

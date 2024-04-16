@@ -1,9 +1,7 @@
-import logging
 from pathlib import Path
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
 from core.logging_setup import setup_root_logger
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class _BaseSettings(BaseSettings):

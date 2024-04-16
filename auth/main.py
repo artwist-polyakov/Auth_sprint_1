@@ -1,10 +1,10 @@
+import sentry_sdk
 import uvicorn
 from api.v1 import roles, users
 from configs.settings import get_settings
 from core.logger import LOGGING
 from db.postgres import PostgresInterface
 from fastapi import FastAPI, Request, status
-import sentry_sdk
 from fastapi.responses import ORJSONResponse
 from middlewares.logging_middleware import LoggingMiddleware
 from middlewares.logout_processor import CheckLogoutMiddleware
