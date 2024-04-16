@@ -13,3 +13,4 @@ Flask-Cors==4.0.0
 locust==2.24.1
 pyjwt==2.8.0
 logstash==0.1dev
+sentry-sdk[flask]==1.45.0

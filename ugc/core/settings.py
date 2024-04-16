@@ -30,6 +30,14 @@ class KafkaSettings(_BaseSettings):
     port: int
 
 
+class SentrySettings(_BaseSettings):
+    """Настройки sentry."""
+
+    model_config = SettingsConfigDict(env_prefix="sentry_")
+    dsn: str
+    enable_tracing: bool = True
+
+
 class ClickHouseSettings(_BaseSettings):
     """Настройки clickhouse."""
 

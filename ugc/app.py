@@ -1,16 +1,22 @@
 import uuid
-
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 from flask_cors import CORS
 from flask_openapi3 import Info, OpenAPI, Server, Tag
 from flask import g, request
 import logging
-from core.settings import settings  # noqa: F401, E402
+from core.settings import settings, SentrySettings  # noqa: F401, E402
 
 API_PREFIX = "/ugc/v1"
 
 info = Info(title="UGC Service API", version="1.0.0")
 events = Tag(name="events", description="Event tracking system")
 server = Server(url="http://localhost:5555", description="Local development server")
+
+sentry_sdk.init(
+    dsn=SentrySettings().dsn,
+    enable_tracing=SentrySettings().enable_tracing,
+)
 
 app = OpenAPI(__name__, info=info, doc_prefix="/ugc/openapi", servers=[server])
 
