@@ -37,6 +37,8 @@ services:
       - "8000"
     env_file:
       - .env
+    volumes:
+      - ./logs/logs.log:/logs/logs.log:rw
     depends_on:
       - postgres
       - elasticsearch-node1
@@ -52,6 +54,8 @@ services:
       - "8000"
     env_file:
       - .env
+    volumes:
+      - ./logs/logs.log:/logs/logs.log:rw
     depends_on:
       - postgres
       - redis
@@ -89,12 +93,13 @@ services:
     environment:
       - node.name=elasticsearch-node1
       - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
-      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1
       - cluster.name=${ELASTIC_CLUSTER_NAME}
       - bootstrap.memory_lock=${MEMORY_LOCK}
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - xpack.security.enabled=false
       - xpack.monitoring.collection.enabled=false
+#      - xpack.license.self_generated.type=basic
     ulimits:
       memlock:
         soft: -1
@@ -109,12 +114,13 @@ services:
     environment:
       - node.name=elasticsearch-node2
       - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
-      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1
       - cluster.name=${ELASTIC_CLUSTER_NAME}
       - bootstrap.memory_lock=${MEMORY_LOCK}
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - xpack.security.enabled=false
       - xpack.monitoring.collection.enabled=false
+#      - xpack.license.self_generated.type=basic
     depends_on:
       - elasticsearch-node1
     ulimits:
@@ -216,6 +222,13 @@ services:
       - clickhouse-node
       - kafka
     restart: on-failure
+    volumes:
+      - ./logs/logs.log:/logs/logs.log:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "10m"
 
   event-generator:
     container_name: event-generator
@@ -259,40 +272,48 @@ services:
       - .env
     command: -f /locust/locustfile.py --worker --master-host ${LOCUST_HOST}
 
-  mongors1n1:
-    container_name: mongors1n1
-    image: mongo
-    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port ${MONGO_PORT}
-    ports:
-      - ${MONGO_PORT}:${MONGO_PORT}
-    expose:
-      - ${MONGO_PORT}
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /tmp/mongo_cluster/data1:/data/db
+  logstash:
+      container_name: logstash
+      image: logstash:${STACK_VERSION}
+      volumes:
+        - ./configs/logstash/config.yml:/usr/share/logstash/config/logstash.yml:ro
+        - ./configs/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+        - ./configs/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
+      env_file:
+        - .env
+      environment:
+        LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+      ports:
+        - ${LOGSTASH_PORTS1}
+        - ${LOGSTASH_PORTS2}
+        - ${LOGSTASH_PORTS3}
+      depends_on:
+        - elasticsearch-node1
 
-  mongocfg1:
-    container_name: mongocfg1
-    image: mongo
-    command: mongod --configsvr --replSet mongors1conf --dbpath /data/db --port ${MONGO_PORT}
-    expose:
-      - ${MONGO_PORT}
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /tmp/mongo_cluster/config1:/data/db
-
-  mongos1:
-    container_name: mongos1
-    image: mongo
+  kibana:
+    container_name: kibana
+    image: kibana:${STACK_VERSION}
     depends_on:
-      - mongocfg1
-    command: mongos --configdb mongors1conf/mongocfg1:${MONGO_PORT} --port ${MONGO_PORT} --bind_ip_all
-    ports:
-      - ${MONGO_PORT}:${MONGO_PORT}
-    expose:
-      - ${MONGO_PORT}
+      - elasticsearch-node1
     volumes:
-      - /etc/localtime:/etc/localtime:ro
+      - ./configs/kibana/config.yml:/usr/share/kibana/config/kibana.yml:ro
+    env_file:
+      - .env
+    ports:
+      - ${KIBANA_PORTS}
+
+  filebeat:
+    container_name: filebeat
+    image: elastic/filebeat:${STACK_VERSION}
+    command: filebeat -e -strict.perms=false
+    platform: linux/amd64
+    volumes:
+      - ./configs/filebeat/config.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs/logs.log:/logs/logs.log:ro
+    env_file:
+      - .env
+    depends_on:
+      - elasticsearch-node1
 
 volumes:
     static_volume:
@@ -303,3 +324,4 @@ volumes:
     redis_data:
     postgres_data:
     kafka_data:
+    logs:

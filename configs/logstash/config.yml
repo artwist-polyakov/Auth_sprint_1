@@ -1,0 +1,1 @@
+http.host: ${LOGSTASH_PUBLIC_HOST}

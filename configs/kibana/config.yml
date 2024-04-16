@@ -1,0 +1,8 @@
+server.name: kibana
+server.host: ${KIBANA_PUBLIC_HOST}
+server.publicBaseUrl: ${KIBANA_PUBLIC_URL}
+monitoring.ui.container.elasticsearch.enabled: true # Для корректного сбора метрик с elastic search, запущенного в контейнере
+
+elasticsearch.hosts:
+  - ${ES_URL}
+

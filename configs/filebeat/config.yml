@@ -1,0 +1,15 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    # Я запущу filebeat в докере и проброшу логи приложения по данному пути
+    paths:
+      - /logs/logs.log
+    # В fields мы можем указать дополнительные поля, а затем в logstash вытаскивать их
+    # и делать какую-нибудь дополнительную работу с логами
+    fields:
+      # Название нашего сервиса
+      service: logs
+
+output.logstash:
+  hosts:
+    - ${LOGSTASH_HOST}

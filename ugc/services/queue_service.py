@@ -12,7 +12,7 @@ class QueueService(BaseService):
     def process_event(self, event: BaseModel) -> tuple[HTTPStatus, str]:
         try:
             data = EventConvertor.map(event)
-            logging.warning(f'Event has been converted: {data}')
+            logging.info(f'Event has been converted: {data}')
             self._queue.produce(data)
             return HTTPStatus.OK, 'Event has been processed'
         except Exception as e:

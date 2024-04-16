@@ -1,3 +1,4 @@
+import sentry_sdk
 import uvicorn
 from api.v1 import roles, users
 from configs.settings import get_settings
@@ -5,6 +6,7 @@ from core.logger import LOGGING
 from db.postgres import PostgresInterface
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
+from middlewares.logging_middleware import LoggingMiddleware
 from middlewares.logout_processor import CheckLogoutMiddleware
 from middlewares.rate_limit import RateLimitMiddleware
 from middlewares.rbac import RBACMiddleware
@@ -43,6 +45,11 @@ def configure_tracer() -> None:
 if settings.enable_tracing:
     configure_tracer()
 
+sentry_sdk.init(
+    dsn=settings.sentry_dsn,
+    enable_tracing=settings.sentry_enable_tracing,
+)
+
 app = FastAPI(
     title="Auth Service",
     docs_url='/auth/openapi',
@@ -53,6 +60,7 @@ app = FastAPI(
 if settings.enable_tracing:
     FastAPIInstrumentor.instrument_app(app)
 
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(RBACMiddleware)
 app.add_middleware(CheckLogoutMiddleware)
 app.add_middleware(RateLimitMiddleware)
