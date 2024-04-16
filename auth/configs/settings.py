@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     yandex_revoke_token_url: str = "https://oauth.yandex.ru/revoke_token"
     yandex_oauth_method_name: str = "yandex"
 
+    sentry_dsn: str = ...
+    sentry_enable_tracing: bool = True
+
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 

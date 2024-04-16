@@ -3,6 +3,7 @@ from api.v1 import films, genres, persons
 from configs.settings import get_settings
 from core.logger import LOGGING
 from fastapi import FastAPI, Request, status
+import sentry_sdk
 from fastapi.responses import ORJSONResponse
 from middlewares.logging_middleware import LoggingMiddleware
 from middlewares.rbac import RBACMiddleware
@@ -39,6 +40,11 @@ def configure_tracer() -> None:
 
 if settings.enable_tracing:
     configure_tracer()
+
+sentry_sdk.init(
+    dsn=settings.sentry_dsn,
+    enable_tracing=settings.sentry_enable_tracing,
+)
 
 app = FastAPI(
     title=settings.project_name,
