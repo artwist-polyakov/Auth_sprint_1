@@ -4,6 +4,7 @@ from configs.settings import get_settings
 from core.logger import LOGGING
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
+from middlewares.logging_middleware import LoggingMiddleware
 from middlewares.rbac import RBACMiddleware
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -49,6 +50,7 @@ app = FastAPI(
 if settings.enable_tracing:
     FastAPIInstrumentor.instrument_app(app)
 
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(RBACMiddleware)
 
 

@@ -5,6 +5,7 @@ from core.logger import LOGGING
 from db.postgres import PostgresInterface
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
+from middlewares.logging_middleware import LoggingMiddleware
 from middlewares.logout_processor import CheckLogoutMiddleware
 from middlewares.rate_limit import RateLimitMiddleware
 from middlewares.rbac import RBACMiddleware
@@ -53,6 +54,7 @@ app = FastAPI(
 if settings.enable_tracing:
     FastAPIInstrumentor.instrument_app(app)
 
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(RBACMiddleware)
 app.add_middleware(CheckLogoutMiddleware)
 app.add_middleware(RateLimitMiddleware)

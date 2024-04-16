@@ -37,6 +37,8 @@ services:
       - "8000"
     env_file:
       - .env
+    volumes:
+      - ./logs/logs.log:/logs/logs.log:rw
     depends_on:
       - postgres
       - elasticsearch-node1
@@ -52,6 +54,8 @@ services:
       - "8000"
     env_file:
       - .env
+    volumes:
+      - ./logs/logs.log:/logs/logs.log:rw
     depends_on:
       - postgres
       - redis
@@ -302,7 +306,7 @@ services:
     container_name: filebeat
     image: elastic/filebeat:${STACK_VERSION}
     command: filebeat -e -strict.perms=false
-#    platform: linux/amd64
+    platform: linux/amd64
     volumes:
       - ./configs/filebeat/config.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./logs/logs.log:/logs/logs.log:ro

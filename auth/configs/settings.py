@@ -1,6 +1,7 @@
 import logging
 from functools import lru_cache
 
+from core.logging_setup import setup_root_logger
 from pydantic_settings import BaseSettings
 
 log_levels = {
@@ -9,6 +10,8 @@ log_levels = {
     'WARNING': logging.WARNING,
     'ERROR': logging.ERROR
 }
+
+setup_root_logger()
 
 
 class Settings(BaseSettings):
