@@ -20,13 +20,6 @@ docker-compose up --build
 
 ```
 
-## Подготовка elastic
-
-
-```shell
-
-```
-
 ## Подготовка mongo
 
 Заходим в контейнер
@@ -39,4 +32,14 @@ docker exec -it mongodb mongosh
 
 ```shell
 use TestDB
+```
+
+
+## ПРОВЕДЕНИЕ ТЕСТОВ
+
+
+```shell
+cd ./research
+python main.py
+
 ```
