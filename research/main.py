@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from elastic_tests import load_data, read_data
-from mongo_tests import find_data, insert_document, insert_documents_in_batches
+from mongo_tests import find_data, insert_documents_in_batches
 
 ITERATIONS = 10
 N_ROW = 10000

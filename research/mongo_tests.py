@@ -11,16 +11,6 @@ client = MongoClient('localhost', 27017)
 db = client['TestDB']
 
 
-def insert_document(*, data: list[dict], collection: Collection = db.users) -> Any:
-    result_ids = []
-    start = time.monotonic()
-    for doc in data:
-        res = collection.insert_one(doc)
-        result_ids.append(res.inserted_id)
-    end = time.monotonic()
-    return result_ids, end - start
-
-
 def insert_documents_in_batches(*, data: list[dict], batch_size: int, collection: Collection = db.users) -> Any:
     result_ids = []
     start = time.monotonic()
