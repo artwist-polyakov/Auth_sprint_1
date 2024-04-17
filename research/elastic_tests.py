@@ -66,16 +66,6 @@ def load_data(data):
     return end - start
 
 
-def load_data(data):
-    # Вызов функции для проверки наличия или создания индекса
-    create_index(index_name=index_name)
-    # Запись
-    start = time.monotonic()
-    for record in data:
-        els_con.index(index=index_name, body=record)
-    end = time.monotonic()
-    return end - start
-
 def read_data():
     # Поиск всех записей в индексе
     start = time.monotonic()
