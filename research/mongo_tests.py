@@ -21,6 +21,17 @@ def insert_document(*, data: list[dict], collection: Collection = db.users) -> A
     return result_ids, end - start
 
 
+def insert_documents_in_batches(*, data: list[dict], batch_size: int, collection: Collection = db.users) -> Any:
+    result_ids = []
+    start = time.monotonic()
+    for i in range(0, len(data), batch_size):
+        batch = data[i:i+batch_size]
+        res = collection.insert_many(batch)
+        result_ids.extend(res.inserted_ids)
+    end = time.monotonic()
+    return result_ids, end - start
+
+
 def find_data(*, condition: dict, collection: Collection = db.users, multiple: bool = False):
     start = time.monotonic()
     if multiple:

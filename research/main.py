@@ -1,10 +1,10 @@
 from uuid import uuid4
 
 from elastic_tests import load_data, read_data
-from mongo_tests import find_data, insert_document
+from mongo_tests import find_data, insert_document, insert_documents_in_batches
 
 ITERATIONS = 10
-N_ROW = 10
+N_ROW = 10000
 
 
 if __name__ == '__main__':
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     time_mongo_load = 0
     for i in range(ITERATIONS):
         data = [{"id": str(uuid4()), "value": f"Example text {i}"} for i in range(N_ROW)]
-        load_data_mongo, time = insert_document(data=data)
+        load_data_mongo, time = insert_documents_in_batches(data=data, batch_size=N_ROW)
         time_mongo_load += time
     print(f'Среднее время записи в сак.'
           f'({N_ROW} - строк | {ITERATIONS} - итераций): '
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     time_elastic_load = 0
     for i in range(ITERATIONS):
         data = [{"id": str(uuid4()), "value": f"Example text {i}"} for i in range(N_ROW)]
-        time = load_data(data)
+        time = load_data(data, batch_size=N_ROW)
         time_elastic_load += time
     print(f'Среднее время записи в сак.'
           f'({N_ROW} - строк | {ITERATIONS} - итераций): '

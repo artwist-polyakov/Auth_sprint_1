@@ -55,13 +55,27 @@ def create_index(index_name: str):
     els_con.indices.create(index=index_name, body={"mappings": mappings, "settings": settings})
 
 
-def load_data(data):
-    # Вызов функции для проверки наличия или создания индекса
-    create_index(index_name=index_name)
-    # Запись
+def load_data(data, batch_size):
+    create_index(index_name)  # Проверка наличия или создания индекса
+
+    # Разбиваем данные на батчи
+    batches = [data[i:i + batch_size] for i in range(0, len(data), batch_size)]
+
+    # Запись данных батчами
     start = time.monotonic()
-    for record in data:
-        els_con.index(index=index_name, body=record)
+    for batch in batches:
+        actions = []
+        for record in batch:
+            action = {
+                "index": {
+                    "_index": index_name,
+                    "_id": record['id']  # Используем поле 'id' как идентификатор документа
+                }
+            }
+            actions.append(action)
+            actions.append(record)
+
+        els_con.bulk(body=actions)
     end = time.monotonic()
     return end - start
 
