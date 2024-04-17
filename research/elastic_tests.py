@@ -69,7 +69,7 @@ def load_data(data, batch_size):
             action = {
                 "index": {
                     "_index": index_name,
-                    "_id": record['id']  # Используем поле 'id' как идентификатор документа
+                    "_id": record['id']
                 }
             }
             actions.append(action)

@@ -11,7 +11,12 @@ client = MongoClient('localhost', 27017)
 db = client['TestDB']
 
 
-def insert_documents_in_batches(*, data: list[dict], batch_size: int, collection: Collection = db.users) -> Any:
+def insert_documents_in_batches(
+        *,
+        data: list[dict],
+        batch_size: int,
+        collection: Collection = db.users
+) -> Any:
     result_ids = []
     start = time.monotonic()
     for i in range(0, len(data), batch_size):
@@ -22,7 +27,12 @@ def insert_documents_in_batches(*, data: list[dict], batch_size: int, collection
     return result_ids, end - start
 
 
-def find_data(*, condition: dict, collection: Collection = db.users, multiple: bool = False):
+def find_data(
+        *,
+        condition: dict,
+        collection: Collection = db.users,
+        multiple: bool = False
+):
     start = time.monotonic()
     if multiple:
         results = [item for item in collection.find(condition)]
