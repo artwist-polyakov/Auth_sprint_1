@@ -315,6 +315,22 @@ services:
     depends_on:
       - elasticsearch-node1
 
+  mongo-node1:
+    image: mongo
+    ports:
+      - "27017:27017"
+    command: "--replSet my-replica-set"
+    volumes:
+      - mongo-data-node1:/data/db
+
+  mongo-node2:
+    image: mongo
+    ports:
+      - "27018:27017"
+    command: "--replSet my-replica-set"
+    volumes:
+      - mongo-data-node2:/data/db
+
 volumes:
     static_volume:
     media_volume:
@@ -325,3 +341,5 @@ volumes:
     postgres_data:
     kafka_data:
     logs:
+    mongo-data-node1:
+    mongo-data-node2:
