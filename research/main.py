@@ -1,10 +1,10 @@
 from uuid import uuid4
 
-from elastic_tests import load_data
+from elastic_tests import load_data, read_data
 from mongo_tests import find_data, insert_document
 
 ITERATIONS = 10
-N_ROW = 1000
+N_ROW = 10
 
 
 if __name__ == '__main__':
@@ -30,19 +30,19 @@ if __name__ == '__main__':
 
     print('ELASTIC')
 
-    # time_elastic_load = 0
-    # for i in range(ITERATIONS):
-    #     data = [{"id": str(uuid4()), "value": f"Example text {i}"} for i in range(N_ROW)]
-    #     time = load_data(data)
-    #     time_elastic_load += time
-    # print(f'Среднее время записи в сак.'
-    #       f'({N_ROW} - строк | {ITERATIONS} - итераций): '
-    #       f'{time_elastic_load / ITERATIONS}')
-    #
-    # time_elastic_read = 0
-    # for i in range(ITERATIONS):
-    #     time = 0.1
-    #     time_elastic_read += time
-    # print(f'Среднее время чтения в сак.'
-    #       f'({N_ROW} - строк | {ITERATIONS} - итераций): '
-    #       f'{time_elastic_read / ITERATIONS}')
+    time_elastic_load = 0
+    for i in range(ITERATIONS):
+        data = [{"id": str(uuid4()), "value": f"Example text {i}"} for i in range(N_ROW)]
+        time = load_data(data)
+        time_elastic_load += time
+    print(f'Среднее время записи в сак.'
+          f'({N_ROW} - строк | {ITERATIONS} - итераций): '
+          f'{time_elastic_load / ITERATIONS}')
+
+    time_elastic_read = 0
+    for i in range(ITERATIONS):
+        read_data_elastic, time = read_data()
+        time_elastic_read += time
+    print(f'Среднее время чтения в сак.'
+          f'({N_ROW} - строк | {ITERATIONS} - итераций): '
+          f'{time_elastic_read / ITERATIONS}')
