@@ -70,6 +70,7 @@ def read_data():
     # Поиск всех записей в индексе
     start = time.monotonic()
     result = els_con.search(index=index_name, body={"query": {"match_all": {}}})
-
+    # for item in read_result:
+    #     print(item['_source'])
     end = time.monotonic()
     return result['hits']['hits'], end - start
