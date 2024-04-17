@@ -14,7 +14,10 @@ if __name__ == '__main__':
     time_mongo_load = 0
     for i in range(ITERATIONS):
         data = [{"id": str(uuid4()), "value": f"Example text {i}"} for i in range(N_ROW)]
-        load_data_mongo, time = insert_documents_in_batches(data=data, batch_size=int(N_ROW / ITERATIONS))
+        load_data_mongo, time = insert_documents_in_batches(
+            data=data,
+            batch_size=int(N_ROW / ITERATIONS)
+        )
         time_mongo_load += time
     print(f'Среднее время записи в сек.'
           f'({N_ROW} - строк | {ITERATIONS} - итераций): '
