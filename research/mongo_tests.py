@@ -2,7 +2,6 @@ import time
 from typing import Any
 
 from pymongo import MongoClient
-
 from pymongo.collection import Collection
 
 # Создание клиента
