@@ -45,4 +45,3 @@ class Film(UgcSqlModel, TimeStampWithUUID):
 class UserBookmarks(UgcSqlModel, TimeStampWithUUID):
     user_id: UUID = Field(nullable=False)
     film_ids: list[UUID] = Field(nullable=False)
-
