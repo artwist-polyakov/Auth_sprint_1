@@ -10,7 +10,7 @@ from pydantic import BaseModel
 class EventConvertor:
     @staticmethod
     def map(event: BaseModel) -> KafkaModel:
-        match (event):
+        match(event):
             case PlayerEvent() as e:
                 topic = "player_events"
             case ViewEvent() as e:
