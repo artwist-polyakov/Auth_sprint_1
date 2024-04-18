@@ -40,7 +40,7 @@ def get_rated_films(user_id: UUID) -> tuple[Response, int]:
 def get_film_rating_by_id(film_id: UUID) -> tuple[Response, int]:
     # 1/0 # for sentry test
     try:
-        user_id = _get_token_from_cookie(request)
+        _get_token_from_cookie(request)
     except NoTokenError:
         return jsonify({"error": "Access token not found"}), HTTPStatus.UNAUTHORIZED
     except InvalidTokenError:
@@ -78,7 +78,7 @@ def add_rating(critique: Critique) -> tuple[Response, int]:
 def delete_rating(critique_id: UUID) -> tuple[Response, int]:
     # 1/0 # for sentry test
     try:
-        user_id = _get_token_from_cookie(request)
+        _get_token_from_cookie(request)
     except NoTokenError:
         return jsonify({"error": "Access token not found"}), HTTPStatus.UNAUTHORIZED
     except InvalidTokenError:
