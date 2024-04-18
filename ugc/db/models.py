@@ -27,7 +27,7 @@ class OtherEvent(UgcSqlModel, TimeStampWithUUID):
 
 
 class Critique(UgcSqlModel, TimeStampWithUUID):
-    rating: str = Field(nullable=False)
+    rating: int = Field(nullable=False, default=0)
     content: str = Field(nullable=False)
 
 
@@ -38,11 +38,10 @@ class UserCritique(UgcSqlModel, TimeStampWithUUID):
 
 class Film(UgcSqlModel, TimeStampWithUUID):
     film_id: UUID = Field(nullable=False)
-    critique_ids: list[UUID] = Field(nullable=False)
-    film_rating: float = Field(nullable=False)
+    critique_ids: list[UUID] = Field(nullable=True)
+    film_rating: float = Field(nullable=False, default=0)
 
 
 class UserBookmarks(UgcSqlModel, TimeStampWithUUID):
     user_id: UUID = Field(nullable=False)
     film_ids: list[UUID] = Field(nullable=False)
-
