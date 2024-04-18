@@ -47,6 +47,17 @@ class ClickHouseSettings(_BaseSettings):
     database: str = ...
 
 
+class MongoSettings(_BaseSettings):
+    """Настройки mongo."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="mongo_", env_file_encoding="utf-8"
+    )
+    host: str
+    port: int
+    database: str
+
+
 class FlaskSettings(_BaseSettings):
     """Настройки Flask."""
 
@@ -64,6 +75,7 @@ class Settings(CommonSettings):
     """Настройки проекта."""
 
     kafka: KafkaSettings = KafkaSettings()
+    mongo: MongoSettings = MongoSettings()
     clickhouse: ClickHouseSettings = ClickHouseSettings()
     flask: FlaskSettings = FlaskSettings()
     token: JWTSecuritySettings = JWTSecuritySettings()
