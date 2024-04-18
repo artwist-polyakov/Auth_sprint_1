@@ -48,8 +48,8 @@ def end_request(response):
     return response
 
 
-from api.v1.routes import event_blueprint  # noqa: F401, E402
-from api.v1.routes import films_blueprint  # noqa: F401, E402
+from api.v1.routes.events import event_blueprint  # noqa: F401, E402
+from api.v1.routes.films import films_blueprint  # noqa: F401, E402
 
 app.register_api(event_blueprint)
 app.register_api(films_blueprint)
