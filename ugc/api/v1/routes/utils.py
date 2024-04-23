@@ -23,5 +23,3 @@ def _get_token_from_cookie(request_container) -> str:
         return decoded_token["user_id"]
     except Exception:
         raise InvalidTokenError("Invalid token")
-
-

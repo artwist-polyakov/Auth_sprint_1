@@ -3,6 +3,7 @@ from typing_extensions import Self
 
 from .mixin import TimeStampWithUUIDMixin
 
+# TODO удалить
 
 class Critique(BaseModel, TimeStampWithUUIDMixin):
     user_id: str
