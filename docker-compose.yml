@@ -252,6 +252,16 @@ services:
       - clickhouse-node
       - kafka
 
+  etl-mongo:
+    container_name: etl-mongo
+    build: ./etl_mongo
+    env_file:
+      - .env
+    depends_on:
+      - mongo-node1
+      - mongo-node2
+      - kafka
+
   locust:
     container_name: locust
     image: locustio/locust:master

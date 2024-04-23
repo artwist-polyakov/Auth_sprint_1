@@ -14,3 +14,4 @@ locust==2.24.1
 pyjwt==2.8.0
 logstash==0.1dev
 sentry-sdk[flask]==1.45.0
+pymongo==4.6.3
