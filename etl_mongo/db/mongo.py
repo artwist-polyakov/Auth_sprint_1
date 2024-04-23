@@ -1,14 +1,14 @@
 from typing import Any
 
-from core.settings import settings
+from core.settings import get_settings
 from pymongo import MongoClient
 
 
 class MongoService:
 
     def __init__(self):
-        self.client = MongoClient(settings.mongo.host, settings.mongo.port)
-        self.db = self.client[settings.mongo.database]
+        self.client = MongoClient(get_settings().mongo.host, get_settings().mongo.port)
+        self.db = self.client[get_settings().mongo.database]
 
     def data_recording(
             self,
@@ -37,3 +37,12 @@ class MongoService:
             results = [item for item in collection.find(condition)]
             return results
         return collection.find_one(condition)
+
+    def __enter__(self):
+        # Возвращает объект, который будет использоваться в контекстном блоке.
+        # В данном случае возвращаем self, так как сам объект позволяет работу с Mongo.
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+         # Закрываем соединение с MongoDB при выходе из контекстного блока.
+         self.client.close()

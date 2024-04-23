@@ -9,7 +9,13 @@ from kafka import KafkaConsumer, OffsetAndMetadata
 class KafkaCore:
     _connection = f'{get_settings().kafka.host}:{get_settings().kafka.port}'
     _auto_offset_reset = 'earliest'
-    _topics = ['player_events', 'view_events', 'custom_events']
+    _topics = ["delete_bookmark_events",
+               "add_bookmark_events",
+               "review_events",
+               "delete_review_events",
+               "rate_movie_events",
+               "rate_review_events",
+               "delete_rate_events", ]
 
 
 class KafkaRepository(KafkaCore, MessageBrokerConsumer):
