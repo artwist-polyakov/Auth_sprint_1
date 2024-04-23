@@ -1,12 +1,12 @@
 import time
 from http import HTTPStatus
 
-import jwt
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
 from api.v1.models.view_event import ViewEvent
+from api.v1.routes.utils import (InvalidTokenError, NoTokenError,
+                                 _get_token_from_cookie)
 from app import API_PREFIX, events
-from core.settings import settings
 from flask import Response, jsonify, request
 from flask_openapi3 import APIBlueprint
 from services.queue_service import get_queue_service
@@ -14,29 +14,6 @@ from services.queue_service import get_queue_service
 event_blueprint = APIBlueprint(
     "/events", __name__, url_prefix=API_PREFIX, abp_tags=[events], doc_ui=True
 )
-
-
-class InvalidTokenError(Exception):
-    pass
-
-
-class NoTokenError(Exception):
-    pass
-
-
-def _get_token_from_cookie(request_container) -> str:
-    access_token_cookie = request_container.cookies.get('access_token')
-    if not access_token_cookie:
-        raise NoTokenError("Access token not found")
-    try:
-        decoded_token = jwt.decode(
-            access_token_cookie,
-            settings.token.openssl_key,
-            algorithms=[settings.token.algorithm]
-        )
-        return decoded_token['user_id']
-    except Exception:
-        raise InvalidTokenError("Invalid token")
 
 
 @event_blueprint.post("/view_event", summary="Record a view event")
@@ -52,7 +29,10 @@ def view_event(query: ViewEvent) -> tuple[Response, int]:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
-        return jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}), HTTPStatus.OK
+        return (
+            jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}),
+            HTTPStatus.OK,
+        )
     return jsonify({"status": "error", "details": result}), status
 
 
@@ -69,7 +49,10 @@ def player_event(query: PlayerEvent) -> tuple[Response, int]:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
-        return jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}), HTTPStatus.OK
+        return (
+            jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}),
+            HTTPStatus.OK,
+        )
     return jsonify({"status": "error", "details": result}), status
 
 
@@ -86,5 +69,8 @@ def custom_event(query: CustomEvent) -> tuple[Response, int]:
             return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
     status, result = get_queue_service().process_event(query)
     if status == HTTPStatus.OK:
-        return jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}), HTTPStatus.OK
+        return (
+            jsonify({"status": f"ok, speed = {time.monotonic() - start_time} s"}),
+            HTTPStatus.OK,
+        )
     return jsonify({"status": "error", "details": result}), status

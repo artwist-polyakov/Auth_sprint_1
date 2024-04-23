@@ -38,7 +38,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs/logs.log:/logs/logs.log:rw
+      - ./logs:/logs:rw
     depends_on:
       - postgres
       - elasticsearch-node1
@@ -55,7 +55,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs/logs.log:/logs/logs.log:rw
+      - ./logs:/logs:rw
     depends_on:
       - postgres
       - redis
@@ -223,7 +223,7 @@ services:
       - kafka
     restart: on-failure
     volumes:
-      - ./logs/logs.log:/logs/logs.log:rw
+      - ./logs:/logs:rw
     logging:
       driver: "json-file"
       options:
@@ -309,7 +309,7 @@ services:
     platform: linux/amd64
     volumes:
       - ./configs/filebeat/config.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./logs/logs.log:/logs/logs.log:ro
+      - ./logs:/logs:ro
     env_file:
       - .env
     depends_on:
