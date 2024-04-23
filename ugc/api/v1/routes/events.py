@@ -4,7 +4,8 @@ from http import HTTPStatus
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
 from api.v1.models.view_event import ViewEvent
-from api.v1.routes.utils import InvalidTokenError, NoTokenError, _get_token_from_cookie
+from api.v1.routes.utils import (InvalidTokenError, NoTokenError,
+                                 _get_token_from_cookie)
 from app import API_PREFIX, events
 from flask import Response, jsonify, request
 from flask_openapi3 import APIBlueprint

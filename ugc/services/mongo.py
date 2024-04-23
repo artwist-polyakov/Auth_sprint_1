@@ -1,7 +1,7 @@
 from typing import Any
 
-from pymongo import MongoClient
 from core.settings import settings
+from pymongo import MongoClient
 
 
 class MongoService:

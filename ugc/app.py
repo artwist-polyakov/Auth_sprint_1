@@ -10,8 +10,10 @@ from flask_openapi3 import Info, OpenAPI, Server, Tag
 API_PREFIX = "/ugc/v1"
 
 info = Info(title="UGC Service API", version="1.0.0")
-events = Tag(name="events", description="Event tracking system")
-films = Tag(name="films", description="Film UGC data")
+events = Tag(name="Events", description="Event tracking system")
+content = Tag(name="Content", description="Allows user to add, edit, and remove reviews to films")
+bookmarks = Tag(name="Bookmarks", description="Alows user to add and remove bookmarks to films")
+rates = Tag(name="Rates", description="Alows user to rate films or reviews")
 server = Server(url="http://localhost:5555", description="Local development server")
 
 sentry_sdk.init(
@@ -49,10 +51,14 @@ def end_request(response):
 
 
 from api.v1.routes.events import event_blueprint  # noqa: F401, E402
-from api.v1.routes.films import films_blueprint  # noqa: F401, E402
+from api.v1.routes.films import bookmarks_blueprint  # noqa: F401, E402
+from api.v1.routes.films import content_blueprint  # noqa: F401, E402
+from api.v1.routes.films import rates_blueprint  # noqa: F401, E402
 
 app.register_api(event_blueprint)
-app.register_api(films_blueprint)
+app.register_api(content_blueprint)
+app.register_api(bookmarks_blueprint)
+app.register_api(rates_blueprint)
 
 CORS(app)
 
