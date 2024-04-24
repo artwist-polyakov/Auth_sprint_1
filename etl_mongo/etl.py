@@ -1,12 +1,10 @@
 import asyncio  # noqa
 import json
 import time
-
+from datetime import datetime, timezone
 from core.settings import get_settings
 from db.kafka_storage import KafkaRepository, get_kafka
-from db.mongo import MongoService
 from db.beanie import BeanieService, BeanieBookmark
-from models.bookmark_model import MongoBookmark
 
 
 class ETL:
@@ -27,11 +25,53 @@ class ETL:
         print(data)
         match (type):
             case 'delete_bookmark_events':
-                pass
-                # storage.delete(data["film_id"])
+                bookmark = BeanieBookmark(**data)
+
+                search_criteria = {
+                    'film_id': bookmark.film_id,
+                    'user_uuid': bookmark.user_uuid
+                }
+
+                # получаем все закладки с таким же film_id
+                in_base = await BeanieBookmark.find(search_criteria).to_list()
+
+                if in_base:
+                    print(in_base)
+                    # удаляем закладку если пользователь совпадает по id пользователя
+                    for bookmark in in_base:
+                        if (
+                                bookmark.user_uuid == data['user_uuid'] and
+                                bookmark.timestamp.replace(
+                                    tzinfo=timezone.utc
+                                ) <= datetime.fromtimestamp(
+                                data['timestamp'] // 1_000_000_000, timezone.utc
+                                )
+                        ):
+                            await bookmark.delete()
+
             case 'add_bookmark_events':
                 bookmark = BeanieBookmark(**data)
-                await bookmark.insert()
+
+                search_criteria = {
+                    'film_id': bookmark.film_id,
+                    'user_uuid': bookmark.user_uuid
+                }
+
+                # получаем все закладки с таким же film_id
+                in_base = await BeanieBookmark.find(search_criteria).first_or_none()
+                print(in_base)
+
+                if in_base is None:
+                    # если закладки с таким film_id нет, то добавляем новую
+                    await bookmark.insert()
+                else:
+                    in_base.timestamp = in_base.timestamp.replace(tzinfo=timezone.utc)
+                    # только если у закладки время создания меньше,
+                    # то обновляем закладку в базе
+                    if in_base is not None and in_base.timestamp < bookmark.timestamp:
+                        in_base.created_at = bookmark.created_at
+                        await in_base.update()
+
 
             case 'review_events':
                 print(data)
