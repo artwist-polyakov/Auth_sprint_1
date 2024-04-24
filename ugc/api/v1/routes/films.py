@@ -7,8 +7,9 @@ from api.v1.models.bookmark_event import (AddBookmarkEvent,
 from api.v1.models.rate_event import (DeleteRateEvent, GetFilmRatingEvent,
                                       GetRatedFilmsEvent, GetRatedReviewsEvent,
                                       RateMovieSchema, RateReviewSchema)
-from api.v1.models.review_event import (DeleteReviewEvent, GetUserReviewsEvent,
-                                        ReviewEventSchema, EditReviewEventSchema)
+from api.v1.models.review_event import (DeleteReviewEvent,
+                                        EditReviewEventSchema,
+                                        GetUserReviewsEvent, ReviewEventSchema)
 from app import API_PREFIX, bookmarks, content, rates
 from flask import Response, jsonify
 from flask_openapi3 import APIBlueprint

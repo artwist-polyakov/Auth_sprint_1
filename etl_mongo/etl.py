@@ -2,9 +2,10 @@ import asyncio  # noqa
 import json
 import time
 from datetime import datetime, timezone
+
 from core.settings import get_settings
-from db.kafka_storage import KafkaRepository, get_kafka
 from db.beanie import BeanieService
+from db.kafka_storage import KafkaRepository, get_kafka
 from models.bookmark_model import BeanieBookmark
 from models.review_model import BeanieReview
 
@@ -41,13 +42,13 @@ class ETL:
                     print(in_base)
                     # удаляем закладку если пользователь запроса совпадает по id пользователя базы
                     for bookmark in in_base:
-                        if (
+                        if (  # проверка, что запрос удаления моложе последней записи
                                 bookmark.user_uuid == data['user_uuid'] and
                                 bookmark.timestamp.replace(
                                     tzinfo=timezone.utc
-                                ) <= datetime.fromtimestamp(  # проверка, что запрос удаления моложе последней записи
-                            data['timestamp'] // 1_000_000_000, timezone.utc
-                        )
+                                ) <= datetime.fromtimestamp(
+                                data['timestamp'] // 1_000_000_000, timezone.utc
+                                )
                         ):
                             await bookmark.delete()
 
@@ -78,7 +79,7 @@ class ETL:
                 review = BeanieReview(**data)
 
                 search_criteria = {
-                    'id': review.id
+                    '_id': review.id
                 }
 
                 in_base = await BeanieReview.find(search_criteria).first_or_none()

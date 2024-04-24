@@ -1,15 +1,16 @@
 from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
-
 from models.bookmark_model import BeanieBookmark
-
+from models.film_model import BeanieFilm
 from models.review_model import BeanieReview
+from models.user_model import BeanieUser
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 class BeanieService:
 
     def __init__(self):
-        self._connection_string = 'mongodb://mongo1:27017,node2:27017,node3:27017/?replicaSet=myReplicaSet'
+        self._connection_string = \
+            'mongodb://mongo1:27017,node2:27017,node3:27017/?replicaSet=myReplicaSet'
         self._database = 'movies_content'
         self.client = None
 
@@ -19,7 +20,9 @@ class BeanieService:
             self.client[self._database],
             document_models=[
                 BeanieBookmark,
-                BeanieReview
+                BeanieReview,
+                BeanieFilm,
+                BeanieUser
             ]
         )
         print('Beanie has been initialized')
