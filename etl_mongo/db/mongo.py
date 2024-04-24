@@ -9,6 +9,10 @@ class MongoService:
     def __init__(self):
         self.client = MongoClient(get_settings().mongo.host, get_settings().mongo.port)
         self.db = self.client[get_settings().mongo.database]
+        print('MongoService has been initialized'
+              f' with host: {get_settings().mongo.host}'
+              f' and port: {get_settings().mongo.port}'
+              f' and database: {get_settings().mongo.database}')
 
     def data_recording(
             self,
