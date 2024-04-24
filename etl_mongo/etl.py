@@ -37,13 +37,13 @@ class ETL:
 
                 if in_base:
                     print(in_base)
-                    # удаляем закладку если пользователь совпадает по id пользователя
+                    # удаляем закладку если пользователь запроса совпадает по id пользователя базы
                     for bookmark in in_base:
                         if (
                                 bookmark.user_uuid == data['user_uuid'] and
                                 bookmark.timestamp.replace(
                                     tzinfo=timezone.utc
-                                ) <= datetime.fromtimestamp(
+                                ) <= datetime.fromtimestamp( # проверка, что запрос удаления моложе последней записи
                                 data['timestamp'] // 1_000_000_000, timezone.utc
                                 )
                         ):
