@@ -8,7 +8,7 @@ from api.v1.models.rate_event import (DeleteRateEvent, GetFilmRatingEvent,
                                       GetRatedFilmsEvent, GetRatedReviewsEvent,
                                       RateMovieSchema, RateReviewSchema)
 from api.v1.models.review_event import (DeleteReviewEvent, GetUserReviewsEvent,
-                                        ReviewEventSchema)
+                                        ReviewEventSchema, EditReviewEventSchema)
 from app import API_PREFIX, bookmarks, content, rates
 from flask import Response, jsonify
 from flask_openapi3 import APIBlueprint
@@ -155,7 +155,7 @@ def add_review(query: ReviewEventSchema) -> tuple[Response, int]:
 
 
 @content_blueprint.patch("/review", summary="Edit review")
-def edit_review(query: ReviewEventSchema) -> tuple[Response, int]:
+def edit_review(query: EditReviewEventSchema) -> tuple[Response, int]:
     # 1/0 # for sentry test
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)

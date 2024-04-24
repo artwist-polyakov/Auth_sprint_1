@@ -3,6 +3,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.bookmark_model import BeanieBookmark
 
+from models.review_model import BeanieReview
+
 
 class BeanieService:
 
@@ -13,7 +15,13 @@ class BeanieService:
 
     async def init(self):
         self.client = AsyncIOMotorClient(self._connection_string)
-        await init_beanie(self.client[self._database], document_models=[BeanieBookmark])
+        await init_beanie(
+            self.client[self._database],
+            document_models=[
+                BeanieBookmark,
+                BeanieReview
+            ]
+        )
         print('Beanie has been initialized')
 
     async def close(self):

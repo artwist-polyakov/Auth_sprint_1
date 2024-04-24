@@ -4,7 +4,9 @@ import time
 from datetime import datetime, timezone
 from core.settings import get_settings
 from db.kafka_storage import KafkaRepository, get_kafka
-from db.beanie import BeanieService, BeanieBookmark
+from db.beanie import BeanieService
+from models.bookmark_model import BeanieBookmark
+from models.review_model import BeanieReview
 
 
 class ETL:
@@ -43,9 +45,9 @@ class ETL:
                                 bookmark.user_uuid == data['user_uuid'] and
                                 bookmark.timestamp.replace(
                                     tzinfo=timezone.utc
-                                ) <= datetime.fromtimestamp( # проверка, что запрос удаления моложе последней записи
-                                data['timestamp'] // 1_000_000_000, timezone.utc
-                                )
+                                ) <= datetime.fromtimestamp(  # проверка, что запрос удаления моложе последней записи
+                            data['timestamp'] // 1_000_000_000, timezone.utc
+                        )
                         ):
                             await bookmark.delete()
 
@@ -72,11 +74,45 @@ class ETL:
                         in_base.created_at = bookmark.created_at
                         await in_base.update()
 
-
             case 'review_events':
-                print(data)
+                review = BeanieReview(**data)
+
+                search_criteria = {
+                    'id': review.id
+                }
+
+                in_base = await BeanieReview.find(search_criteria).first_or_none()
+                print(in_base)
+
+                if in_base is None:
+                    await review.insert()
+                else:
+                    in_base.timestamp = in_base.timestamp.replace(tzinfo=timezone.utc)
+                    if (in_base is not None
+                            and in_base.timestamp < review.timestamp
+                            and in_base.film_id == review.film_id
+                            and in_base.user_uuid == review.user_uuid):
+                        in_base.content = review.content
+                        in_base.timestamp = review.timestamp
+                        await in_base.update()
+
             case 'delete_review_events':
-                print(data)
+                review = BeanieReview(**data)
+
+                search_criteria = {
+                    '_id': review.id
+                }
+
+                in_base = await BeanieReview.find(search_criteria).first_or_none()
+                print(in_base)
+
+                if in_base is not None:
+                    in_base.timestamp = in_base.timestamp.replace(tzinfo=timezone.utc)
+                    if (
+                            in_base.user_uuid == review.user_uuid
+                            and in_base.timestamp < review.timestamp):
+                        await in_base.delete()
+
             case 'rate_movie_events':
                 print(data)
             case 'rate_review_events':
