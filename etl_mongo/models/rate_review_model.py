@@ -1,12 +1,21 @@
-import uuid
 from datetime import datetime, timezone
+from typing import Optional
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, model_validator
+from beanie import Document, Indexed, Link
+from models.review_model import BeanieReview
+from pydantic import Field, model_validator
 
 
-class BeanieIDDate(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+class BeanieRateReview(Document):
+    id: UUID = Field(default_factory=uuid4)
+    user_uuid: Indexed(str)
+    review: Optional[Link[BeanieReview]] = None
+    rate: int = Field(0, ge=0, le=10)
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    class Settings:
+        name = "rate_reviews"
 
     @model_validator(mode='before')
     def convert_ns_timestamp_to_datetime(self):

@@ -1,23 +1,21 @@
-import uuid
 from datetime import datetime, timezone
+from typing import Optional
+from uuid import UUID, uuid4
 
-from beanie import Document, Indexed
+from beanie import Document, Indexed, Link
+from models.film_model import BeanieFilm
 from pydantic import Field, model_validator
 
 
-class BeanieReview(Document):
-    id: Indexed(str) = Field(default_factory=lambda: str(uuid.uuid4()))
+class BeanieRateFilm(Document):
+    id: UUID = Field(default_factory=uuid4)
     user_uuid: Indexed(str)
-    film_id: Indexed(str) = Field("")
+    film: Optional[Link[BeanieFilm]] = None
+    rate: int = Field(0, ge=0, le=10)
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    rating: int = Field(0, ge=0, le=10)
-    likes_counter: int = Field(0, ge=0)
-
-    # на уровне базы данных пустая строка возможна при удалении
-    content: str = Field("", min_length=0, max_length=1000)
 
     class Settings:
-        name = "reviews"
+        name = "rate_films"
 
     @model_validator(mode='before')
     def convert_ns_timestamp_to_datetime(self):
