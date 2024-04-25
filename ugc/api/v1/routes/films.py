@@ -15,6 +15,8 @@ from flask import Response, jsonify
 from flask_openapi3 import APIBlueprint
 from services.queue_service import get_queue_service
 
+from services.mongo import get_mongo_service
+
 content_blueprint = APIBlueprint(
     "/content", __name__, url_prefix=API_PREFIX, abp_tags=[content], doc_ui=True
 )
@@ -34,8 +36,7 @@ def get_rated_films(query: GetRatedFilmsEvent) -> tuple[Response, int]:
     # 1/0 # for sentry test
     # todo имплементировать запрос в сервисе
     try:
-        # Обработка user_id
-        return jsonify({"details": "all good"}), 200
+        return jsonify(get_mongo_service().get_films_by_user(query)), 200
     except Exception as e:
         return jsonify({"status": "error", "details": str(e)}), 400
 
@@ -46,8 +47,7 @@ def get_rated_reviews(query: GetRatedReviewsEvent) -> tuple[Response, int]:
     # 1/0 # for sentry test
     # todo имплементировать запрос в сервисе
     try:
-        # Обработка user_id
-        return jsonify({"details": "all good"}), 200
+        return jsonify(get_mongo_service().get_reviews_by_user(query)), 200
     except Exception as e:
         return jsonify({"status": "error", "details": str(e)}), 400
 
@@ -57,9 +57,7 @@ def get_film_rating_by_id(query: GetFilmRatingEvent) -> tuple[Response, int]:
     # 1/0 # for sentry test
     # todo имплементировать запрос в сервисе
     try:
-        # Обработка
-        return jsonify({"details": "all good"}), 200
-
+        return jsonify(get_mongo_service().get_films_by_film(query)), 200
     except Exception as e:
         return jsonify({"status": "error", "details": str(e)}), 400
 
@@ -173,9 +171,7 @@ def get_reviews_by_user(query: GetUserReviewsEvent) -> tuple[Response, int]:
     # 1/0 # for sentry test
     # todo имплементировать запрос в сервисе
     try:
-        # Обработка user_id
-        return jsonify({"details": "all good"}), 200
-
+        return jsonify(get_mongo_service().get_reviews_by_user(query)), 200
     except Exception as e:
         return jsonify({"status": "error", "details": str(e)}), 400
 
@@ -211,9 +207,7 @@ def get_bookmarks_by_user(query: GetUserBookmarksEvent) -> tuple[Response, int]:
     # 1/0 # for sentry test
     # todo имплементировать запрос в сервисе
     try:
-        # Обработка user_id
-        return jsonify({"details": "all good"}), 200
-
+        return jsonify(get_mongo_service().get_bookmarks_by_user(query)), 200
     except Exception as e:
         return jsonify({"status": "error", "details": str(e)}), 400
 

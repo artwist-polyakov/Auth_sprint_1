@@ -9,13 +9,13 @@ sleep 10
 
 echo SETUP.sh time now: `date +"%T" `
 
-mongosh --host mongo1:27017 --eval "rs.initiate({ \n
- _id: \"myReplicaSet\", \n
- members: [ \n
-   {_id: 0, host: \"mongo1\", \"priority\": 4}, \n
-   {_id: 1, host: \"mongo2\", \"priority\": 2}, \n
-   {_id: 2, host: \"mongo3\", \"priority\": 1} \n
- ] \n
+mongosh --host mongo1:27017 --eval "rs.initiate({ \
+ _id: \"myReplicaSet\", \
+ members: [ \
+   {_id: 0, host: \"mongo1\", \"priority\": 4}, \
+   {_id: 1, host: \"mongo2\", \"priority\": 2}, \
+   {_id: 2, host: \"mongo3\", \"priority\": 1} \
+ ] \
 })"
 
 echo "Replica set initialization done."
