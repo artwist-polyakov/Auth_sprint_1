@@ -31,24 +31,24 @@ class MongoService:
             result_ids.extend(res.inserted_ids)
         return result_ids
 
-    def get_reviews_by_user(self, data) -> dict:
-        collection = self.db["reviews"]
-        response = collection.find_one({"user_uuid": data.user_uuid})
-        return json.loads(json_util.dumps(response))
-
     def get_bookmarks_by_user(self, data) -> dict:
         collection = self.db["bookmarks"]
         response = collection.find_one({"user_uuid": data.user_uuid})
         return json.loads(json_util.dumps(response))
 
     def get_films_by_user(self, data) -> dict:
-        collection = self.db["films"]
-        response = collection.find_one({"user_uuid": data.user_uuid})
+        collection = self.db["rate_films"]
+        response = collection.find({"user_uuid": data.user_uuid})
+        return json.loads(json_util.dumps(response))
+
+    def get_reviews_by_user(self, data) -> dict:
+        collection = self.db["rate_reviews"]
+        response = collection.find({"user_uuid": data.user_uuid})
         return json.loads(json_util.dumps(response))
 
     def get_films_by_film(self, data) -> dict:
         collection = self.db["films"]
-        response = collection.find_one({"film_id": data.user_uuid})
+        response = collection.find_one({"_id": data.film_id})
         return json.loads(json_util.dumps(response))
 
 
