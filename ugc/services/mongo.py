@@ -10,7 +10,9 @@ from bson import json_util
 class MongoService:
 
     def __init__(self):
-        self.client = MongoClient('mongodb://mongo1:27017,node2:27017,node3:27017/?replicaSet=myReplicaSet')
+        self.client = MongoClient(
+            'mongodb://mongo1:27017,node2:27017,node3:27017/?replicaSet=myReplicaSet'
+        )
         self.db = self.client[settings.mongo.database]
 
     def data_recording(
