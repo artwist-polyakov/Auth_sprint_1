@@ -1,9 +1,12 @@
 from api.v1.models.bookmark_event import AddBookmarkEvent, DeleteBookmarkEvent
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
-from api.v1.models.rate_event import (DeleteRateEvent, RateMovieSchema,
+from api.v1.models.rate_event import (DeleteFilmRateEvent,
+                                      DeleteReviewRateEvent, RateMovieSchema,
                                       RateReviewSchema)
-from api.v1.models.review_event import DeleteReviewEvent, ReviewEventSchema
+from api.v1.models.review_event import (DeleteReviewEvent,
+                                        EditReviewEventSchema,
+                                        ReviewEventSchema)
 from api.v1.models.view_event import ViewEvent
 from db.queue.models.kafka_models import KafkaModel
 from pydantic import BaseModel
@@ -26,7 +29,7 @@ class EventConvertor:
                 topic = "delete_bookmark_events"
             case AddBookmarkEvent() as e:
                 topic = "add_bookmark_events"
-            case ReviewEventSchema() as e:
+            case ReviewEventSchema() | EditReviewEventSchema() as e:
                 topic = "review_events"
             case DeleteReviewEvent() as e:
                 topic = "delete_review_events"
@@ -34,8 +37,10 @@ class EventConvertor:
                 topic = "rate_movie_events"
             case RateReviewSchema() as e:
                 topic = "rate_review_events"
-            case DeleteRateEvent() as e:
-                topic = "delete_rate_events"
+            case DeleteFilmRateEvent() as e:
+                topic = "delete_film_rate_events"
+            case DeleteReviewRateEvent() as e:
+                topic = "delete_review_rate_events"
             case _:
                 raise ValueError("Unknown event type")
         content = e.model_dump_json()

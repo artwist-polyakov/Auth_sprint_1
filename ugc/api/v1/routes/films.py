@@ -4,11 +4,14 @@ from http import HTTPStatus
 from api.v1.models.bookmark_event import (AddBookmarkEvent,
                                           DeleteBookmarkEvent,
                                           GetUserBookmarksEvent)
-from api.v1.models.rate_event import (DeleteRateEvent, GetFilmRatingEvent,
-                                      GetRatedFilmsEvent, GetRatedReviewsEvent,
-                                      RateMovieSchema, RateReviewSchema)
-from api.v1.models.review_event import (DeleteReviewEvent, GetUserReviewsEvent,
-                                        ReviewEventSchema)
+from api.v1.models.rate_event import (DeleteFilmRateEvent,
+                                      DeleteReviewRateEvent,
+                                      GetFilmRatingEvent, GetRatedFilmsEvent,
+                                      GetRatedReviewsEvent, RateMovieSchema,
+                                      RateReviewSchema)
+from api.v1.models.review_event import (DeleteReviewEvent,
+                                        EditReviewEventSchema,
+                                        GetUserReviewsEvent, ReviewEventSchema)
 from app import API_PREFIX, bookmarks, content, rates
 from flask import Response, jsonify
 from flask_openapi3 import APIBlueprint
@@ -77,7 +80,7 @@ def add_film_rating(query: RateMovieSchema) -> tuple[Response, int]:
 
 
 @rates_blueprint.delete("/rate_film", summary="Delete rating from film")
-def delete_film_rating(query: DeleteRateEvent) -> tuple[Response, int]:
+def delete_film_rating(query: DeleteFilmRateEvent) -> tuple[Response, int]:
     # 1/0 # for sentry test
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
@@ -116,7 +119,7 @@ def add_review_rating(query: RateReviewSchema) -> tuple[Response, int]:
 
 
 @rates_blueprint.delete("/rate_review", summary="Delete rating from review")
-def delete_review_rating(query: DeleteReviewEvent) -> tuple[Response, int]:
+def delete_review_rating(query: DeleteReviewRateEvent) -> tuple[Response, int]:
     # 1/0 # for sentry test
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)
@@ -155,7 +158,7 @@ def add_review(query: ReviewEventSchema) -> tuple[Response, int]:
 
 
 @content_blueprint.patch("/review", summary="Edit review")
-def edit_review(query: ReviewEventSchema) -> tuple[Response, int]:
+def edit_review(query: EditReviewEventSchema) -> tuple[Response, int]:
     # 1/0 # for sentry test
     start_time = time.monotonic()
     status, result = get_queue_service().process_event(query)

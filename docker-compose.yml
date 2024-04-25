@@ -252,6 +252,15 @@ services:
       - clickhouse-node
       - kafka
 
+  etl-mongo:
+    container_name: etl-mongo
+    build: ./etl_mongo
+    env_file:
+      - .env
+    depends_on:
+      - mongo-init
+      - kafka
+
   locust:
     container_name: locust
     image: locustio/locust:master
@@ -315,21 +324,51 @@ services:
     depends_on:
       - elasticsearch-node1
 
-  mongo-node1:
-    image: mongo
+  mongo1:
+    container_name: mongo1
+    image: mongo:6
+    restart: on-failure
+    expose:
+      - 27017
     ports:
       - "27017:27017"
-    command: "--replSet my-replica-set"
-    volumes:
-      - mongo-data-node1:/data/db
+    entrypoint: mongod --replSet myReplicaSet --bind_ip localhost,mongo1
 
-  mongo-node2:
-    image: mongo
+  mongo2:
+    container_name: mongo2
+    image: mongo:6
+    restart: on-failure
+    expose:
+      - 27017
     ports:
       - "27018:27017"
-    command: "--replSet my-replica-set"
+    entrypoint: mongod --replSet myReplicaSet --bind_ip localhost,mongo2
+    depends_on:
+      - mongo1
+
+  mongo3:
+    container_name: mongo3
+    image: mongo:6
+    restart: on-failure
+    expose:
+      - 27017
+    ports:
+      - "27019:27017"
+    entrypoint: mongod --replSet myReplicaSet --bind_ip localhost,mongo3
+    depends_on:
+      - mongo1
+
+  mongo-init:
+    container_name: mongo-init
+    image: mongo:6
+    restart: on-failure
     volumes:
-      - mongo-data-node2:/data/db
+      - ./mongo/rs-init.sh:/scripts/rs-init.sh
+    entrypoint: [ "bash", "/scripts/rs-init.sh" ]
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
 
 volumes:
     static_volume:
@@ -341,5 +380,3 @@ volumes:
     postgres_data:
     kafka_data:
     logs:
-    mongo-data-node1:
-    mongo-data-node2:

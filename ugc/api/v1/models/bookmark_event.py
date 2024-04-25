@@ -10,6 +10,7 @@ class GetUserBookmarksEvent(BaseModel):
 class DeleteBookmarkEvent(BaseModel):
     user_uuid: str
     film_id: str
+    timestamp: int = time.time_ns()
 
 
 class AddBookmarkEvent(BaseModel):
