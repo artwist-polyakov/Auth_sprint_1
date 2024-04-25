@@ -2,11 +2,16 @@ import asyncio  # noqa
 import json
 import time
 from datetime import datetime, timezone
+from uuid import UUID
 
+from beanie import WriteRules
 from core.settings import get_settings
 from db.beanie import BeanieService
 from db.kafka_storage import KafkaRepository, get_kafka
 from models.bookmark_model import BeanieBookmark
+from models.film_model import BeanieFilm
+from models.rate_film_model import BeanieRateFilm
+from models.rate_review_model import BeanieRateReview
 from models.review_model import BeanieReview
 
 
@@ -73,7 +78,7 @@ class ETL:
                     # то обновляем закладку в базе
                     if in_base is not None and in_base.timestamp < bookmark.timestamp:
                         in_base.created_at = bookmark.created_at
-                        await in_base.update()
+                        await in_base.save()
 
             case 'review_events':
                 review = BeanieReview(**data)
@@ -95,7 +100,7 @@ class ETL:
                             and in_base.user_uuid == review.user_uuid):
                         in_base.content = review.content
                         in_base.timestamp = review.timestamp
-                        await in_base.update()
+                        await in_base.save()
 
             case 'delete_review_events':
                 review = BeanieReview(**data)
@@ -115,11 +120,165 @@ class ETL:
                         await in_base.delete()
 
             case 'rate_movie_events':
-                print(data)
+                rate = BeanieRateFilm(**data)
+
+                # сначала ищем фильм в базе
+                search_criteria = {
+                    '_id': data['film_id']
+                }
+
+                film_in_base = await BeanieFilm.find(search_criteria).first_or_none()
+
+                if film_in_base is None:
+                    # если фильма нет — надо его создать
+                    film_in_base = BeanieFilm(
+                        id=data['film_id']
+                    )
+                    await film_in_base.insert()
+
+                # ищем оценку в базе
+                search_criteria = {
+                    'film._id': data['film_id'],
+                    'user_uuid': rate.user_uuid
+                }
+
+                rate_in_base = await BeanieRateFilm.find(
+                    search_criteria,
+                    fetch_links=True
+                ).first_or_none()
+                print(rate_in_base)
+                if rate_in_base is None:
+                    film_in_base_cumulative_rating = (
+                            film_in_base.rating * film_in_base.likes_counter)
+                    film_in_base.likes_counter += 1
+                    print(film_in_base_cumulative_rating)
+                    film_in_base.rating = (film_in_base_cumulative_rating +
+                                           rate.rate) / film_in_base.likes_counter
+                    print("обновленный рейтинг фильма")
+                    film_in_base_cumulative_rating = ((film_in_base_cumulative_rating + rate.rate)
+                                                      / film_in_base.likes_counter)
+                    print(film_in_base_cumulative_rating)
+                    rate.film = film_in_base
+                    await rate.insert(link_rule=WriteRules.WRITE)
+                else:
+                    rate_in_base.timestamp = rate_in_base.timestamp.replace(tzinfo=timezone.utc)
+                    if (rate_in_base.timestamp < rate.timestamp and
+                            rate_in_base.film.id == data['film_id'] and
+                            rate_in_base.user_uuid == rate.user_uuid):
+                        film_in_base_cumulative_rating = (
+                                film_in_base.rating * film_in_base.likes_counter)
+                        film_in_base_cumulative_rating -= rate_in_base.rate
+                        film_in_base_cumulative_rating += rate.rate
+                        film_in_base.rating = (
+                                film_in_base_cumulative_rating / film_in_base.likes_counter)
+                        rate_in_base.film = film_in_base
+                        rate_in_base.rate = rate.rate
+                        rate_in_base.timestamp = rate.timestamp
+                        await rate_in_base.save(link_rule=WriteRules.WRITE)
+
             case 'rate_review_events':
-                print(data)
-            case 'delete_rate_events':
-                print(data)
+                rate = BeanieRateReview(**data)
+
+                # сначала ищем отзыв в базе
+                search_criteria = {
+                    '_id': data['review_id']
+                }
+
+                review_in_base = await BeanieReview.find(search_criteria).first_or_none()
+
+                # нельзя оставить оценку несуществущему отзыву
+                if review_in_base is not None:
+
+                    # ищем оценку в базе
+                    search_criteria = {
+                        'review': review_in_base,
+                        'user_uuid': rate.user_uuid
+                    }
+
+                    rate_in_base = await BeanieRateReview.find(
+                        search_criteria,
+                        fetch_links=True
+                    ).first_or_none()
+
+                    if rate_in_base is None:
+                        review_in_base_cumulative_rating = (
+                                review_in_base.rating * review_in_base.likes_counter)
+                        review_in_base.likes_counter += 1
+                        review_in_base.rating = (review_in_base_cumulative_rating +
+                                                 rate.rate) / review_in_base.likes_counter
+                        await review_in_base.save()
+                        rate.review = review_in_base
+                        await rate.insert()
+                    else:
+                        rate_in_base.timestamp = (
+                            rate_in_base.timestamp.replace(tzinfo=timezone.utc))
+                        if (rate_in_base.timestamp < rate.timestamp and
+                                rate_in_base.review.id == data['review_id'] and
+                                rate_in_base.user_uuid == rate.user_uuid):
+                            review_in_base_cumulative_rating = (review_in_base.rating *
+                                                                review_in_base.likes_counter)
+                            review_in_base_cumulative_rating -= rate_in_base.rate
+                            review_in_base_cumulative_rating += rate.rate
+                            review_in_base.rating = (review_in_base_cumulative_rating /
+                                                     review_in_base.likes_counter)
+                            rate_in_base.rate = rate.rate
+                            rate_in_base.timestamp = rate.timestamp
+                            rate_in_base.review = review_in_base
+                            await rate_in_base.save(link_rule=WriteRules.WRITE)
+
+            case 'delete_film_rate_events':
+
+                search_criteria = {
+                    '_id': UUID(data['rate_id'])
+                }
+
+                rate_in_base = await BeanieRateFilm.find(
+                    search_criteria,
+                    fetch_links=True
+                ).first_or_none()
+                print(rate_in_base)
+
+                if rate_in_base is not None:
+                    rate_in_base.timestamp = rate_in_base.timestamp.replace(tzinfo=timezone.utc)
+                    film_in_base = rate_in_base.film
+                    if (rate_in_base.user_uuid == data['user_uuid'] and
+                            rate_in_base.timestamp < datetime.fromtimestamp(
+                                data['timestamp'] // 1_000_000_000, timezone.utc)):
+                        film_in_base.likes_counter -= 1 if film_in_base.likes_counter > 0 else 0
+                        film_in_base.rating = ((film_in_base.rating *
+                                                film_in_base.likes_counter -
+                                                rate_in_base.rate) /
+                                               film_in_base.likes_counter) \
+                            if film_in_base.likes_counter else 0
+                        rate_in_base.film = film_in_base
+                        await rate_in_base.save(link_rule=WriteRules.WRITE)
+                        await rate_in_base.delete()
+            case 'delete_review_rate_events':
+                search_criteria = {
+                    '_id': UUID(data['rate_id'])
+                }
+                rate_in_base = await BeanieRateReview.find(
+                    search_criteria,
+                    fetch_links=True
+                ).first_or_none()
+                print(rate_in_base)
+
+                if rate_in_base is not None:
+                    rate_in_base.timestamp = rate_in_base.timestamp.replace(tzinfo=timezone.utc)
+                    if (rate_in_base.user_uuid == data['user_uuid'] and
+                            rate_in_base.timestamp < datetime.fromtimestamp(
+                                data['timestamp'] // 1_000_000_000, timezone.utc)):
+                        rate_in_base.review.likes_counter -= 1 \
+                            if rate_in_base.review.likes_counter > 0 else 0
+                        rate_in_base.review.rating = ((rate_in_base.review.rating *
+                                                       rate_in_base.review.likes_counter -
+                                                       rate_in_base.rate) /
+                                                      rate_in_base.review.likes_counter) \
+                            if rate_in_base.review.likes_counter else 0
+                        await rate_in_base.review.save()
+                        await rate_in_base.delete()
+            case _:
+                print('Unknown type')
 
     async def run(self):
         consumer = await get_kafka().consume()

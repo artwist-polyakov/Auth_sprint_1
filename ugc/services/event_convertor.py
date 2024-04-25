@@ -1,7 +1,8 @@
 from api.v1.models.bookmark_event import AddBookmarkEvent, DeleteBookmarkEvent
 from api.v1.models.custom_event import CustomEvent
 from api.v1.models.player_event import PlayerEvent
-from api.v1.models.rate_event import (DeleteRateEvent, RateMovieSchema,
+from api.v1.models.rate_event import (DeleteFilmRateEvent,
+                                      DeleteReviewRateEvent, RateMovieSchema,
                                       RateReviewSchema)
 from api.v1.models.review_event import (DeleteReviewEvent,
                                         EditReviewEventSchema,
@@ -36,8 +37,10 @@ class EventConvertor:
                 topic = "rate_movie_events"
             case RateReviewSchema() as e:
                 topic = "rate_review_events"
-            case DeleteRateEvent() as e:
-                topic = "delete_rate_events"
+            case DeleteFilmRateEvent() as e:
+                topic = "delete_film_rate_events"
+            case DeleteReviewRateEvent() as e:
+                topic = "delete_review_rate_events"
             case _:
                 raise ValueError("Unknown event type")
         content = e.model_dump_json()

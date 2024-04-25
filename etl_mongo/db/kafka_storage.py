@@ -15,7 +15,8 @@ class KafkaCore:
                "delete_review_events",
                "rate_movie_events",
                "rate_review_events",
-               "delete_rate_events", ]
+               "delete_film_rate_events",
+               "delete_review_rate_events",]
 
 
 class KafkaRepository(KafkaCore, MessageBrokerConsumer):

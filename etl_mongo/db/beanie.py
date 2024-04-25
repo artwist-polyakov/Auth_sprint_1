@@ -1,8 +1,9 @@
 from beanie import init_beanie
 from models.bookmark_model import BeanieBookmark
 from models.film_model import BeanieFilm
+from models.rate_film_model import BeanieRateFilm
+from models.rate_review_model import BeanieRateReview
 from models.review_model import BeanieReview
-from models.user_model import BeanieUser
 from motor.motor_asyncio import AsyncIOMotorClient
 
 
@@ -22,7 +23,8 @@ class BeanieService:
                 BeanieBookmark,
                 BeanieReview,
                 BeanieFilm,
-                BeanieUser
+                BeanieRateFilm,
+                BeanieRateReview
             ]
         )
         print('Beanie has been initialized')
