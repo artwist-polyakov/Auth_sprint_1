@@ -56,16 +56,26 @@ Package (UGC_ENDPOINT) {
     Container(Service, "APIService", "Service for processing requests")
 }
     SystemQueue_Ext(Topic, "Topic", "Some message topic")
+Package (ETL_EVENTS) {
     Container(ETLScript, "ETLEvents", "ETL for events processing")
     ContainerDb_Ext(DB, "DB", "Some OLAP database")
 }
+Package (ETL_DOCS) {
+    Container(ETLDocs, "ETLContent", "ETL for content processing")
+    ContainerDb_Ext(Mongo, "ContentDb", "Some Content database")
+}
+}
 
 Rel_D(client, API, "Send events")
-Rel(API, Service, "Call method batch loading")
-Rel(Service, Topic, "Save events to log")
-Rel_U(ETLScript, Topic, "Request new data")
+Rel(API, Service, "Call loading")
+Rel(API, Service, "Call content request")
+Rel_U(Service, Topic, "Save events to log")
+Rel_L(Mongo, Service, "Get content from mongo")
+Rel(ETLScript, Topic, "Request new data")
 Rel(Topic, ETLScript, "Receive new data")
-Rel_U(ETLScript, DB, "Save received content to DB")
+Rel(Topic, ETLDocs, "Receive new data")
+Rel_D(ETLScript, DB, "Save received content to DB")
+Rel_U(ETLDocs, Mongo, "Save received content to ContentDb")
 Rel_R(analyst, DB, "Use")
 Rel_R(visitor, MoviesAPI, "Send request")
 Rel_R(MoviesAPI, MoviesService, "Use service to process request")

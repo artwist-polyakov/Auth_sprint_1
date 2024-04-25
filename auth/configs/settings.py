@@ -1,6 +1,7 @@
 import logging
 from functools import lru_cache
 
+from core.logging_setup import setup_root_logger
 from pydantic_settings import BaseSettings
 
 log_levels = {
@@ -9,6 +10,8 @@ log_levels = {
     'WARNING': logging.WARNING,
     'ERROR': logging.ERROR
 }
+
+setup_root_logger()
 
 
 class Settings(BaseSettings):
@@ -44,6 +47,9 @@ class Settings(BaseSettings):
     yandex_login_url: str = "https://login.yandex.ru/info"
     yandex_revoke_token_url: str = "https://oauth.yandex.ru/revoke_token"
     yandex_oauth_method_name: str = "yandex"
+
+    sentry_dsn: str = ...
+    sentry_enable_tracing: bool = True
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)

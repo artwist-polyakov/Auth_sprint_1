@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from core.logging_setup import setup_root_logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,6 +28,14 @@ class KafkaSettings(_BaseSettings):
     port: int
 
 
+class SentrySettings(_BaseSettings):
+    """Настройки sentry."""
+
+    model_config = SettingsConfigDict(env_prefix="sentry_")
+    dsn: str
+    enable_tracing: bool = True
+
+
 class ClickHouseSettings(_BaseSettings):
     """Настройки clickhouse."""
 
@@ -38,6 +47,17 @@ class ClickHouseSettings(_BaseSettings):
     database: str = ...
 
 
+class MongoSettings(_BaseSettings):
+    """Настройки mongo."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="mongo_", env_file_encoding="utf-8"
+    )
+    host: str
+    port: int
+    database: str
+
+
 class FlaskSettings(_BaseSettings):
     """Настройки Flask."""
 
@@ -45,12 +65,22 @@ class FlaskSettings(_BaseSettings):
     port: int
 
 
+class JWTSecuritySettings(_BaseSettings):
+    """Настройки токенов."""
+    openssl_key: str = ...
+    algorithm: str = 'HS256'
+
+
 class Settings(CommonSettings):
     """Настройки проекта."""
 
     kafka: KafkaSettings = KafkaSettings()
+    mongo: MongoSettings = MongoSettings()
     clickhouse: ClickHouseSettings = ClickHouseSettings()
     flask: FlaskSettings = FlaskSettings()
+    token: JWTSecuritySettings = JWTSecuritySettings()
 
 
 settings = Settings()
+
+setup_root_logger()
