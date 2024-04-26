@@ -1,0 +1,64 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+skinparam componentStyle uml2
+LAYOUT_WITH_LEGEND()
+LAYOUT_LANDSCAPE()
+skinparam componentStyle uml2
+
+title
+<b>Movies notifications pipeline</b>
+end title
+
+Boundary(users, "Users") {
+    Container(Notification_robot, "Notifications robot")
+    Container(Welcome_robot, "Welcome robot")
+    Person(admin, "Admin")
+}
+
+Boundary(Notifications-db, "Notifications database", "date partitioned") {
+    ContainerDb_Ext(Notifications_tasks, "Content+status table", "task_id, content, status")
+    ContainerDb_Ext(Notifications_results, "Notification ids", "notofication_id, content, status")
+}
+
+Boundary(NotificationsAPI, "Notifications API") {
+    Container(Notifications_service, "Notifications service")
+}
+
+Boundary(Queues, "Notifications queue") {
+    SystemQueue_Ext(TasksQueue, "Tasks Queue", "Tasks to be processed")
+    SystemQueue_Ext(NotificationsQueue, "Results Queue", "Results of processed tasks")
+    Container(Notifications_init_worker, "Notifications init worker")
+    Container(Notifications_prepare_worker, "Notifications preparation worker")
+    Container(Notifications_send_worker, "Notifications send")
+    Container(Notifications_restore_worker, "Harvests failed notifications")
+}
+
+Boundary(Output, "Mailings") {
+    Container(EMail, "E-mails")
+    Container(SMS, "SMSs")
+    Container(Push, "Push notifications")
+}
+
+
+Rel_R(admin, Notifications_service, "Creates one time tasks")
+Rel_R(Welcome_robot, Notifications_service, "Creates welcome tasks")
+Rel_R(Notification_robot, Notifications_service, "Creates conditional tasks")
+Rel_D(Notifications_service, Notifications_tasks, "Puts tasks")
+Rel(Notifications_init_worker, Notifications_tasks, "Gets tasks and marks pending")
+Rel_R(Notifications_init_worker, TasksQueue, "Puts tasks")
+Rel_L(Notifications_prepare_worker, TasksQueue, "Gets tasks to prepare")
+Rel_L(Notifications_prepare_worker, NotificationsQueue, "Puts prepared tasks")
+Rel(Notifications_prepare_worker, Notifications_results, "Saves as pending")
+Rel(Notifications_prepare_worker, Notifications_tasks, "Marks as completed")
+Rel_R(Notifications_send_worker, NotificationsQueue, "Gets tasks to send")
+Rel(Notifications_restore_worker, Notifications_tasks, "Gets failed tasks", "every 10 minutes")
+Rel_R(Notifications_restore_worker, TasksQueue, "Puts failed tasks")
+Rel_L(Notifications_send_worker, EMail, "Sends emails")
+Rel_L(Notifications_send_worker, SMS, "Sends SMSs")
+Rel_L(Notifications_send_worker, Push, "Sends push notifications")
+Rel_R(Notifications_send_worker, Notifications_results, "Marks as completed")
+
+
+
+@enduml
