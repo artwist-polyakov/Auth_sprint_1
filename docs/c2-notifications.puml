@@ -16,6 +16,10 @@ package Starage {
     database NotificationsResults
 }
 
+package SecureStorage {
+    database UsersDB
+}
+
 package Api {
     component NotificationsAPI
 }
@@ -24,15 +28,17 @@ package Queues {
     queue TasksQueue
     queue NotificationsQueue
     queue EnrichedQueue
-    queue DLQ
     queue ToSending
+}
+
+package DLQ {
+    queue DeadLetterQueue
 }
 
 package Workers {
     component CreationWorker
     component EnrichingWorker
     component PreSenderWorker
-    component DeadletterWorker
     component SenderWorker
 }
 
@@ -45,16 +51,17 @@ package Mailing {
 Admin -down-> NotificationsAPI
 NotificationBot  -down-> NotificationsAPI
 WelcomeBot  -down-> NotificationsAPI
-NotificationsAPI -right-> TasksQueue
+NotificationsAPI -down-> TasksQueue
 TasksQueue --down-> CreationWorker
 CreationWorker --up-> NotificationsQueue
-CreationWorker --up-> DLQ
 NotificationsQueue --down-> EnrichingWorker
 EnrichingWorker --up-> EnrichedQueue
+EnrichingWorker -> UsersDB
 EnrichedQueue --down-> PreSenderWorker
 PreSenderWorker --up-> ToSending
 ToSending --down-> SenderWorker
 SenderWorker --down-> NotificationsResults
 CreationWorker --down-> NotificationsTasks
-SenderWorker --down-> Mailing
+SenderWorker -down-> Mailing
+
 @enduml
