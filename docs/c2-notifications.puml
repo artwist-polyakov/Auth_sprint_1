@@ -11,6 +11,10 @@ package Users {
     usecase WelcomeBot
 }
 
+package ETL {
+    component NotificationLauncher
+}
+
 package Starage {
     database NotificationsTasks
     database NotificationsResults
@@ -48,20 +52,21 @@ package Mailing {
     component Push
 }
 
-Admin -down-> NotificationsAPI
-NotificationBot  -down-> NotificationsAPI
-WelcomeBot  -down-> NotificationsAPI
-NotificationsAPI -down-> TasksQueue
-TasksQueue --down-> CreationWorker
-CreationWorker --up-> NotificationsQueue
-NotificationsQueue --down-> EnrichingWorker
-EnrichingWorker --up-> EnrichedQueue
-EnrichingWorker -> UsersDB
-EnrichedQueue --down-> PreSenderWorker
-PreSenderWorker --up-> ToSending
-ToSending --down-> SenderWorker
+Admin -up-> NotificationsAPI
+NotificationBot  -up-> NotificationsAPI
+WelcomeBot  -up-> NotificationsAPI
+NotificationsAPI -up-> NotificationsTasks
+NotificationsTasks -right-> NotificationLauncher
+NotificationLauncher -up-> TasksQueue
+TasksQueue --up-> CreationWorker
+CreationWorker --down-> NotificationsQueue
+NotificationsQueue --up-> EnrichingWorker
+EnrichingWorker --down-> EnrichedQueue
+EnrichingWorker --> UsersDB
+EnrichedQueue --up-> PreSenderWorker
+PreSenderWorker --down-> ToSending
+ToSending --up-> SenderWorker
 SenderWorker --down-> NotificationsResults
-CreationWorker --down-> NotificationsTasks
-SenderWorker -down-> Mailing
+SenderWorker --up-> Mailing
 
 @enduml
