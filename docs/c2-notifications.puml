@@ -55,9 +55,9 @@ package Mailing {
 Admin -up-> NotificationsAPI
 NotificationBot  -up-> NotificationsAPI
 WelcomeBot  -up-> NotificationsAPI
-NotificationsAPI -up-> NotificationsTasks
-NotificationsTasks -right-> NotificationLauncher
-NotificationLauncher -up-> TasksQueue
+NotificationsAPI -up-> NotificationsTasks: " Записывает задачу в базу данных"
+NotificationsTasks -up-> NotificationLauncher: "NotificationLauncher \nопрашивает базу \nна предмет новых задач"
+NotificationLauncher -up-> TasksQueue: " Размещает задачу в очередь"
 TasksQueue --up-> CreationWorker
 CreationWorker --down-> NotificationsQueue
 NotificationsQueue --up-> EnrichingWorker
@@ -66,7 +66,7 @@ EnrichingWorker <-- UsersDB
 EnrichedQueue --up-> PreSenderWorker
 PreSenderWorker --down-> ToSending
 ToSending --up-> SenderWorker
-SenderWorker --down-> NotificationsResults
+SenderWorker --down-> NotificationsResults: " Записывает в базу данных \n информацию об успешной отправке"
 SenderWorker --up-> Mailing
 
 @enduml
