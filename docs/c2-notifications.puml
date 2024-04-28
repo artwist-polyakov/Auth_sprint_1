@@ -31,7 +31,7 @@ package Queues {
 package Workers {
     component CreationWorker
     component EnrichingWorker
-    component SenderWorker
+    component PreSenderWorker
     component DeadletterWorker
     component SenderWorker
 }
@@ -42,7 +42,19 @@ package Mailing {
     component Push
 }
 
-
-
-
+Admin -down-> NotificationsAPI
+NotificationBot  -down-> NotificationsAPI
+WelcomeBot  -down-> NotificationsAPI
+NotificationsAPI -right-> TasksQueue
+TasksQueue --down-> CreationWorker
+CreationWorker --up-> NotificationsQueue
+CreationWorker --up-> DLQ
+NotificationsQueue --down-> EnrichingWorker
+EnrichingWorker --up-> EnrichedQueue
+EnrichedQueue --down-> PreSenderWorker
+PreSenderWorker --up-> ToSending
+ToSending --down-> SenderWorker
+SenderWorker --down-> NotificationsResults
+CreationWorker --down-> NotificationsTasks
+SenderWorker --down-> Mailing
 @enduml
