@@ -1,0 +1,67 @@
+@startuml
+
+
+title
+<b>Movies notifications pipeline</b>
+end title
+
+package Users {
+    actor Admin
+    usecase NotificationBot
+    usecase WelcomeBot
+}
+
+package Starage {
+    database NotificationsTasks
+    database NotificationsResults
+}
+
+package SecureStorage {
+    database UsersDB
+}
+
+package Api {
+    component NotificationsAPI
+}
+
+package Queues {
+    queue TasksQueue
+    queue NotificationsQueue
+    queue EnrichedQueue
+    queue ToSending
+}
+
+package DLQ {
+    queue DeadLetterQueue
+}
+
+package Workers {
+    component CreationWorker
+    component EnrichingWorker
+    component PreSenderWorker
+    component SenderWorker
+}
+
+package Mailing {
+    component EMial
+    component SMS
+    component Push
+}
+
+Admin -down-> NotificationsAPI
+NotificationBot  -down-> NotificationsAPI
+WelcomeBot  -down-> NotificationsAPI
+NotificationsAPI -down-> TasksQueue
+TasksQueue --down-> CreationWorker
+CreationWorker --up-> NotificationsQueue
+NotificationsQueue --down-> EnrichingWorker
+EnrichingWorker --up-> EnrichedQueue
+EnrichingWorker -> UsersDB
+EnrichedQueue --down-> PreSenderWorker
+PreSenderWorker --up-> ToSending
+ToSending --down-> SenderWorker
+SenderWorker --down-> NotificationsResults
+CreationWorker --down-> NotificationsTasks
+SenderWorker -down-> Mailing
+
+@enduml
