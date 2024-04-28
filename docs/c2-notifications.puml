@@ -62,7 +62,7 @@ TasksQueue --up-> CreationWorker
 CreationWorker --down-> NotificationsQueue
 NotificationsQueue --up-> EnrichingWorker
 EnrichingWorker --down-> EnrichedQueue
-EnrichingWorker --> UsersDB
+EnrichingWorker <-- UsersDB
 EnrichedQueue --up-> PreSenderWorker
 PreSenderWorker --down-> ToSending
 ToSending --up-> SenderWorker
