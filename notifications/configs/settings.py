@@ -36,6 +36,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+
 @lru_cache
 def get_settings():
     return settings
