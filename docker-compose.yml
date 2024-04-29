@@ -370,6 +370,19 @@ services:
       - mongo2
       - mongo3
 
+  notifications:
+    container_name: notifications
+    build: ./notifications
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+    depends_on:
+      - jaeger
+    restart: on-failure
+
 volumes:
     static_volume:
     media_volume:
