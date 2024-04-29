@@ -71,7 +71,7 @@ async def before_request(request: Request, call_next):
     return response
 
 
-app.include_router(notifications.router, prefix='/notifications/v1/sender', tags=['Notifications'])
+app.include_router(notifications.router, prefix='/notifications/v1/tasks', tags=['Notifications'])
 
 if __name__ == '__main__':
     uvicorn.run(
