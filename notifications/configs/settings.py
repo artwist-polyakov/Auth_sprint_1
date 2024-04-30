@@ -15,7 +15,7 @@ setup_root_logger()
 
 
 class Settings(BaseSettings):
-    project_name: str = "notifications_api_default"
+    api_name: str = "Notifications API"
     logging_level: str = "INFO"
 
     jaeger_host: str = ...

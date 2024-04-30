@@ -44,7 +44,7 @@ sentry_sdk.init(
 )
 
 app = FastAPI(
-    title=settings.project_name,
+    title=settings.api_name,
     docs_url='/notifications/openapi',
     openapi_url='/notifications/openapi.json',
     default_response_class=ORJSONResponse
