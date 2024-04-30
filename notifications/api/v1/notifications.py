@@ -1,8 +1,9 @@
 from http import HTTPStatus
 
-from api.v1.models.tasks_params import TasksParams
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
+
+from api.v1.models.tasks_params import TasksParams
 
 router = APIRouter()
 

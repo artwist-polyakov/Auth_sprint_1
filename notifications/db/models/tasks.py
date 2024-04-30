@@ -1,11 +1,12 @@
 from enum import Enum
 
-from db.models.base import Base
-from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Boolean, Column
 from sqlalchemy import Enum as SQLEnum
-
+from sqlalchemy import Integer, String
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
+
+from db.models.base import Base
 
 
 class NotificationType(str, Enum):

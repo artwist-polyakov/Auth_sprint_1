@@ -1,8 +1,9 @@
 import logging
 from functools import lru_cache
 
-from core.logging_setup import setup_root_logger
 from pydantic_settings import BaseSettings
+
+from core.logging_setup import setup_root_logger
 
 log_levels = {
     'DEBUG': logging.DEBUG,
