@@ -10,4 +10,9 @@ wait_for_postgres() {
 
 wait_for_postgres
 
+export PYTHONPATH=$PYTHONPATH:/.
+# команда: alembic upgrade head
+# для вывода логов:
+alembic upgrade head 2>&1 | tee alembic.log
+
 uvicorn main:app --proxy-headers --host $NOTIFICATIONS_HOST --port $NOTIFICATIONS_PORT
