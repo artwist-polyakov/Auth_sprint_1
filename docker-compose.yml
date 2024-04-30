@@ -381,6 +381,7 @@ services:
       - ./logs:/logs:rw
     depends_on:
       - jaeger
+      - notifications-db
     restart: on-failure
 
   notifications-db:
@@ -392,6 +393,9 @@ services:
       - notifications_db_data:/var/lib/postgresql/data
     ports:
       - ${NOTIFICATIONS_DB_PORTS}
+    expose:
+      - ${NOTIFICATIONS_DB_PORT}
+    command: -p ${NOTIFICATIONS_DB_PORT}
     environment:
         POSTGRES_DB: ${NOTIFICATIONS_DB_NAME}
         POSTGRES_USER: ${NOTIFICATIONS_DB_USER}
