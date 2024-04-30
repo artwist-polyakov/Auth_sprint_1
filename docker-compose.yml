@@ -383,6 +383,17 @@ services:
       - jaeger
     restart: on-failure
 
+  notifications-db:
+    container_name: notifications-db
+    image: postgres:${NOTIFICATIONS_DB_VERSION}
+    env_file:
+      - .env
+    volumes:
+      - notifications_db_data:/var/lib/postgresql/data
+    ports:
+      - ${NOTIFICATIONS_DB_PORTS}
+    restart: on-failure
+
 volumes:
     static_volume:
     media_volume:
@@ -393,3 +404,4 @@ volumes:
     postgres_data:
     kafka_data:
     logs:
+    notifications_db_data:
