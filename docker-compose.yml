@@ -392,6 +392,10 @@ services:
       - notifications_db_data:/var/lib/postgresql/data
     ports:
       - ${NOTIFICATIONS_DB_PORTS}
+    environment:
+        POSTGRES_DB: ${NOTIFICATIONS_DB_NAME}
+        POSTGRES_USER: ${NOTIFICATIONS_DB_USER}
+        POSTGRES_PASSWORD: ${NOTIFICATIONS_DB_PASSWORD}
     restart: on-failure
 
 volumes:
