@@ -14,7 +14,7 @@ class TasksParams(BaseModel):
         ...,
         description="Notification title"
     )
-    message: str = Field(
+    content: str = Field(
         ...,
         description="Notification message",
 
