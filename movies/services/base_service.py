@@ -7,9 +7,6 @@ from elasticsearch import AsyncElasticsearch
 
 class BaseService(ABC):
 
-    # todo поменять имя переменной __elastic, когда абстрагируемся
-    #  от конкретной реализации сделать просто _search
-    #
     def __init__(self, cache: CacheStorage, search: AsyncElasticsearch | SearchStorage):
         self._cache = cache
         self._search = search
