@@ -13,3 +13,7 @@ class TasksStorage(ABC):
     @abstractmethod
     async def get_task(self, task_id: int) -> TaskResponse | None:
         pass
+
+    @abstractmethod
+    def close(self):
+        pass
