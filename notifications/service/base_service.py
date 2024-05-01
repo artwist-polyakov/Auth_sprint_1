@@ -7,3 +7,6 @@ class BaseService(ABC):
 
     def __init__(self, storage: TasksStorage):
         self._storage = storage
+
+    def close(self):
+        self._storage.close()
