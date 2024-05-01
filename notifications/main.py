@@ -1,7 +1,11 @@
 import sentry_sdk
 import uvicorn
+from api.v1 import notifications
+from configs.settings import get_settings
+from core.logger import LOGGING
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
+from middlewares.logging_middleware import LoggingMiddleware
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
@@ -9,11 +13,6 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
                                             ConsoleSpanExporter)
-
-from api.v1 import notifications
-from configs.settings import get_settings
-from core.logger import LOGGING
-from middlewares.logging_middleware import LoggingMiddleware
 
 settings = get_settings()
 
