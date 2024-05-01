@@ -2,16 +2,17 @@ import logging
 from contextlib import asynccontextmanager
 from functools import wraps
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+from sqlalchemy.sql import func
+
 from configs.settings import get_postgres_dsn
 from db.models.notifications import Notifications
 from db.models.tasks import Tasks
 from db.requests.task_request import PostTask
 from db.responses.task_response import TaskResponse
 from db.storage.tasks_storage import TasksStorage
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
-from sqlalchemy.sql import func
 
 
 class PostgresStorage(TasksStorage):
@@ -79,7 +80,7 @@ class PostgresStorage(TasksStorage):
 
             query = select(
                 func.count().label('total_sended'),
-                func.count().filter(Notifications.is_error == True).label('errors')
+                func.count().filter(Notifications.is_error).label('errors')
             ).where(Notifications.task_id == task_id)
             result = await session.execute(query)
             total_sended, errors = result.one()
