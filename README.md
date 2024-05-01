@@ -1,5 +1,16 @@
 Ссылка на приватный репозиторий с командной работой https://github.com/artwist-polyakov/Auth_sprint_1
 
+# Проектная работа 10 спринта
+
+Коннект к RabbitMQ
+
+```shell
+http://localhost:15672
+
+login: admin
+password: admin
+```
+
 # Проектная работа 9 спринта
 
 ## CI/CD

@@ -1,6 +1,6 @@
-import pika
-import time
 import uuid
+
+import pika
 from core.settings import get_settings
 
 

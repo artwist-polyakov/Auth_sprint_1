@@ -15,9 +15,8 @@ from api.v1.models.review_event import (DeleteReviewEvent,
 from app import API_PREFIX, bookmarks, content, rates
 from flask import Response, jsonify
 from flask_openapi3 import APIBlueprint
-from services.queue_service import get_queue_service
-
 from services.mongo import get_mongo_service
+from services.queue_service import get_queue_service
 
 content_blueprint = APIBlueprint(
     "/content", __name__, url_prefix=API_PREFIX, abp_tags=[content], doc_ui=True
