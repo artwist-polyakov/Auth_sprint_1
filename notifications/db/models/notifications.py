@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from db.models.base import Base
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
+
+from db.models.base import Base
 
 
 class Notifications(Base):
@@ -13,4 +14,5 @@ class Notifications(Base):
     task_id = Column(Integer, ForeignKey('notifications.tasks.id'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_sended: bool = Column(Boolean, nullable=False, default=False)
+    is_error: bool = Column(Boolean, nullable=False, default=False)
     task = relationship("Tasks", back_populates="notifications")

@@ -2,16 +2,17 @@ import logging
 from contextlib import asynccontextmanager
 from functools import wraps
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+from sqlalchemy.sql import func
+
 from configs.settings import get_postgres_dsn
 from db.models.notifications import Notifications
 from db.models.tasks import Tasks
 from db.requests.task_request import PostTask
 from db.responses.task_response import TaskResponse
 from db.storage.tasks_storage import TasksStorage
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
-from sqlalchemy.sql import func
 
 
 class PostgresStorage(TasksStorage):
@@ -50,12 +51,13 @@ class PostgresStorage(TasksStorage):
         task = await self._get_task_info(task_id)
         if task is None:
             return None
-        statistics = await self._get_task_statistics(task_id)
+        sended, errors = await self._get_task_statistics(task_id)
         return TaskResponse(
             id=task.id,
             title=task.title,
-            sended_messages=statistics,
+            sended_messages=sended,
             total_messages=len(task.user_ids),
+            with_errors=errors,
             type=task.type,
             created_at=int(task.created_at.timestamp()),
             is_launched=task.is_launched
@@ -73,13 +75,17 @@ class PostgresStorage(TasksStorage):
             return None
 
     @_with_session
-    async def _get_task_statistics(self, task_id: int, session=None) -> int:
+    async def _get_task_statistics(self, task_id: int, session=None) -> (int, int):
         try:
+
             query = select(
-                func.count()
-            ).where(Notifications.task_id == task_id and Notifications.is_sended)
+                func.count().label('total_sended'),
+                func.count().filter(Notifications.is_error).label('errors')
+            ).where(Notifications.task_id == task_id)
             result = await session.execute(query)
-            return result.scalar()
+            total_sended, errors = result.one()
+
+            return total_sended, errors
         except Exception as e:
             print(e)
             return 0

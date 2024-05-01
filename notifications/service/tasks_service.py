@@ -1,11 +1,12 @@
 from functools import lru_cache
 
+from fastapi import Depends
+
 from db.requests.base_request import BaseRequest
 from db.requests.task_request import GetTaskInfo, PostTask, TaskRequest
 from db.responses.task_response import TaskResponse
 from db.storage.postgres_storage import PostgresStorage
 from db.storage.tasks_storage import TasksStorage
-from fastapi import Depends
 from service.base_service import BaseService
 
 
