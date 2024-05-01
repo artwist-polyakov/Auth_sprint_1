@@ -370,6 +370,22 @@ services:
       - mongo2
       - mongo3
 
+  rabbitmq:
+    container_name: rabbitmq
+    env_file:
+      - .env
+    environment:
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_USERNAME}
+      - RABBITMQ_DEFAULT_USER=${RABBIT_PASSWORD}
+      - RABBITMQ_DEFAULT_VHOST='vhost'
+    restart: always
+    image: rabbitmq:3.10-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
 volumes:
     static_volume:
     media_volume:
@@ -379,4 +395,5 @@ volumes:
     redis_data:
     postgres_data:
     kafka_data:
+    rabbitmq_data:
     logs:

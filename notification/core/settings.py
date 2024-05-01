@@ -1,3 +1,4 @@
+from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -24,6 +25,8 @@ class RabbitSettings(_BaseSettings):
     model_config = SettingsConfigDict(env_prefix="rabbit_")
     host: str
     port: int
+    username: str
+    password: str
 
 
 class Settings(CommonSettings):
@@ -32,4 +35,6 @@ class Settings(CommonSettings):
     rabbit: RabbitSettings = RabbitSettings()
 
 
-settings = Settings()
+@lru_cache()
+def get_settings() -> BaseSettings:
+    return Settings()
