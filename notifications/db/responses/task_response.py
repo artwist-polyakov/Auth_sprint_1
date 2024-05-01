@@ -2,7 +2,7 @@ from db.responses.base_response import BaseResponse
 
 
 class TaskResponse(BaseResponse):
-    id: str
+    id: int
     title: str
     sended_messages: int
     total_messages: int

@@ -8,8 +8,8 @@ class TaskRequest(BaseRequest):
     type: str
 
 
-class GetTaskInfo(TaskRequest):
-    pass
+class GetTaskInfo(BaseRequest):
+    task_id: int
 
 
 class PostTask(TaskRequest):
