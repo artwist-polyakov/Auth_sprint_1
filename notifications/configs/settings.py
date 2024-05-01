@@ -51,7 +51,8 @@ class PostgresDSN(BaseSettings):
     password: str = settings.notifications_db_password
 
     def get_dsn(self) -> str:
-        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
+        return (f"postgresql+asyncpg://{self.user}:{self.password}"
+                f"@{self.host}:{self.port}/{self.db}")
 
 
 @lru_cache

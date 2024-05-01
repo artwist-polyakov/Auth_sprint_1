@@ -13,7 +13,6 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
                                             ConsoleSpanExporter)
-
 from service.tasks_service import get_tasks_service
 
 settings = get_settings()
