@@ -6,9 +6,8 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
 from db.models.base import Base
-
-# from db.models.tasks import Tasks
 # from db.models.notifications import Notifications
+# from db.models.tasks import Tasks
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

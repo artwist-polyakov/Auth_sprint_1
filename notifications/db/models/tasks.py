@@ -1,6 +1,7 @@
+from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Boolean, Column
+from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import Integer, String
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -24,6 +25,7 @@ class Tasks(Base):
     content: str = Column(String, nullable=False)
     user_ids: list[str] = Column(ARRAY(String), nullable=False)
     type = Column(SQLEnum(NotificationType), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
     is_launched: bool = Column(Boolean, nullable=False, default=False)
     notifications = relationship(
         "Notifications",
