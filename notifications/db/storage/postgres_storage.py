@@ -77,21 +77,14 @@ class PostgresStorage(TasksStorage):
     async def _get_task_statistics(self, task_id: int, session=None) -> (int, int):
         try:
 
-            # всего сообщения
             query = select(
-                func.count()
-            ).where(Notifications.task_id == task_id and Notifications.is_sended)
-            total = await session.execute(query)
-            total = total.scalar()
+                func.count().label('total_sended'),
+                func.count().filter(Notifications.is_error == True).label('errors')
+            ).where(Notifications.task_id == task_id)
+            result = await session.execute(query)
+            total_sended, errors = result.one()
 
-            # сообщений с ошибками
-            query = select(
-                func.count()
-            ).where(Notifications.task_id == task_id and Notifications.is_error)
-            errors = await session.execute(query)
-            errors = errors.scalar()
-
-            return total, errors
+            return total_sended, errors
         except Exception as e:
             print(e)
             return 0
