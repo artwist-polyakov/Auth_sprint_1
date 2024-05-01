@@ -9,7 +9,6 @@ from typing import Sequence, Union
 
 from alembic import op
 
-
 # revision identifiers, used by Alembic.
 revision: str = 'f406973a46e5'
 down_revision: Union[str, None] = '05933464dddb'
@@ -18,7 +17,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.create_index('idx_is_launched', 'tasks', ['is_launched'], unique=False, schema='notifications')
+    op.create_index(
+        'idx_is_launched',
+        'tasks',
+        ['is_launched'],
+        unique=False,
+        schema='notifications'
+    )
 
 
 def downgrade() -> None:
