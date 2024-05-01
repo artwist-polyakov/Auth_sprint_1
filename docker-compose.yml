@@ -402,6 +402,17 @@ services:
         POSTGRES_PASSWORD: ${NOTIFICATIONS_DB_PASSWORD}
     restart: on-failure
 
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:${RABBIT_MQ_VERSION}
+    hostname: ${RABBIT_MQ_HOST}
+    ports:
+      - ${RABBIT_MQ_PORTS}
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_MQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_MQ_PASSWORD}
+    restart: on-failure
+
 volumes:
     static_volume:
     media_volume:
