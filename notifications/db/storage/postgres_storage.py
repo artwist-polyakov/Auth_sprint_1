@@ -50,12 +50,13 @@ class PostgresStorage(TasksStorage):
         task = await self._get_task_info(task_id)
         if task is None:
             return None
-        statistics = await self._get_task_statistics(task_id)
+        sended, errors = await self._get_task_statistics(task_id)
         return TaskResponse(
             id=task.id,
             title=task.title,
-            sended_messages=statistics,
+            sended_messages=sended,
             total_messages=len(task.user_ids),
+            with_errors=errors,
             type=task.type,
             created_at=int(task.created_at.timestamp()),
             is_launched=task.is_launched
@@ -73,13 +74,24 @@ class PostgresStorage(TasksStorage):
             return None
 
     @_with_session
-    async def _get_task_statistics(self, task_id: int, session=None) -> int:
+    async def _get_task_statistics(self, task_id: int, session=None) -> (int, int):
         try:
+
+            # всего сообщения
             query = select(
                 func.count()
             ).where(Notifications.task_id == task_id and Notifications.is_sended)
-            result = await session.execute(query)
-            return result.scalar()
+            total = await session.execute(query)
+            total = total.scalar()
+
+            # сообщений с ошибками
+            query = select(
+                func.count()
+            ).where(Notifications.task_id == task_id and Notifications.is_error)
+            errors = await session.execute(query)
+            errors = errors.scalar()
+
+            return total, errors
         except Exception as e:
             print(e)
             return 0
