@@ -2,17 +2,16 @@ import logging
 from contextlib import asynccontextmanager
 from functools import wraps
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
-from sqlalchemy.sql import func
-
 from configs.settings import get_postgres_dsn
 from db.models.notifications import Notifications
 from db.models.tasks import Tasks
 from db.requests.task_request import PostTask
 from db.responses.task_response import TaskResponse
 from db.storage.tasks_storage import TasksStorage
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+from sqlalchemy.sql import func
 
 
 class PostgresStorage(TasksStorage):
