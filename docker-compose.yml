@@ -404,13 +404,32 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
-    image: rabbitmq:${RABBIT_MQ_VERSION}
-    hostname: ${RABBIT_MQ_HOST}
+    image: rabbitmq:${RABBIT_MQ_VERSION}-management-alpine
     ports:
       - ${RABBIT_MQ_PORTS}
+    expose:
+      - ${RABBIT_MQ_PORT}
+    hostname: ${RABBIT_MQ_HOST}
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBIT_MQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBIT_MQ_PASSWORD}
+    restart: on-failure
+
+  rabbitmq-init:
+    container_name: rabbitmq-init
+    image: rabbitmq:${RABBIT_MQ_VERSION}-management
+    volumes:
+      - ./rabbitmq/init.sh:/scripts/init.sh
+    entrypoint: [ "bash", "/scripts/init.sh" ]
+    environment:
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_PORT: ${RABBIT_MQ_PORT}
+      RABBIT_MQ_TASKS_KEY: ${RABBIT_MQ_TASKS_KEY}
+      RABBIT_MQ_NOTIFICATIONS_KEY: ${RABBIT_MQ_NOTIFICATIONS_KEY}
+      RABBIT_MQ_ENRICHED_KEY: ${RABBIT_MQ_ENRICHED_KEY}
+      RABBIT_MQ_TO_SENDING_KEY: ${RABBIT_MQ_TO_SENDING_KEY}
+    depends_on:
+      - rabbitmq
     restart: on-failure
 
 volumes:
