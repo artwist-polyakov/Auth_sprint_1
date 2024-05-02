@@ -14,3 +14,4 @@ opentelemetry-exporter-jaeger==1.17.0
 sentry-sdk[fastapi]==1.45.0
 alembic==1.13.1
 asyncpg==0.29.0
+typer[all]==0.9.0
