@@ -433,6 +433,13 @@ services:
       - rabbitmq
     restart: on-failure
 
+  cron-test:
+    container_name: cron-test
+    build: ./cron-test
+    volumes:
+      - ./logs:/logs:rw
+    restart: always
+
 volumes:
     static_volume:
     media_volume:
