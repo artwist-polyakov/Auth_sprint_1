@@ -18,16 +18,17 @@ done
 
 #executing command
 
-rabbitmqadmin declare exchange name=my_exchange type=direct
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare exchange name=my_exchange type=direct
 
-rabbitmqadmin declare queue name=TasksQueue durable=true
-rabbitmqadmin declare queue name=NotificationsQueue durable=true
-rabbitmqadmin declare queue name=EnrichedQueue durable=true
-rabbitmqadmin declare queue name=ToSendingQueue durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=TasksQueue durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=NotificationsQueue durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=EnrichedQueue durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=ToSendingQueue durable=true
 
-rabbitmqadmin declare binding source=my_exchange destination_type=queue destination=TasksQueue routing_key=${RABBIT_MQ_TASKS_KEY}
-rabbitmqadmin declare binding source=my_exchange destination_type=queue destination=NotificationsQueue routing_key=${RABBIT_MQ_NOTIFICATIONS_KEY}
-rabbitmqadmin declare binding source=my_exchange destination_type=queue destination=EnrichedQueue routing_key=${RABBIT_MQ_ENRICHED_KEY}
-rabbitmqadmin declare binding source=my_exchange destination_type=queue destination=ToSendingQueue routing_key=${RABBIT_MQ_TO_SENDING_KEY}
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=my_exchange destination_type=queue destination=TasksQueue routing_key=${RABBIT_MQ_TASKS_KEY}
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=my_exchange destination_type=queue destination=NotificationsQueue routing_key=${RABBIT_MQ_NOTIFICATIONS_KEY}
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=my_exchange destination_type=queue destination=EnrichedQueue routing_key=${RABBIT_MQ_ENRICHED_KEY}
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=my_exchange destination_type=queue destination=ToSendingQueue routing_key=${RABBIT_MQ_TO_SENDING_KEY}
+
 
 echo "Initialization completed"
