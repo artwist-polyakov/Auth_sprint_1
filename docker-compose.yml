@@ -407,6 +407,7 @@ services:
     image: rabbitmq:${RABBIT_MQ_VERSION}-management-alpine
     ports:
       - ${RABBIT_MQ_PORTS}
+      - ${RABBIT_MQ_AMQP_PORTS}
     expose:
       - ${RABBIT_MQ_PORT}
     hostname: ${RABBIT_MQ_HOST}
