@@ -1,1 +1,1 @@
-* * * * * python3 /app/test.py >> /logs/logs.log 2>&1; cat /logs/logs.log
+* * * * * python3 /app/test.py 2>&1
