@@ -441,7 +441,6 @@ services:
     depends_on:
       - rabbitmq
 
-
 volumes:
     static_volume:
     media_volume:
