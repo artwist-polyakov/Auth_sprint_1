@@ -15,9 +15,7 @@ from sqlalchemy.orm import Session, sessionmaker
 class PostgresStorage(TasksStorage):
 
     def __init__(self):
-        self._dsn = get_settings().postgres.get_dsn()
-        logging.error(self._dsn)
-        print(self._dsn)
+        self._dsn = get_settings().get_postgres_dsn()
         self._engine = create_engine(self._dsn)
         self._session = sessionmaker(bind=self._engine)
 
