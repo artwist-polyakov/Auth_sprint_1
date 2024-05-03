@@ -28,6 +28,11 @@ class RabbitSettings(BaseSettings):
     amqp_port: int
     user: str
     password: str
+    tasks_key: str
+    notifications_key: str
+    enriched_key: str
+    to_sending_key: str
+    exchange: str
 
 
 class Settings:
@@ -38,6 +43,9 @@ class Settings:
 
     def get_postgres_dsn(self) -> str:
         return self.postgres.get_dsn()
+
+    def get_rabbit_settings(self) -> RabbitSettings:
+        return self.rabbit
 
 
 @lru_cache
