@@ -2,7 +2,7 @@ import logging
 from contextlib import contextmanager
 from functools import wraps
 
-from configs.settings import get_postgres_dsn
+from configs.settings import get_settings
 from db.models.notifications import Notifications  # noqa
 from db.models.tasks import Tasks
 from db.storage.tasks_storage import TasksStorage
@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session, sessionmaker
 class PostgresStorage(TasksStorage):
 
     def __init__(self):
-        self._dsn = get_postgres_dsn()
+        self._dsn = get_settings().postgres.get_dsn()
         logging.error(self._dsn)
         print(self._dsn)
         self._engine = create_engine(self._dsn)
