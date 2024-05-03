@@ -1,24 +1,8 @@
 from functools import lru_cache
-from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class _BaseSettings(BaseSettings):
-    """Базовые настройки."""
-
-    base_dir: Path = Path(__file__).parent.parent.resolve()
-    model_config = SettingsConfigDict(
-        env_file=str(base_dir / "../../.env"), extra="ignore"
-    )
-
-
-class CommonSettings(_BaseSettings):
-    """Общие настройки, не относящиеся к коду."""
-
-    project_name: str
-
-
-class PostgresSettings(_BaseSettings):
+class PostgresSettings(BaseSettings):
     """Настройки Postgres."""
 
     model_config = SettingsConfigDict(env_prefix="notifications_db_")
@@ -34,7 +18,7 @@ class PostgresSettings(_BaseSettings):
                 f"@{self.host}:{self.port}/{self.name}")
 
 
-class RabbitSettings(_BaseSettings):
+class RabbitSettings(BaseSettings):
     """Настройки Rabbit."""
 
     model_config = SettingsConfigDict(env_prefix="rabbit_mq_")
@@ -45,11 +29,14 @@ class RabbitSettings(_BaseSettings):
     password: str
 
 
-class Settings(CommonSettings):
+class Settings:
     """Настройки проекта."""
 
     rabbit: RabbitSettings = RabbitSettings()
     postgres: PostgresSettings = PostgresSettings()
+
+    def get_postgres_dsn(self) -> str:
+        return self.postgres.get_dsn()
 
 
 @lru_cache
