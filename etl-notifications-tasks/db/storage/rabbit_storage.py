@@ -1,5 +1,6 @@
-import pika
 import uuid
+
+import pika
 from core.settings import get_settings
 
 
@@ -14,7 +15,11 @@ class RabbitCore:
 
     def __enter__(self):
         credentials = pika.PlainCredentials(self.username, self.password)
-        parameters = pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials)
+        parameters = pika.ConnectionParameters(
+            host=self.host,
+            port=self.port,
+            credentials=credentials
+        )
         self.connection = pika.BlockingConnection(parameters)
         self.channel = self.connection.channel()
         return self
