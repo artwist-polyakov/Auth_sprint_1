@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from models.base_orjson_model import BaseORJSONModel
 
 
-class TaskResult(BaseModel):
+class TaskResult(BaseORJSONModel):
     id: int
     title: str
     content: str
