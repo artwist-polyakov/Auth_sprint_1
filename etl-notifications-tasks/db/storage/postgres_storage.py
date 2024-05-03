@@ -47,7 +47,7 @@ class PostgresStorage(TasksStorage):
 
     @_with_session
     def getNewTasks(self, session=None) -> list[TaskResult]:
-        tasks = session.execute(select(Tasks).where(not Tasks.is_launched))
+        tasks = session.execute(select(Tasks).where(Tasks.is_launched.is_(False)))
         result = []
         for task in tasks.scalars().all():
             result.append(
