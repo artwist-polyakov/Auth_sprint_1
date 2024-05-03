@@ -433,11 +433,18 @@ services:
       - rabbitmq
     restart: on-failure
 
-  etl-rabbit:
-    container_name: etl-rabbit
-    build: ./etl_rabbit
+  scheduler:
+    container_name: scheduler
+    build: scheduler
+    restart: always
     env_file:
       - .env
+    environment:
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_PORT: ${RABBIT_MQ_PORT}
+    command: [ "sh", "-c", "crontab /etc/cron.d/mycron" ]
+    volumes:
+      - ./logs:/logs:rw
     depends_on:
       - rabbitmq
 

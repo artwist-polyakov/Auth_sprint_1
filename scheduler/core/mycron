@@ -1,0 +1,1 @@
+*/5 * * * * python3 /worker/check_data.py 2>&1

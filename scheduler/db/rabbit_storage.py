@@ -1,13 +1,13 @@
 import pika
-
+import uuid
 from core.settings import get_settings
 
 
 class RabbitCore:
     def __init__(self):
         self.host = get_settings().rabbit.host
-        self.port = get_settings().rabbit.port
-        self.username = get_settings().rabbit.username
+        self.port = get_settings().rabbit.amqp_port
+        self.username = get_settings().rabbit.user
         self.password = get_settings().rabbit.password
         self.connection = None
         self.channel = None
@@ -22,5 +22,19 @@ class RabbitCore:
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.close()
 
-    def create_queue(self, queue_name):
-        self.channel.queue_declare(queue=queue_name)
+    def create_queue(self, queue_name: str):
+        self.channel.queue_declare(queue=queue_name, durable=True)
+
+    def send_message(self, queue_name: str, message: str):
+        self.channel.confirm_delivery()
+        properties = pika.BasicProperties(
+            delivery_mode=2,
+            headers={"X-Request-Id": str(uuid.uuid4())}
+        )
+        self.channel.basic_publish(
+            exchange='',
+            routing_key=queue_name,
+            body=message,
+            properties=properties
+        )
+

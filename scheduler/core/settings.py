@@ -22,10 +22,11 @@ class CommonSettings(_BaseSettings):
 class RabbitSettings(_BaseSettings):
     """Настройки Rabbit."""
 
-    model_config = SettingsConfigDict(env_prefix="rabbit_")
+    model_config = SettingsConfigDict(env_prefix="rabbit_mq_")
     host: str
     port: int
-    username: str
+    amqp_port: int
+    user: str
     password: str
 
 
