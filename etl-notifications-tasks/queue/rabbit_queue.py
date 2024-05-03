@@ -45,7 +45,14 @@ class RabbitQueue(BaseQueue):
             )
 
     def pop(self) -> dict:
-        pass
+        with self:
+            method_frame, header_frame, body = self.channel.basic_get(
+                queue=self._key,
+                auto_ack=True
+            )
+            if method_frame:
+                return {"task": body.decode(), "task_id": header_frame.headers["Task-Id"]}
+            return {}
 
     def close(self):
         pass
