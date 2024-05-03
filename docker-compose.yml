@@ -436,6 +436,8 @@ services:
   etl-notifications-tasks:
     container_name: etl-notifications-tasks
     build: ./etl-notifications-tasks
+    env_file:
+      - .env
     volumes:
       - ./logs:/logs:rw
     restart: always
