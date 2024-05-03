@@ -63,10 +63,11 @@ class PostgresStorage(TasksStorage):
     @_with_session
     def markTaskLaunched(self, task_id: int, session=None) -> bool:
         task = select(Tasks).where(Tasks.id == task_id)
-        task = session.execute(task).first()
+        task = session.execute(task).scalar_one_or_none()
         if task is None:
             return False
         task.is_launched = True
+        session.add(task)
         return True
 
     def close(self):
