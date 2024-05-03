@@ -1,1 +1,0 @@
-print("Ia yest cron")
