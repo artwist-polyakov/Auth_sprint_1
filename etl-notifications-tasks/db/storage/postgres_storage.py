@@ -1,17 +1,15 @@
 import logging
 from contextlib import contextmanager
-
 from functools import wraps
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import select
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy import create_engine
 
-from models.task_result import TaskResult
 from configs.settings import get_postgres_dsn
+from db.models.notifications import Notifications  # noqa
 from db.models.tasks import Tasks
-from db.models.notifications import Notifications # noqa
 from db.storage.tasks_storage import TasksStorage
+from models.task_result import TaskResult
+from sqlalchemy import create_engine, select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session, sessionmaker
 
 
 class PostgresStorage(TasksStorage):
@@ -49,7 +47,7 @@ class PostgresStorage(TasksStorage):
 
     @_with_session
     def getNewTasks(self, session=None) -> list[TaskResult]:
-        tasks = session.execute(select(Tasks).where(Tasks.is_launched == False))
+        tasks = session.execute(select(Tasks).where(not Tasks.is_launched))
         result = []
         for task in tasks.scalars().all():
             result.append(

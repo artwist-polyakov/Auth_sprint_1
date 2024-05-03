@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from models.task_result import TaskResult
 
 

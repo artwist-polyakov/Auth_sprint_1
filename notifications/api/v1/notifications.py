@@ -1,13 +1,12 @@
 import logging
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, Query
-from fastapi.responses import JSONResponse
-
 from api.v1.models.task_result import TaskResult
 from api.v1.models.tasks_params import TasksParams
 from api.v1.utils.convertors import TaskResponseConvertor
 from db.requests.task_request import GetTaskInfo, TaskRequest
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse
 from service.tasks_service import TasksService, get_tasks_service
 
 router = APIRouter()
