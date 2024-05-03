@@ -1,19 +1,20 @@
 from queue.base_queue import BaseQueue
-
+from typing import Callable, Any
 import pika
 from configs.settings import get_settings
+
 from models.task_result import TaskResult
 
 
 class RabbitQueue(BaseQueue):
-    def __init__(self):
+    def __init__(self, key: str):
         self.host = get_settings().rabbit.host
         self.port = get_settings().rabbit.amqp_port
         self.username = get_settings().rabbit.user
         self.password = get_settings().rabbit.password
         self.connection = None
         self.channel = None
-        self._key = get_settings().get_rabbit_settings().tasks_key
+        self._key = key
 
     def __enter__(self):
         credentials = pika.PlainCredentials(self.username, self.password)
@@ -44,15 +45,13 @@ class RabbitQueue(BaseQueue):
                 properties=properties
             )
 
-    def pop(self) -> dict:
+    def pop(self, handler: Callable[[Any, Any, Any, bytes], None]):
         with self:
             method_frame, header_frame, body = self.channel.basic_get(
                 queue=self._key,
-                auto_ack=True
+                auto_ack=True,
+                on_message_callback=handler
             )
-            if method_frame:
-                return {"task": body.decode(), "task_id": header_frame.headers["Task-Id"]}
-            return {}
 
     def close(self):
         pass
