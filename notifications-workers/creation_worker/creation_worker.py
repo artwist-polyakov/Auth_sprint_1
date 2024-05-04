@@ -6,6 +6,7 @@ import sys
 from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
+from db.storage.postgres_storage import PostgresStorage
 from models.message import Message
 from models.single_task import SingleTask
 
@@ -16,6 +17,7 @@ logger.addHandler(logging.StreamHandler())
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_tasks = RabbitQueue(get_settings().get_rabbit_settings().tasks_queue)
 rabbitmq_notifications = RabbitQueue(get_settings().get_rabbit_settings().notifications_key)
+storage = PostgresStorage()
 
 
 def handle_exit(sig, frame):
@@ -30,7 +32,14 @@ def handler(ch, method, properties, body):
         logger.info(f"Processing task {data}")
         for user_id in data.user_ids:
             task.user_id = user_id
-        rabbitmq_notifications.push(message=task)
+            task.task_id = data.id
+
+            created_notification = storage.save_notification(task)
+
+            task.notification_id = created_notification.id
+
+            rabbitmq_notifications.push(message=task)
+
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f"Error in callback: {e}")
