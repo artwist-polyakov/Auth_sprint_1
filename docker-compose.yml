@@ -442,6 +442,17 @@ services:
       - ./logs:/logs:rw
     restart: always
 
+  notifications-workers:
+    container_name: notifications-workers
+    build: ./notifications-workers
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
 volumes:
     static_volume:
     media_volume:
