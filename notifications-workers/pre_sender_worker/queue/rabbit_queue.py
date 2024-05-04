@@ -7,14 +7,13 @@ from models.task_result import TaskResult
 
 
 class RabbitQueue(BaseQueue):
-    def __init__(self, key: str):
+    def __init__(self):
         self.host = get_settings().rabbit.host
         self.port = get_settings().rabbit.amqp_port
         self.username = get_settings().rabbit.user
         self.password = get_settings().rabbit.password
         self.connection = None
         self.channel = None
-        self._key = key
 
     def __enter__(self):
         credentials = pika.PlainCredentials(self.username, self.password)
@@ -30,7 +29,7 @@ class RabbitQueue(BaseQueue):
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.close()
 
-    def push(self, task: TaskResult, session=None) -> bool:
+    def push(self, task: TaskResult, queue, session=None) -> bool:
         with self:
             self.channel.confirm_delivery()
             properties = pika.BasicProperties(
@@ -40,16 +39,16 @@ class RabbitQueue(BaseQueue):
             print(task.model_dump())
             self.channel.basic_publish(
                 exchange=get_settings().get_rabbit_settings().exchange,
-                routing_key=self._key,
+                routing_key=queue,
                 body=str(task.model_dump()),
                 properties=properties
             )
 
-    def pop(self, handler: Callable[[Any, Any, Any, bytes], None]):
+    def pop(self, queue, handler: Callable[[Any, Any, Any, bytes], None]):
         with self:
             method_frame, header_frame, body = self.channel.basic_get(
-                queue=self._key,
-                auto_ack=False,
+                queue=queue,
+                auto_ack=True,
                 on_message_callback=handler
             )
 

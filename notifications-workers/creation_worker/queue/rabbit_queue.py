@@ -1,9 +1,10 @@
 from queue.base_queue import BaseQueue
-from typing import Any, Callable
+from typing import Callable, TypeVar
 
 import pika
 from configs.settings import get_settings
-from models.task_result import TaskResult
+
+T = TypeVar('T')
 
 
 class RabbitQueue(BaseQueue):
@@ -30,28 +31,35 @@ class RabbitQueue(BaseQueue):
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.close()
 
-    def push(self, task: TaskResult, session=None) -> bool:
+    def push(self, message: T, session=None) -> bool:
         with self:
             self.channel.confirm_delivery()
             properties = pika.BasicProperties(
                 delivery_mode=2,
-                headers={"Task-Id": str(task.id)}
+                headers={"Task-Id": str(message.id)}
             )
-            print(task.model_dump())
             self.channel.basic_publish(
                 exchange=get_settings().get_rabbit_settings().exchange,
                 routing_key=self._key,
-                body=str(task.model_dump()),
+                body=str(message.model_dump()),
                 properties=properties
             )
 
-    def pop(self, handler: Callable[[Any, Any, Any, bytes], None]):
+    def pop(self,
+            handler: Callable[
+                [pika.channel.Channel,
+                 pika.spec.Basic.Deliver,
+                 pika.spec.BasicProperties,
+                 bytes],
+                None
+            ]):
         with self:
-            method_frame, header_frame, body = self.channel.basic_get(
+            self.channel.basic_consume(
                 queue=self._key,
-                auto_ack=False,
-                on_message_callback=handler
+                on_message_callback=handler,
+                auto_ack=False
             )
+            self.channel.start_consuming()
 
     def close(self):
         pass
