@@ -1,7 +1,7 @@
 from models.base_orjson_model import BaseORJSONModel
 
 
-class SingleTask(BaseORJSONModel):
+class EnrichingMessageTask(BaseORJSONModel):
     id: int
     title: str
     content: str

@@ -8,5 +8,3 @@ class SingleTask(BaseORJSONModel):
     user_id: str
     type: str
     created_at: int
-    contact: str
-    template: str
