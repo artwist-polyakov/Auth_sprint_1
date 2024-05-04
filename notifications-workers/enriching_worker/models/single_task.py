@@ -1,11 +1,10 @@
 from models.base_orjson_model import BaseORJSONModel
 
 
-class TaskResult(BaseORJSONModel):
+class SingleTask(BaseORJSONModel):
     id: int
     title: str
     content: str
-    user_ids: list[str]
+    user_id: str
     type: str
     created_at: int
-    is_launched: bool
