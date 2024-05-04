@@ -26,7 +26,7 @@ def handler(ch, method, properties, body):
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
         logger.info(f"Processing task {worker_id} | {data}")
 
-        #TODO тут мы отсылаем сообщение пользователю
+        # тут мы отсылаем сообщение пользователю
 
     except Exception as e:
         print(f"Error in callback: {e}")

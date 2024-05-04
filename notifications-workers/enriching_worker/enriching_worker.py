@@ -29,7 +29,7 @@ def handler(ch, method, properties, body):
         task = EnrichingMessageTask(**data.model_dump())
         logger.info(f"Processing task {worker_id} | {data}")
 
-        #TODO тут мы получаем contact пользователя по типу
+        # тут мы получаем contact пользователя по типу
         # (мейл, телефон или ws_id) и template (тело сообщения)
         # и обогащаем task новыми данными
 

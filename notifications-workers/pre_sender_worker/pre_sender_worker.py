@@ -27,7 +27,7 @@ def handler(ch, method, properties, body):
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
         logger.info(f"Processing task {worker_id} | {data}")
 
-        #TODO тут мы проверяем можем ли мы отправлять сообщение или нет
+        # тут мы проверяем можем ли мы отправлять сообщение или нет
 
         rabbitmq_enriched.push(message=data)
         ch.basic_ack(delivery_tag=method.delivery_tag)
