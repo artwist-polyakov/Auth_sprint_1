@@ -59,7 +59,8 @@ class PostgresStorage(TasksStorage):
             with_errors=errors,
             type=task.type,
             created_at=int(task.created_at.timestamp()),
-            is_launched=task.is_launched
+            is_launched=task.is_launched,
+            scenario=task.scenario
         )
 
     @_with_session
@@ -93,12 +94,18 @@ class PostgresStorage(TasksStorage):
     async def create_task(self, task: PostTask, session=None) -> TaskResponse | None:
         try:
             async with session.begin():
+                logging.warning(f"Task: {task}")
+
                 task__to_save = Tasks(
                     title=task.title,
                     content=task.content,
                     user_ids=task.user_ids,
-                    type=task.type
+                    type=task.type,
+                    scenario=task.scenario
                 )
+
+                logging.warning(f"Task to save: {task__to_save}")
+
                 session.add(task__to_save)
                 await session.commit()
                 return TaskResponse(
@@ -108,7 +115,8 @@ class PostgresStorage(TasksStorage):
                     total_messages=len(task__to_save.user_ids),
                     type=task__to_save.type,
                     created_at=int(task__to_save.created_at.timestamp()),
-                    is_launched=task__to_save.is_launched
+                    is_launched=task__to_save.is_launched,
+                    scenario=task__to_save.scenario
                 )
         except Exception as e:
             logging.error(e)

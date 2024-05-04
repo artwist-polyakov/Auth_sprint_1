@@ -6,6 +6,7 @@ class TaskRequest(BaseRequest):
     content: str
     user_ids: list[str]
     type: str
+    scenario: str
 
 
 class GetTaskInfo(BaseRequest):

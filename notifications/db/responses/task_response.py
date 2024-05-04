@@ -10,3 +10,4 @@ class TaskResponse(BaseResponse):
     type: str
     created_at: int
     is_launched: bool
+    scenario: str

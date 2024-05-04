@@ -11,3 +11,4 @@ class TaskResult(BaseORJSONModel):
     type: MessageType
     created_at: int
     is_launched: bool
+    scenario: str

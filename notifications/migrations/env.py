@@ -8,6 +8,7 @@ from sqlalchemy import engine_from_config, pool
 
 # from db.models.notifications import Notifications
 # from db.models.tasks import Tasks
+# from db.models.websocket_ids import WebsocketConnections
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
