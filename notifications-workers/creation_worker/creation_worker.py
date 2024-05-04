@@ -1,12 +1,18 @@
+import json
 import os
 import signal
 import sys
+import time
+
 from queue.rabbit_queue import RabbitQueue
+from configs.settings import get_settings
+from models.message import Message
+from models.single_task import SingleTask
+
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
-read_queue_name = os.getenv("RABBIT_MQ_TASKS_KEY", "tasks")
-write_queue_name = os.getenv("RABBIT_MQ_ENRICHED_KEY", "enriched")
-rabbitmq_tasks = RabbitQueue()
+rabbitmq_tasks = RabbitQueue(get_settings().rabbit.tasks_queue)
+rabbitmq_notifications = RabbitQueue(get_settings().get_rabbit_settings().notifications_key)
 
 
 def handle_exit(sig, frame):
@@ -14,21 +20,40 @@ def handle_exit(sig, frame):
     sys.exit(0)
 
 
-def callback(ch, method, properties, body):
+def handler(ch, method, properties, body):
     try:
-        print(f" [x] Received {body.decode()}")
-        sys.stdout.flush()  # Принудительно записываем лог
+        data = json.loads(body.decode())
+        for user_id in data["user_ids"]:
+            data_single_task = {
+                "id": 123,
+                "title": "qwer",
+                "content": "qwer",
+                "user_id": user_id,
+                "type": "type",
+                "created_at": 111111111
+            }
+            rabbitmq_notifications.push(message=SingleTask(**data_single_task))
     except Exception as e:
         print(f"Error in callback: {e}")
+        sys.stdout.flush()  # Принудительно записываем лог
 
 
 signal.signal(signal.SIGTERM, handle_exit)
 
 try:
-    while True:
-        rabbitmq_tasks.pop(queue=read_queue_name, handler=callback)
-        # rabbitmq_tasks.push(message={"id": 123412341234}, queue=write_queue_name)
+    rabbitmq_tasks.pop(handler=handler)
 except Exception as e:
     print(f"{worker_id} encountered an error: {e}")
     sys.stdout.flush()  # Принудительно записываем лог
     sys.exit(1)
+
+
+
+# {
+#     "id": 123,
+#     "title": "qwer",
+#     "content": "qwer",
+#     "user_ids": ["str", "qwer"],
+#     "type": "type",
+#     "created_at": 111111111
+# }

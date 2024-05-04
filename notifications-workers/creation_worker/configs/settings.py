@@ -28,9 +28,13 @@ class RabbitSettings(BaseSettings):
     amqp_port: int
     user: str
     password: str
+    tasks_queue: str
+    enriched_queue: str
+    notifications_queue: str
+    to_sending_queue: str
     tasks_key: str
-    notifications_key: str
     enriched_key: str
+    notifications_key: str
     to_sending_key: str
     exchange: str
 

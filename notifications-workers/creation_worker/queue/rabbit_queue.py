@@ -8,13 +8,14 @@ T = TypeVar('T')
 
 
 class RabbitQueue(BaseQueue):
-    def __init__(self):
+    def __init__(self, key: str):
         self.host = get_settings().rabbit.host
         self.port = get_settings().rabbit.amqp_port
         self.username = get_settings().rabbit.user
         self.password = get_settings().rabbit.password
         self.connection = None
         self.channel = None
+        self._key = key
 
     def __enter__(self):
         credentials = pika.PlainCredentials(self.username, self.password)
@@ -30,22 +31,22 @@ class RabbitQueue(BaseQueue):
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.close()
 
-    def push(self, message: T, queue, session=None) -> bool:
+    def push(self, message: T, session=None) -> bool:
         with self:
             self.channel.confirm_delivery()
             properties = pika.BasicProperties(
                 delivery_mode=2,
                 headers={"Task-Id": str(message.id)}
             )
+            print(message.model_dump())
             self.channel.basic_publish(
                 exchange=get_settings().get_rabbit_settings().exchange,
-                routing_key=queue,
+                routing_key=self._key,
                 body=str(message.model_dump()),
                 properties=properties
             )
 
     def pop(self,
-            queue: str,
             handler: Callable[
                 [pika.channel.Channel,
                  pika.spec.Basic.Deliver,
@@ -55,7 +56,7 @@ class RabbitQueue(BaseQueue):
             ]):
         with self:
             self.channel.basic_consume(
-                queue=queue,
+                queue=self._key,
                 on_message_callback=handler,
                 auto_ack=True
             )
