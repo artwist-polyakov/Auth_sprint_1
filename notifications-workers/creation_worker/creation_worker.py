@@ -2,9 +2,11 @@ import json
 import os
 import signal
 import sys
+from copy import deepcopy
 from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
+from models.message import Message
 from models.single_task import SingleTask
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
@@ -19,17 +21,13 @@ def handle_exit(sig, frame):
 
 def handler(ch, method, properties, body):
     try:
-        data = json.loads(body.decode())
-        for user_id in data["user_ids"]:
-            data_single_task = {
-                "id": data["id"],
-                "title": data["title"],
-                "content": data["content"],
-                "user_id": user_id,
-                "type": data["type"],
-                "created_at": data["created_at"]
-            }
-            rabbitmq_notifications.push(message=SingleTask(**data_single_task))
+        data = Message(**json.loads(body.decode()))  # валидируем через пайдантик пришедшие данные
+        user_ids_list = deepcopy(data.user_ids)  # получаем список id
+        del data.user_ids  # удаляем поле из даты
+
+        for user_id in user_ids_list:
+            data_single_task = SingleTask(user_id=user_id, **data.__dict__)
+            rabbitmq_notifications.push(message=data_single_task)
     except Exception as e:
         print(f"Error in callback: {e}")
         sys.stdout.flush()  # Принудительно записываем лог
