@@ -18,7 +18,6 @@ rabbitmq_tasks = RabbitQueue(get_settings().rabbit.tasks_queue)
 rabbitmq_notifications = RabbitQueue(get_settings().get_rabbit_settings().notifications_key)
 
 
-
 def handle_exit(sig, frame):
     print(f"{worker_id} received signal to terminate.")
     sys.exit(0)
