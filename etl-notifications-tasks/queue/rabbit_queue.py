@@ -1,8 +1,8 @@
 from queue.base_queue import BaseQueue
-from typing import Callable, Any
+from typing import Any, Callable
+
 import pika
 from configs.settings import get_settings
-
 from models.task_result import TaskResult
 
 
