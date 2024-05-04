@@ -8,3 +8,4 @@ class Message(BaseORJSONModel):
     user_ids: list[str]
     type: str
     created_at: int
+    scenario: str

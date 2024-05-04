@@ -44,7 +44,7 @@ class PostgresStorage(TasksStorage):
         return wrapper
 
     @_with_session
-    def getNewTasks(self, session=None) -> list[TaskResult]:
+    def get_new_tasks(self, session=None) -> list[TaskResult]:
         tasks = session.execute(select(Tasks).where(Tasks.is_launched.is_(False)))
         result = []
         for task in tasks.scalars().all():
@@ -56,12 +56,14 @@ class PostgresStorage(TasksStorage):
                     user_ids=task.user_ids,
                     type=task.type,
                     created_at=int(task.created_at.timestamp()),
-                    is_launched=task.is_launched)
+                    is_launched=task.is_launched,
+                    scenario=task.scenario
+                )
             )
         return result
 
     @_with_session
-    def markTaskLaunched(self, task_id: int, session=None) -> bool:
+    def mark_task_as_launched(self, task_id: int, session=None) -> bool:
         task = select(Tasks).where(Tasks.id == task_id)
         task = session.execute(task).scalar_one_or_none()
         if task is None:

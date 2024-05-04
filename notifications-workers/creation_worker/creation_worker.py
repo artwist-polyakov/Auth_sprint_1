@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
-rabbitmq_tasks = RabbitQueue(get_settings().rabbit.tasks_queue)
+rabbitmq_tasks = RabbitQueue(get_settings().get_rabbit_settings().tasks_queue)
 rabbitmq_notifications = RabbitQueue(get_settings().get_rabbit_settings().notifications_key)
 
 

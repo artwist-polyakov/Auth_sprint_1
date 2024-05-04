@@ -9,3 +9,4 @@ class TaskResult(BaseORJSONModel):
     type: str
     created_at: int
     is_launched: bool
+    scenario: str

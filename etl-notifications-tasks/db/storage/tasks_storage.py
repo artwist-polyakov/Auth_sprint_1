@@ -6,11 +6,11 @@ from models.task_result import TaskResult
 class TasksStorage(ABC):
 
     @abstractmethod
-    def getNewTasks(self) -> list[TaskResult]:
+    def get_new_tasks(self) -> list[TaskResult]:
         pass
 
     @abstractmethod
-    def markTaskLaunched(self, task_id: int) -> bool:
+    def mark_task_as_launched(self, task_id: int) -> bool:
         pass
 
     @abstractmethod

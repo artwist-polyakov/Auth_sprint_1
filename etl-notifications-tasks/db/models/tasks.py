@@ -15,6 +15,16 @@ class NotificationType(str, Enum):
     PUSH = "push"
 
 
+class NotificationScenario(str, Enum):
+    DAILY = "DAILY"  # лайки, комменты, подписки
+    WEEKLY = "WEEKLY"  # статистика
+    MONTHLY = "MONTHLY"  # отчеты
+    WELCOME = "WELCOME"  # приветствие
+    BIRTHDAY = "BIRTHDAY"  # поздравление с днем рождения
+    MAILINGS = "MAILINGS"  # рассылки от админа
+    NEWS = "NEWS"  # новые поступления каталога
+
+
 class Tasks(Base):
     __tablename__ = 'tasks'
     __table_args__ = {'schema': 'notifications'}
@@ -24,6 +34,11 @@ class Tasks(Base):
     content: str = Column(String, nullable=False)
     user_ids: list[str] = Column(ARRAY(String), nullable=False)
     type = Column(SQLEnum(NotificationType), nullable=False)
+    scenario = Column(
+        SQLEnum(NotificationScenario, name='taskscenario'),
+        nullable=False,
+        default=NotificationScenario.DAILY
+    )
     created_at = Column(DateTime, default=datetime.utcnow)
     is_launched: bool = Column(Boolean, nullable=False, default=False)
     notifications = relationship(
