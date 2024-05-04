@@ -36,7 +36,7 @@ def handler(ch, method, properties, body):
 
             created_notification = storage.save_notification(task)
 
-            task.notification_id = created_notification.id
+            task.id = created_notification.id
 
             rabbitmq_notifications.push(message=task)
 

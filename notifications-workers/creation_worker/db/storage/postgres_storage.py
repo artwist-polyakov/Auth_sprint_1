@@ -57,7 +57,7 @@ class PostgresStorage(TasksStorage):
         )
         session.add(notification)
         session.commit()
-        task.notification_id = notification.id
+        task.id = notification.id
         return task
 
     def close(self):
