@@ -2,7 +2,7 @@ from models.base_orjson_model import BaseORJSONModel
 
 
 class SingleTask(BaseORJSONModel):
-    notification_id: int = 0
+    id: int = 0
     task_id: int = 0
     title: str
     content: str
