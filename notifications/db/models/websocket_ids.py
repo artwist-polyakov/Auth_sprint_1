@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Index, Integer, String
-
 from db.models.base import Base
+from sqlalchemy import Boolean, Column, DateTime, Index, Integer, String
 
 
 class WebsocketConnections(Base):

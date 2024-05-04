@@ -1,13 +1,12 @@
 import logging
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, Query
-from fastapi.responses import JSONResponse
-
 from api.v1.models.task_result import TaskResult
 from api.v1.models.tasks_params import TasksParams
 from api.v1.utils.convertors import TaskResponseConvertor
 from db.requests.task_request import GetTaskInfo, TaskRequest
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse
 from service.tasks_service import TasksService, get_tasks_service
 
 router = APIRouter()
@@ -20,11 +19,11 @@ router = APIRouter()
     description="Send a notification to users"
 )
 async def create_task(
-        users: list[str] = Query([], alias="users"),
+        user_ids: list[str] = Query([], alias="user ids"),
         params: TasksParams = Depends(),
         tasks_service: TasksService = Depends(get_tasks_service)
 ) -> TaskResult | JSONResponse:
-    if not users:
+    if not user_ids:
         return JSONResponse(
             status_code=HTTPStatus.BAD_REQUEST,
             content={'message': 'Users are required'}
@@ -32,8 +31,9 @@ async def create_task(
     task = TaskRequest(
         title=params.title,
         content=params.content,
-        user_ids=users,
-        type=params.type
+        user_ids=user_ids,
+        type=params.type,
+        scenario=params.scenario
     )
     logging.warning(f"Task: {task}")
     result = await tasks_service.handle_task_request(task)

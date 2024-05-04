@@ -13,5 +13,6 @@ class TaskResponseConvertor:
             with_errors=task.with_errors,
             type=task.type,
             created_at=task.created_at,
-            is_launched=task.is_launched
+            is_launched=task.is_launched,
+            scenario=task.scenario
         )

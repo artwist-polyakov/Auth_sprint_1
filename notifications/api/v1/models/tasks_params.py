@@ -9,6 +9,16 @@ class MessageType(str, Enum):
     PUSH = "push"
 
 
+class NotificationScenario(str, Enum):
+    DAILY = "DAILY"  # лайки, комменты, подписки
+    WEEKLY = "WEEKLY"  # статистика
+    MONTHLY = "MONTHLY"  # отчеты
+    WELCOME = "WELCOME"  # приветствие
+    BIRTHDAY = "BIRTHDAY"  # поздравление с днем рождения
+    MAILINGS = "MAILINGS"  # рассылки от админа
+    NEWS = "NEWS"  # новые поступления каталога
+
+
 class TasksParams(BaseModel):
     title: str = Field(
         ...,
@@ -22,4 +32,9 @@ class TasksParams(BaseModel):
     type: MessageType = Field(
         MessageType.EMAIL,
         description="Notification type"
+    )
+
+    scenario: NotificationScenario = Field(
+        NotificationScenario.DAILY,
+        description="Notification scenario"
     )
