@@ -2,13 +2,10 @@ import json
 import os
 import signal
 import sys
-import time
-
 from queue.rabbit_queue import RabbitQueue
-from configs.settings import get_settings
-from models.message import Message
-from models.single_task import SingleTask
 
+from configs.settings import get_settings
+from models.single_task import SingleTask
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_tasks = RabbitQueue(get_settings().rabbit.tasks_queue)
@@ -25,12 +22,12 @@ def handler(ch, method, properties, body):
         data = json.loads(body.decode())
         for user_id in data["user_ids"]:
             data_single_task = {
-                "id": 123,
-                "title": "qwer",
-                "content": "qwer",
+                "id": data["id"],
+                "title": data["title"],
+                "content": data["content"],
                 "user_id": user_id,
-                "type": "type",
-                "created_at": 111111111
+                "type": data["type"],
+                "created_at": data["created_at"]
             }
             rabbitmq_notifications.push(message=SingleTask(**data_single_task))
     except Exception as e:
@@ -46,14 +43,3 @@ except Exception as e:
     print(f"{worker_id} encountered an error: {e}")
     sys.stdout.flush()  # Принудительно записываем лог
     sys.exit(1)
-
-
-
-# {
-#     "id": 123,
-#     "title": "qwer",
-#     "content": "qwer",
-#     "user_ids": ["str", "qwer"],
-#     "type": "type",
-#     "created_at": 111111111
-# }

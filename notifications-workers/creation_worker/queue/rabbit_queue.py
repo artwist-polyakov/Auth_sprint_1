@@ -38,7 +38,6 @@ class RabbitQueue(BaseQueue):
                 delivery_mode=2,
                 headers={"Task-Id": str(message.id)}
             )
-            print(message.model_dump())
             self.channel.basic_publish(
                 exchange=get_settings().get_rabbit_settings().exchange,
                 routing_key=self._key,
