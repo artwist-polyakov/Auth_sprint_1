@@ -1,8 +1,7 @@
 import logging
-
-from configs.settings import get_settings
 from queue.rabbit_queue import RabbitQueue
 
+from configs.settings import get_settings
 from db.storage.postgres_storage import PostgresStorage
 
 logger = logging.getLogger('etl-tasks-logger')
