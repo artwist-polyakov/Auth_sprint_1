@@ -49,7 +49,7 @@ class RabbitQueue(BaseQueue):
         with self:
             method_frame, header_frame, body = self.channel.basic_get(
                 queue=self._key,
-                auto_ack=True,
+                auto_ack=False,
                 on_message_callback=handler
             )
 

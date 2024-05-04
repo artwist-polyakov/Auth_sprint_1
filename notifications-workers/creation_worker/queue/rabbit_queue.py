@@ -57,7 +57,7 @@ class RabbitQueue(BaseQueue):
             self.channel.basic_consume(
                 queue=self._key,
                 on_message_callback=handler,
-                auto_ack=True
+                auto_ack=False
             )
             self.channel.start_consuming()
 
