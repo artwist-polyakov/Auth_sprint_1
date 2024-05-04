@@ -5,6 +5,6 @@ class SingleTask(BaseORJSONModel):
     id: int
     title: str
     content: str
-    user_id: str
+    user_id: str = ""
     type: str
     created_at: int
