@@ -1,13 +1,17 @@
-import json
+import ast
+import logging
 import os
 import signal
 import sys
-from copy import deepcopy
 from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from models.message import Message
 from models.single_task import SingleTask
+
+logger = logging.getLogger('creating-worker-logger')
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_tasks = RabbitQueue(get_settings().rabbit.tasks_queue)
