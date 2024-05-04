@@ -2,9 +2,9 @@ import os
 import signal
 import sys
 import time
+from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
-from queue.rabbit_queue import RabbitQueue
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_tasks = RabbitQueue(
@@ -22,7 +22,7 @@ def handle_exit(sig, frame):
 
 def callback(ch, method, properties, body):
     try:
-        print(f" [x] Received {body}")
+        print(f" [x] Received {body.decode()}")
         sys.stdout.flush()  # Принудительно записываем лог
     except Exception as e:
         print(f"Error in callback: {e}")

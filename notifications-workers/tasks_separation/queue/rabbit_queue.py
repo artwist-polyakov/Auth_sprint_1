@@ -1,5 +1,5 @@
 from queue.base_queue import BaseQueue
-from typing import Any, Callable, TypeVar
+from typing import Callable, TypeVar
 
 import pika
 from configs.settings import get_settings
@@ -47,13 +47,20 @@ class RabbitQueue(BaseQueue):
             )
 
     def pop(self,
-            handler: Callable[[pika.channel.Channel, pika.spec.Basic.Deliver, pika.spec.BasicProperties, bytes], None]):
+            handler: Callable[
+                [pika.channel.Channel,
+                 pika.spec.Basic.Deliver,
+                 pika.spec.BasicProperties,
+                 bytes],
+                None
+            ]):
         with self:
             self.channel.basic_consume(
                 queue=self._key,
                 on_message_callback=handler,
                 auto_ack=True
             )
+            self.channel.start_consuming()
 
     def close(self):
         pass
