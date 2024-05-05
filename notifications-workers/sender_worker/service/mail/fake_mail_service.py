@@ -2,7 +2,7 @@ import logging
 import os
 import subprocess
 from email.message import EmailMessage
-
+import shutil
 from configs.settings import get_settings
 from jinja2 import Environment, FileSystemLoader
 from service.mail.mail_service import MailService
@@ -15,7 +15,10 @@ class FakeMailService(MailService):
         self._current_path = os.path.dirname(__file__)
         self._loader = FileSystemLoader(self._current_path)
         self._env = Environment(loader=self._loader)
-        self._sendmail_path = "/usr/local/bin/fake_sendmail"
+        self._sendmail_path = shutil.which('fake_sendmail')
+        if not self._sendmail_path:
+            logging.error("fake_sendmail не найден в системных путях")
+            raise FileNotFoundError("Executable 'fake_sendmail' not found")
 
         # Загружаем нужный шаблон в переменную
         self._templates['welcome'] = self._env.get_template('templates/welcome_template.html')
