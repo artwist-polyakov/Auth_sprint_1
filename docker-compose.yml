@@ -454,6 +454,7 @@ services:
       - .env
     volumes:
       - ./logs:/logs:rw
+      - ./mailings:/app/mailings:rw
     depends_on:
       - rabbitmq
     restart: always
