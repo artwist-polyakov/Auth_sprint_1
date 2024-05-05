@@ -19,7 +19,7 @@ router = APIRouter()
     description="Send a notification to users"
 )
 async def create_task(
-        user_ids: list[str] = Query([], alias="user ids"),
+        user_ids: list[str] = Query([]),
         params: TasksParams = Depends(),
         tasks_service: TasksService = Depends(get_tasks_service)
 ) -> TaskResult | JSONResponse:
