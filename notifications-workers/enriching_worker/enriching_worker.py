@@ -1,4 +1,5 @@
 import ast
+import asyncio
 import logging
 import os
 import signal
@@ -19,7 +20,8 @@ worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_notifications = RabbitQueue(get_settings().rabbit.notifications_queue)
 rabbitmq_enriched = RabbitQueue(get_settings().rabbit.enriched_key)
 
-user_db = PostgresClient()
+loop = asyncio.get_event_loop()
+user_storage = PostgresClient()
 
 
 def handle_exit(sig, frame):
@@ -30,18 +32,15 @@ def handle_exit(sig, frame):
 def handler(ch, method, properties, body):
     try:
         data = SingleTask(**ast.literal_eval(body.decode()))
-        task = EnrichingMessageTask(**data.model_dump())
-        logger.info(f"Processing task {worker_id} | {data}")
 
-        user = await user_db.get_user(user_id=data.user_id)
+        # нужно добить получение пользователя
+        # user = loop.run_until_complete(user_storage.get_user(user_id=data.user_id))
+        # print(f"!!!!!!!!!!!!!!!!!!!!!user = {user}")
+        # sys.stdout.flush()  # Принудительно записываем лог
 
-        print(f"!!!!!!!!!!!!!!!!!!!!!")
-        sys.stdout.flush()  # Принудительно записываем лог
-        print(f"!!!!!!!!!!!!!!!!!!!!!user = {user}")
-        sys.stdout.flush()  # Принудительно записываем лог
-        print(f"!!!!!!!!!!!!!!!!!!!!!data = {data}")
-        sys.stdout.flush()  # Принудительно записываем лог
-        print(f"!!!!!!!!!!!!!!!!!!!!!")
+
+        task = EnrichingMessageTask(**data.model_dump(), contact="samtonck@gmail.com", template="1234")
+        print(f"!!!!!!!!!!!!!!!!!!!!!task = {task}")
         sys.stdout.flush()  # Принудительно записываем лог
 
         # тут мы получаем contact пользователя по типу

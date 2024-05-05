@@ -1,4 +1,4 @@
-from queue.base_queue import BaseQueue
+from queues.base_queue import BaseQueue
 from typing import Callable, TypeVar
 
 import pika
