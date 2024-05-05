@@ -1,4 +1,5 @@
 import ast
+import asyncio
 import logging
 import os
 import signal
@@ -20,10 +21,14 @@ rabbitmq_to_sending = RabbitQueue(
     get_settings().get_rabbit_settings().to_sending_queue
 )
 mail_service = FakeMailService()
+websocket_service = LocalWebsocketService()
+loop = asyncio.get_event_loop()
+loop.run_until_complete(websocket_service.connect())
 
 
 def handle_exit(sig, frame):
-    print(f"{worker_id} received signal to terminate.")
+    logger.info(f"{worker_id} received signal to terminate.")
+    loop.run_until_complete(websocket_service.close())
     sys.exit(0)
 
 
@@ -55,7 +60,17 @@ try:
         data=data,
         template="welcome"
     )
-    rabbitmq_to_sending.pop(handler=handler)
+    while True:
+        result = loop.run_until_complete(
+            websocket_service.send_message(
+                "artwist", "hello from worker"
+            )
+        )
+        logger.info(f"Message sent: {result}")
+        time.sleep(10)
+
+    # rabbitmq_to_sending.pop(handler=handler)
+
 except Exception as e:
     print(f"{worker_id} encountered an error: {e}")
     sys.stdout.flush()  # Принудительно записываем лог
