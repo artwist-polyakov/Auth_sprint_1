@@ -24,6 +24,7 @@ class FakeMailService(MailService):
         self._templates['welcome'] = self._env.get_template('templates/welcome_template.html')
 
     def send(self, email: str, subject: str, data: dict, template: str) -> bool:
+        logging.warning(f'Отправка письма через sendmail инициализировано {subject}')
         if template not in self._templates:
             return False
 

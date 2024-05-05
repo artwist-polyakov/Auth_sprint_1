@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import time
+import uuid
 
 
 def main():
@@ -8,8 +9,12 @@ def main():
     email_content = sys.stdin.read()
     # Формирование уникального имени файла с текущей временной меткой
     timestamp = time.strftime("%Y%m%d-%H%M%S")
+
+    # id
+    id = uuid.uuid4()
+
     # Запись содержимого в файл с расширением .eml
-    with open(f"/app/mailings/fake_mail_{timestamp}.eml", 'w') as file:
+    with open(f"/app/mailings/fake_mail_{timestamp}-{id}.eml", 'w') as file:
         file.write(email_content)
 
 

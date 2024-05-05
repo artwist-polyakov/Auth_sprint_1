@@ -14,7 +14,9 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
-# rabbitmq_to_sending = RabbitQueue(get_settings().rabbit.to_sending_queue)
+rabbitmq_to_sending = RabbitQueue(
+    get_settings().get_rabbit_settings().to_sending_queue
+)
 mail_service = FakeMailService()
 
 
@@ -51,7 +53,7 @@ try:
         data=data,
         template="welcome"
     )
-    # rabbitmq_to_sending.pop(handler=handler)
+    rabbitmq_to_sending.pop(handler=handler)
 except Exception as e:
     print(f"{worker_id} encountered an error: {e}")
     sys.stdout.flush()  # Принудительно записываем лог
