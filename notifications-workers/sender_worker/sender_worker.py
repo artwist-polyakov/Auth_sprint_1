@@ -3,12 +3,11 @@ import logging
 import os
 import signal
 import sys
-from queue.rabbit_queue import RabbitQueue
+from queue.rabbit_queue import RabbitQueue # noqa
 
-from configs.settings import get_settings
+from configs.settings import get_settings # noqa
 from models.enriching_message import EnrichingMessageTask
 from service.mail.fake_mail_service import FakeMailService
-from service.mail.smtp_mail_service import SMTPMailService
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)

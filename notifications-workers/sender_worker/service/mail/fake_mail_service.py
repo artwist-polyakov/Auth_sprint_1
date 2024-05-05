@@ -1,10 +1,12 @@
 import logging
-from email.message import EmailMessage
-from jinja2 import Environment, FileSystemLoader
 import os
 import subprocess
+from email.message import EmailMessage
+
 from configs.settings import get_settings
+from jinja2 import Environment, FileSystemLoader
 from service.mail.mail_service import MailService
+
 
 class FakeMailService(MailService):
     _templates = {}
@@ -23,7 +25,8 @@ class FakeMailService(MailService):
             return False
 
         message = EmailMessage()
-        message['From'] = f"{get_settings().get_mail_settings().login}@{get_settings().get_mail_settings().domain}"
+        message['From'] = (f"{get_settings().get_mail_settings().login}@"
+                           f"{get_settings().get_mail_settings().domain}")
         message['To'] = email
         message['Subject'] = subject
         message.set_content(self._templates[template].render(**data), subtype='html')

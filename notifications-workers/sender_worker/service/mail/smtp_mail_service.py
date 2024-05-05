@@ -1,11 +1,11 @@
 import logging
-
-from configs.settings import get_settings
-from service.mail.mail_service import MailService
+import os
 import smtplib
 from email.message import EmailMessage
+
+from configs.settings import get_settings
 from jinja2 import Environment, FileSystemLoader
-import os
+from service.mail.mail_service import MailService
 
 
 class SMTPMailService(MailService):
