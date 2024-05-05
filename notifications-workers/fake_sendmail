@@ -2,11 +2,16 @@
 import sys
 import time
 
+
 def main():
+    # Считывание всего входного потока, который будет содержать заголовки и тело сообщения
     email_content = sys.stdin.read()
+    # Формирование уникального имени файла с текущей временной меткой
     timestamp = time.strftime("%Y%m%d-%H%M%S")
-    with open(f"/app/mailings/fake_mail_{timestamp}.txt", 'w') as file:
+    # Запись содержимого в файл с расширением .eml
+    with open(f"/app/mailings/fake_mail_{timestamp}.eml", 'w') as file:
         file.write(email_content)
+
 
 if __name__ == "__main__":
     main()
