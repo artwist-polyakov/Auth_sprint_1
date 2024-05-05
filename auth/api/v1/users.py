@@ -2,13 +2,14 @@ import logging
 from enum import Enum
 from functools import lru_cache
 from http import HTTPStatus
+
 import aiohttp
 from api.v1.models.auth_schema import AuthSchema, UpdateSchema
 from api.v1.models.paginated_params import PaginatedParams
 from api.v1.models.users.results.user_result import UserResult
 from api.v1.utils.api_convertor import APIConvertor
 from db.models.token_models.access_token_container import AccessTokenContainer
-from fastapi import APIRouter, Cookie, Depends, Query, Request, Header
+from fastapi import APIRouter, Cookie, Depends, Query, Request
 from fastapi.responses import JSONResponse, Response
 from services.models.permissions import RBACInfo
 from services.oauth_service import OAUTHService
@@ -116,11 +117,13 @@ WELCOME_PARAMS = {
 }
 
 
-async def send_welcome(user_id: str, x_request_id: str = None, method: str = 'POST', cookies: dict = None):
-    """
-    Функция отправляет асинхронный запрос на сервер
-    и возвращает ответ
-    """
+async def send_welcome(
+        user_id: str,
+        x_request_id: str = None,
+        method: str = 'POST',
+        cookies: dict = None
+):
+
     url = 'http://notifications:8000/notifications/v1/tasks/create'
     params = WELCOME_PARAMS
     params['user_ids'] = user_id
@@ -129,7 +132,10 @@ async def send_welcome(user_id: str, x_request_id: str = None, method: str = 'PO
     }
     if x_request_id:
         headers['X-Request-Id'] = x_request_id
-    async with aiohttp.ClientSession(cookies=cookies if cookies else None, headers=headers) as session:
+    async with aiohttp.ClientSession(
+            cookies=cookies if cookies else None,
+            headers=headers
+    ) as session:
         async with session.request(method=method.lower(), url=url, params=params) as response:
             body = await response.json()
             status = response.status
