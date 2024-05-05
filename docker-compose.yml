@@ -459,6 +459,16 @@ services:
       - rabbitmq
     restart: always
 
+  ws:
+    container_name: ${WEBSOCKET_HOST}
+    build: ./ws
+    env_file:
+      - .env
+    ports:
+      - ${WEBSOCKET_PORTS}
+    expose:
+      - ${WEBSOCKET_PORT}
+
 volumes:
     static_volume:
     media_volume:

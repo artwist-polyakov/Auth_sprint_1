@@ -50,12 +50,21 @@ class MailSettings(BaseSettings):
     domain: str
 
 
+class WebsocketSettings(BaseSettings):
+    """Настройки websocket."""
+
+    model_config = SettingsConfigDict(env_prefix="websocket_")
+    host: str
+    port: int
+
+
 class Settings:
     """Настройки проекта."""
 
     rabbit: RabbitSettings = RabbitSettings()
     postgres: PostgresSettings = PostgresSettings()
     mail: MailSettings = MailSettings()
+    websocket: WebsocketSettings = WebsocketSettings()
 
     def get_postgres_dsn(self) -> str:
         return self.postgres.get_dsn()
@@ -65,6 +74,9 @@ class Settings:
 
     def get_mail_settings(self) -> MailSettings:
         return self.mail
+
+    def get_websocket_settings(self) -> WebsocketSettings:
+        return self.websocket
 
 
 @lru_cache
