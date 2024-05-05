@@ -3,9 +3,9 @@ import logging
 import os
 import signal
 import sys
-from queue.rabbit_queue import RabbitQueue # noqa
+from queue.rabbit_queue import RabbitQueue  # noqa
 
-from configs.settings import get_settings # noqa
+from configs.settings import get_settings  # noqa
 from models.enriching_message import EnrichingMessageTask
 from service.mail.fake_mail_service import FakeMailService
 

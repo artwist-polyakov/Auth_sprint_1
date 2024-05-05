@@ -1,8 +1,9 @@
 import logging
 import os
+import shutil
 import subprocess
 from email.message import EmailMessage
-import shutil
+
 from configs.settings import get_settings
 from jinja2 import Environment, FileSystemLoader
 from service.mail.mail_service import MailService
