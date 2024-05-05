@@ -39,17 +39,32 @@ class RabbitSettings(BaseSettings):
     exchange: str
 
 
+class MailSettings(BaseSettings):
+    """Настройки почты."""
+
+    model_config = SettingsConfigDict(env_prefix="mail_")
+    smtp_server: str
+    smtp_port: int
+    login: str
+    password: str
+    domain: str
+
+
 class Settings:
     """Настройки проекта."""
 
     rabbit: RabbitSettings = RabbitSettings()
     postgres: PostgresSettings = PostgresSettings()
+    mail: MailSettings = MailSettings()
 
     def get_postgres_dsn(self) -> str:
         return self.postgres.get_dsn()
 
     def get_rabbit_settings(self) -> RabbitSettings:
         return self.rabbit
+
+    def get_mail_settings(self) -> MailSettings:
+        return self.mail
 
 
 @lru_cache
