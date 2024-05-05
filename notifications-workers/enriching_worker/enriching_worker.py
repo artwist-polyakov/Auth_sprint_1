@@ -3,6 +3,8 @@ import logging
 import os
 import signal
 import sys
+
+from db.pg_client import PostgresClient
 from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
@@ -15,7 +17,9 @@ logger.addHandler(logging.StreamHandler())
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_notifications = RabbitQueue(get_settings().rabbit.notifications_queue)
-rabbitmq_enriched = RabbitQueue(get_settings().get_rabbit_settings().enriched_key)
+rabbitmq_enriched = RabbitQueue(get_settings().rabbit.enriched_key)
+
+user_db = PostgresClient()
 
 
 def handle_exit(sig, frame):
@@ -28,6 +32,17 @@ def handler(ch, method, properties, body):
         data = SingleTask(**ast.literal_eval(body.decode()))
         task = EnrichingMessageTask(**data.model_dump())
         logger.info(f"Processing task {worker_id} | {data}")
+
+        user = await user_db.get_user(user_id=data.user_id)
+
+        print(f"!!!!!!!!!!!!!!!!!!!!!")
+        sys.stdout.flush()  # Принудительно записываем лог
+        print(f"!!!!!!!!!!!!!!!!!!!!!user = {user}")
+        sys.stdout.flush()  # Принудительно записываем лог
+        print(f"!!!!!!!!!!!!!!!!!!!!!data = {data}")
+        sys.stdout.flush()  # Принудительно записываем лог
+        print(f"!!!!!!!!!!!!!!!!!!!!!")
+        sys.stdout.flush()  # Принудительно записываем лог
 
         # тут мы получаем contact пользователя по типу
         # (мейл, телефон или ws_id) и template (тело сообщения)

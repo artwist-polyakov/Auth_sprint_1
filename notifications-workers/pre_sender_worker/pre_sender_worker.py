@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
-rabbitmq_enriched = RabbitQueue(get_settings().rabbit.enriched_queue)
+rabbitmq_enriched = RabbitQueue(get_settings().get_rabbit_settings().enriched_queue)
 rabbitmq_to_sending = RabbitQueue(get_settings().get_rabbit_settings().to_sending_key)
 
 

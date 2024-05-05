@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
-from models.task_result import TaskResult
+T = TypeVar('T')
 
 
 class BaseQueue(ABC):
 
     @abstractmethod
-    def push(self, task: TaskResult) -> bool:
+    def push(self, message: T) -> bool:
         pass
 
     @abstractmethod
