@@ -5,7 +5,7 @@ import signal
 import sys
 
 from db.pg_client import PostgresClient
-from queue.rabbit_queue import RabbitQueue
+from queues.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from models.enriching_message import EnrichingMessageTask

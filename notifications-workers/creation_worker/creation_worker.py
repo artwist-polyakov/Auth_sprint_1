@@ -3,7 +3,7 @@ import logging
 import os
 import signal
 import sys
-from queue.rabbit_queue import RabbitQueue
+from queues.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from db.storage.postgres_storage import PostgresStorage
