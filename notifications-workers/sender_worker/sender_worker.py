@@ -7,18 +7,28 @@ from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from models.enriching_message import EnrichingMessageTask
+from service.mail.fake_mail_service import FakeMailService
+from service.mail.smtp_mail_service import SMTPMailService
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
-rabbitmq_to_sending = RabbitQueue(get_settings().rabbit.to_sending_queue)
+# rabbitmq_to_sending = RabbitQueue(get_settings().rabbit.to_sending_queue)
+mail_service = FakeMailService()
 
 
 def handle_exit(sig, frame):
     print(f"{worker_id} received signal to terminate.")
     sys.exit(0)
+
+
+data = {
+    'title': 'Новое письмо!',
+    'text': 'Произошло что-то интересное! :)',
+    'image': 'https://pictures.s3.yandex.net:443/resources/news_1682073799.jpeg'
+}
 
 
 def handler(ch, method, properties, body):
@@ -36,7 +46,13 @@ def handler(ch, method, properties, body):
 signal.signal(signal.SIGTERM, handle_exit)
 
 try:
-    rabbitmq_to_sending.pop(handler=handler)
+    mail_service.send(
+        email="artwist@yandex.ru",
+        subject=f"hello from worker {worker_id}",
+        data=data,
+        template="welcome"
+    )
+    # rabbitmq_to_sending.pop(handler=handler)
 except Exception as e:
     print(f"{worker_id} encountered an error: {e}")
     sys.stdout.flush()  # Принудительно записываем лог
