@@ -1,10 +1,11 @@
 import asyncio
-import websockets  # Установите этот пакет, если у вас его нет
 import logging
+
+import websockets  # Установите этот пакет, если у вас его нет
 
 logging.basicConfig(level=logging.INFO)
 
-peoples = {}  # Словарь будет содержать ник подключившегося человека и указатель на его websocket-соединение.
+peoples = {}
 
 
 # Это понадобится для маршрутизации сообщений между пользователями
@@ -25,14 +26,14 @@ async def receiver(websocket: websockets.WebSocketServerProtocol, path: str) -> 
             if message == '?':  # На знак вопроса вернём список ников подключившихся людей
                 await websocket.send(', '.join(peoples.keys()))
                 continue
-            else:  # Остальные сообщения попытаемся проанализировать и отправить нужному собеседнику
+            else:
                 to, text = message.split(': ', 1)
                 if to in peoples:
                     # Пересылаем сообщение в канал получателя, указав отправителя
                     await peoples[to].send(f'Сообщение от {name}: {text}')
-                    await websocket.send(f'ОК')
+                    await websocket.send('ОК')
                 else:
-                    await websocket.send(f'BAD')
+                    await websocket.send('BAD')
     except websockets.exceptions.ConnectionClosed as e:
         logging.info(f"Connection with {name.strip()} closed: {e}")
         peoples.pop(name.strip(), None)
