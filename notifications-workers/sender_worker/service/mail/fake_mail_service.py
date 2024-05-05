@@ -15,7 +15,7 @@ class FakeMailService(MailService):
         self._current_path = os.path.dirname(__file__)
         self._loader = FileSystemLoader(self._current_path)
         self._env = Environment(loader=self._loader)
-        self._sendmail_path = "/usr/sbin/sendmail"
+        self._sendmail_path = "/usr/local/bin/fake_sendmail"
 
         # Загружаем нужный шаблон в переменную
         self._templates['welcome'] = self._env.get_template('templates/welcome_template.html')
