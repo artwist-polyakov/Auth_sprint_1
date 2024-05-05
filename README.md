@@ -2,6 +2,12 @@
 
 # Проектная работа 10 спринта
 
+## Схема работы приложения
+
+Расположена в папке `docs/c2-notifications.puml`
+
+Или если нужна картинка то `docs/c2-notifications-_b_Movies_notifications_pipeline__b_.png`
+
 ## АПИ для поставновки задач нотификаций 
 
 1. Доступен по адресу http://localhost:8000/notifications/openapi
