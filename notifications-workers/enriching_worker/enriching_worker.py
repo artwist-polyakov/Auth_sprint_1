@@ -12,7 +12,7 @@ from models.enriching_message import EnrichingMessageTask
 from models.single_task import SingleTask
 from queues.rabbit_queue import RabbitQueue
 
-logger = logging.getLogger('creating-worker-logger')
+logger = logging.getLogger('enriching-worker-logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
@@ -35,13 +35,12 @@ def handler(ch, method, properties, body):
         data = SingleTask(**ast.literal_eval(body.decode()))
 
         result = loop.run_until_complete(user_storage.get_user(user_id=data.user_id))
-        logger.error(f"!!!!!!!!!!!!!!!!!!!!!user = {result}")
         if result is None or result.get('error', None):
             notifications_storage.mark_as_error(notification=data.id)
         else:
-            task = EnrichingMessageTask(**data.model_dump(), contact="samtonck@gmail.com")
+            task = EnrichingMessageTask(**data.model_dump(), contact=result['data'])
             rabbitmq_enriched.push(message=task)
-            logger.info(f"Processing task | enriching_worker | {result['data']['email']}")
+            logger.info(f"Processing task | enriching_worker | {result['data']}")
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f"Error in callback: {e}")

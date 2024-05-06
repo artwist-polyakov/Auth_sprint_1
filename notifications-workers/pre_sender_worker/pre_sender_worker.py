@@ -8,7 +8,7 @@ from configs.settings import get_settings
 from models.enriching_message import EnrichingMessageTask
 from queues.rabbit_queue import RabbitQueue
 
-logger = logging.getLogger('creating-worker-logger')
+logger = logging.getLogger('pre-sender-worker-logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 

@@ -34,7 +34,7 @@ class SMTPMailService(MailService):
         self._env = Environment(loader=self._loader)
 
         # Загружаем нужный шаблон в переменную
-        self._templates['welcome'] = self._env.get_template('templates/welcome_template.html')
+        self._templates['WELCOME'] = self._env.get_template('templates/welcome_template.html')
 
     def __del__(self):
         try:

@@ -13,7 +13,7 @@ from service.mail.fake_mail_service import FakeMailService  # noqa
 from service.mail.smtp_mail_service import SMTPMailService  # noqa
 from service.websocket.local_websocket_service import LocalWebsocketService
 
-logger = logging.getLogger('creating-worker-logger')
+logger = logging.getLogger('sender-worker-logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
@@ -35,12 +35,11 @@ def handle_exit(sig, frame):
     sys.exit(0)
 
 
-
 def handler(ch, method, properties, body):
     try:
         # получаем финальные данные из очереди на отправку
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
-
+        logger.info(f"Processing task | sender_worker | {data}")
         # формируем тело сообщения
         message_data = {
             'title': f'{data.title}',

@@ -22,7 +22,7 @@ class FakeMailService(MailService):
             raise FileNotFoundError("Executable 'fake_sendmail' not found")
 
         # Загружаем нужный шаблон в переменную
-        self._templates['welcome'] = self._env.get_template('templates/welcome_template.html')
+        self._templates['WELCOME'] = self._env.get_template('templates/welcome_template.html')
 
     def send(self, email: str, subject: str, data: dict, template: str) -> bool:
         logging.warning(f'Отправка письма через sendmail инициализировано {subject}')
