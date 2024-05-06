@@ -60,7 +60,8 @@ def handler(ch, method, properties, body):
                     update_notification = storage.edit_notification_error_true(
                         task_id=data.task_id
                     )
-                    logger.info(f"Processing task | sender_worker | update_notification = {update_notification}")
+                    logger.info(f"Processing task | sender_worker "
+                                f"| update_notification = {update_notification}")
 
         logger.info(f"Processing task | sender_worker | {message_data}")
         ch.basic_ack(delivery_tag=method.delivery_tag)

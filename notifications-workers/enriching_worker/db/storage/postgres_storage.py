@@ -4,8 +4,9 @@ from functools import wraps
 
 from configs.settings import get_settings
 from db.models.notifications import Notifications  # noqa
+from db.models.tasks import Tasks  # noqa
 from db.storage.tasks_storage import TasksStorage
-from sqlalchemy import create_engine, update
+from sqlalchemy import create_engine, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -43,13 +44,13 @@ class PostgresStorage(TasksStorage):
         return wrapper
 
     @_with_session
-    def edit_notification_error_true(self, task_id: int, session=None):
-        query = update(Notifications).where(Notifications.uuid == task_id).values(is_error=True)
-
-        logging.error(f"!!!!!!!!!!!!!!!!: {query}")
-        session.execute(query)
-        session.commit()
-        return True
+    def mark_as_error(self, notification: int, session=None) -> bool:
+        query = select(Notifications).where(Notifications.id == notification)
+        notification_obj = session.execute(query).scalar()
+        if notification_obj:
+            notification_obj.is_error = True
+        else:
+            logging.error("Notification not found")
 
     def close(self):
         self._engine.dispose()
