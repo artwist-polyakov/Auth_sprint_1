@@ -25,11 +25,12 @@ def handle_exit(sig, frame):
 def handler(ch, method, properties, body):
     try:
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing task {worker_id} | {data}")
+
+        logger.info(f"Processing task | pre_sender_worker | {data}")
 
         # тут мы проверяем можем ли мы отправлять сообщение или нет
 
-        rabbitmq_enriched.push(message=data)
+        rabbitmq_to_sending.push(message=data)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f"Error in callback: {e}")

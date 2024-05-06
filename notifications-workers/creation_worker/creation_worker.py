@@ -29,7 +29,7 @@ def handler(ch, method, properties, body):
     try:
         data = Message(**ast.literal_eval(body.decode()))
         task = SingleTask(**data.model_dump())
-        logger.info(f"Processing task {data}")
+        logger.info(f"Processing task | creation_worker | {data}")
         for user_id in data.user_ids:
             task.user_id = user_id
             task.task_id = data.id

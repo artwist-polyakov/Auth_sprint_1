@@ -51,6 +51,8 @@ def handler(ch, method, properties, body):
 signal.signal(signal.SIGTERM, handle_exit)
 
 try:
+
+    logger.info(f"Processing task | sender_worker | {data}")
     mail_service.send(
         email="artwist@yandex.ru",
         subject=f"hello from worker {worker_id}",

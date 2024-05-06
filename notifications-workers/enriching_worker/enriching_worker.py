@@ -39,7 +39,10 @@ def handler(ch, method, properties, body):
         # sys.stdout.flush()  # Принудительно записываем лог
 
 
-        task = EnrichingMessageTask(**data.model_dump(), contact="samtonck@gmail.com", template="1234")
+        task = EnrichingMessageTask(
+            **data.model_dump(),
+            contact="samtonck@gmail.com",
+            template="https://pictures.s3.yandex.net:443/resources/news_1682073799.jpeg")
         print(f"!!!!!!!!!!!!!!!!!!!!!task = {task}")
         sys.stdout.flush()  # Принудительно записываем лог
 
@@ -47,6 +50,7 @@ def handler(ch, method, properties, body):
         # (мейл, телефон или ws_id) и template (тело сообщения)
         # и обогащаем task новыми данными
 
+        logger.info(f"Processing task | creation_worker | {task}")
         rabbitmq_enriched.push(message=task)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
