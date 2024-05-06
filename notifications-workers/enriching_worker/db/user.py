@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from db.base import Base
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID

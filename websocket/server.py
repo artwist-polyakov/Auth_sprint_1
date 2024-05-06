@@ -1,17 +1,22 @@
 import asyncio
+
 import websockets
 
 peoples = {}
 
+
 async def welcome(websocket: websockets.WebSocketServerProtocol) -> str:
-    await websocket.send('Представьтесь!') # Метод websocket.send отправляет сообщение пользователю
+    await websocket.send('Представьтесь!')  # Метод отправляет сообщение пользователю
     name = await websocket.recv()  # websocket.recv ожидает получения сообщения
-    await websocket.send('Чтобы поговорить, напишите "<имя>: <сообщение>". Например: Ира: купи хлеб.')
+    await websocket.send(
+        'Чтобы поговорить, напишите "<имя>: <сообщение>". Например: Ира: купи хлеб.'
+    )
     await websocket.send('Посмотреть список участников можно командой "?"')
     peoples[name.strip()] = websocket
     return name
 
-async def receiver(websocket: websockets.WebSocketServerProtocol, path: str) -> None: 
+
+async def receiver(websocket: websockets.WebSocketServerProtocol, path: str) -> None:
     name = await welcome(websocket)
     while True:
         # Получаем сообщение от абонента и решаем, что с ним делать
@@ -23,7 +28,7 @@ async def receiver(websocket: websockets.WebSocketServerProtocol, path: str) -> 
             to, text = message.split(': ', 1)
             if to in peoples:
                 # Пересылаем сообщение в канал получателя, указав отправителя
-                await peoples[to].send(f'Сообщение от {name}: {text}') 
+                await peoples[to].send(f'Сообщение от {name}: {text}')
             else:
                 await websocket.send(f'Пользователь {to} не найден')
 

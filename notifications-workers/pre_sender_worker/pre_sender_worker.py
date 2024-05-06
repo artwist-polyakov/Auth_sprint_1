@@ -3,10 +3,10 @@ import logging
 import os
 import signal
 import sys
-from queues.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from models.enriching_message import EnrichingMessageTask
+from queues.rabbit_queue import RabbitQueue
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)

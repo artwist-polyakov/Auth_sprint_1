@@ -1,8 +1,8 @@
-from queues.base_queue import BaseQueue
 from typing import Callable, TypeVar
 
 import pika
 from configs.settings import get_settings
+from queues.base_queue import BaseQueue
 
 T = TypeVar('T')
 

@@ -4,7 +4,6 @@ import logging
 import os
 import signal
 import sys
-import time
 
 from configs.settings import get_settings  # noqa
 from models.enriching_message import EnrichingMessageTask
@@ -42,24 +41,27 @@ def handler(ch, method, properties, body):
             'title': f'{data.title}',
             'text': f'{data.content}',
         }
-
-        # подготовка к отправке
-        mail_service.send(
-            email=data.contact,
-            subject=f"user {data.user_id}",
-            data=message_data,
-            template=data.scenario  # название темплейта = название сценария?
-        )
-
-        # получение статуса отправки
-        result = loop.run_until_complete(
-            websocket_service.send_message(
-                data.user_id, "hello from worker"
-            )
-        )
+        match data.type:
+            case "email":
+                mail_service.send(
+                    email=data.contact,
+                    subject=f"user {data.user_id}",
+                    data=message_data,
+                    template=data.scenario  # название темплейта = название сценария?
+                )
+            case "websocket":
+                result = loop.run_until_complete(
+                    websocket_service.send_message(
+                        data.user_id,
+                        f"Заголовок: {message_data['title']} | "
+                        f"Текст: {message_data['text']}"
+                    )
+                )
+                if not result:
+                    ...
+                    # нужно пометить как ошибочное в бд
 
         logger.info(f"Processing task | sender_worker | {message_data}")
-        logger.info(f"Message sent: {result}")
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f"Error in callback: {e}")

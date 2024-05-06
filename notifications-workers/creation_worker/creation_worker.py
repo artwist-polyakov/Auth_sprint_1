@@ -3,13 +3,13 @@ import logging
 import os
 import signal
 import sys
-from queues.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from db.storage.postgres_storage import PostgresStorage
+from models.enriching_message import EnrichingMessageTask
 from models.message import Message
 from models.single_task import SingleTask
-from models.enriching_message import EnrichingMessageTask
+from queues.rabbit_queue import RabbitQueue
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)

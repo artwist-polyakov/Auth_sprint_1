@@ -5,12 +5,11 @@ import os
 import signal
 import sys
 
-from db.pg_client import PostgresClient
-from queues.rabbit_queue import RabbitQueue
-
 from configs.settings import get_settings
+from db.pg_client import PostgresClient
 from models.enriching_message import EnrichingMessageTask
 from models.single_task import SingleTask
+from queues.rabbit_queue import RabbitQueue
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)

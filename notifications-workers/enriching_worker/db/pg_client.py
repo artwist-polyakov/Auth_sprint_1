@@ -1,8 +1,8 @@
 from configs.settings import get_settings
-from sqlalchemy import func, insert, select, update
+from db.user import User
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from db.user import User
 
 
 class PostgresClient:
