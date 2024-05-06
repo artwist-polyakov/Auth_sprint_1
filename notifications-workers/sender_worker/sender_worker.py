@@ -32,17 +32,35 @@ def handle_exit(sig, frame):
     sys.exit(0)
 
 
-data = {
-    'title': 'Новое письмо!',
-    'text': 'Произошло что-то интересное! :)',
-    'image': 'https://pictures.s3.yandex.net:443/resources/news_1682073799.jpeg'
-}
-
-
 def handler(ch, method, properties, body):
     try:
+        # получаем финальные данные из очереди на отправку
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing task {worker_id} | {data}")
+
+        # формируем тело сообщения
+        message_data = {
+            'title': f'{data.title}',
+            'text': f'{data.content}',
+        }
+
+        # подготовка к отправке
+        mail_service.send(
+            email=data.contact,
+            subject=f"user {data.user_id}",
+            data=message_data,
+            template=data.scenario  # название темплейта = название сценария?
+        )
+
+        # получение статуса отправки
+        result = loop.run_until_complete(
+            websocket_service.send_message(
+                data.user_id, "hello from worker"
+            )
+        )
+
+        logger.info(f"Processing task | sender_worker | {message_data}")
+        logger.info(f"Message sent: {result}")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f"Error in callback: {e}")
         sys.stdout.flush()
@@ -51,25 +69,7 @@ def handler(ch, method, properties, body):
 signal.signal(signal.SIGTERM, handle_exit)
 
 try:
-
-    logger.info(f"Processing task | sender_worker | {data}")
-    mail_service.send(
-        email="artwist@yandex.ru",
-        subject=f"hello from worker {worker_id}",
-        data=data,
-        template="welcome"
-    )
-    while True:
-        result = loop.run_until_complete(
-            websocket_service.send_message(
-                "artwist", "hello from worker"
-            )
-        )
-        logger.info(f"Message sent: {result}")
-        time.sleep(10)
-
-    # rabbitmq_to_sending.pop(handler=handler)
-
+    rabbitmq_to_sending.pop(handler=handler)
 except Exception as e:
     print(f"{worker_id} encountered an error: {e}")
     sys.stdout.flush()  # Принудительно записываем лог

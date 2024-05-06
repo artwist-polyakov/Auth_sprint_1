@@ -3,6 +3,8 @@ import logging
 import os
 import signal
 import sys
+
+from notifications.db.models.tasks import NotificationType
 from queues.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
@@ -17,6 +19,7 @@ logger.addHandler(logging.StreamHandler())
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_tasks = RabbitQueue(get_settings().get_rabbit_settings().tasks_queue)
 rabbitmq_notifications = RabbitQueue(get_settings().get_rabbit_settings().notifications_key)
+rabbitmq_enriched = RabbitQueue(get_settings().rabbit.enriched_key)
 storage = PostgresStorage()
 
 
@@ -38,7 +41,10 @@ def handler(ch, method, properties, body):
 
             task.id = created_notification.id
 
-            rabbitmq_notifications.push(message=task)
+            if task.type == "email":
+                rabbitmq_notifications.push(message=task)
+            else:
+                rabbitmq_enriched.push(message=task)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:

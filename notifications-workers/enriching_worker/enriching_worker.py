@@ -33,24 +33,15 @@ def handler(ch, method, properties, body):
     try:
         data = SingleTask(**ast.literal_eval(body.decode()))
 
+        # тут мы получаем contact пользователя по типу
+        # (мейл, телефон или ws_id) и обогащаем task новыми данными
         # нужно добить получение пользователя
         # user = loop.run_until_complete(user_storage.get_user(user_id=data.user_id))
         # print(f"!!!!!!!!!!!!!!!!!!!!!user = {user}")
         # sys.stdout.flush()  # Принудительно записываем лог
 
-
-        task = EnrichingMessageTask(
-            **data.model_dump(),
-            contact="samtonck@gmail.com",
-            template="https://pictures.s3.yandex.net:443/resources/news_1682073799.jpeg")
-        print(f"!!!!!!!!!!!!!!!!!!!!!task = {task}")
-        sys.stdout.flush()  # Принудительно записываем лог
-
-        # тут мы получаем contact пользователя по типу
-        # (мейл, телефон или ws_id) и template (тело сообщения)
-        # и обогащаем task новыми данными
-
-        logger.info(f"Processing task | creation_worker | {task}")
+        task = EnrichingMessageTask(**data.model_dump(), contact="samtonck@gmail.com")
+        logger.info(f"Processing task | enriching_worker | {task}")
         rabbitmq_enriched.push(message=task)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
