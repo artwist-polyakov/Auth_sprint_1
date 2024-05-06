@@ -9,7 +9,8 @@ from configs.settings import get_settings  # noqa
 from db.storage.postgres_storage import PostgresStorage
 from models.enriching_message import EnrichingMessageTask
 from queues.rabbit_queue import RabbitQueue  # noqa
-from service.mail.fake_mail_service import FakeMailService
+from service.mail.fake_mail_service import FakeMailService  # noqa
+from service.mail.smtp_mail_service import SMTPMailService  # noqa
 from service.websocket.local_websocket_service import LocalWebsocketService
 
 logger = logging.getLogger('creating-worker-logger')
@@ -20,6 +21,7 @@ worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_to_sending = RabbitQueue(
     get_settings().get_rabbit_settings().to_sending_queue
 )
+# mail_service = SMTPMailService()
 mail_service = FakeMailService()
 websocket_service = LocalWebsocketService()
 loop = asyncio.get_event_loop()
@@ -33,6 +35,7 @@ def handle_exit(sig, frame):
     sys.exit(0)
 
 
+
 def handler(ch, method, properties, body):
     try:
         # получаем финальные данные из очереди на отправку
@@ -42,6 +45,9 @@ def handler(ch, method, properties, body):
         message_data = {
             'title': f'{data.title}',
             'text': f'{data.content}',
+            'image': 'https://pictures.s3.yandex.net:443/resources/news_1682073799.jpeg',
+            'link_url': 'https://ya.ru',
+            'link_text': 'Перейти на Яндекс'
         }
         match data.type:
             case "email":
