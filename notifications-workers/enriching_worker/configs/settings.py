@@ -3,6 +3,22 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class AUTHPostgresSettings(BaseSettings):
+    """Настройки Postgres."""
+
+    model_config = SettingsConfigDict(env_prefix="postgres_")
+
+    host: str
+    port: int
+    name: str
+    user: str
+    password: str
+
+    def get_dsn(self) -> str:
+        return (f"postgresql+asyncpg://{self.user}:{self.password}"
+                f"@{self.host}:{self.port}/{self.name}")
+
+
 class PostgresSettings(BaseSettings):
     """Настройки Postgres."""
 
@@ -44,9 +60,13 @@ class Settings:
 
     rabbit: RabbitSettings = RabbitSettings()
     postgres: PostgresSettings = PostgresSettings()
+    auth_postgres: AUTHPostgresSettings = AUTHPostgresSettings()
 
     def get_postgres_dsn(self) -> str:
         return self.postgres.get_dsn()
+
+    def get_auth_postgres_dsn(self) -> str:
+        return self.auth_postgres.get_dsn()
 
     def get_rabbit_settings(self) -> RabbitSettings:
         return self.rabbit

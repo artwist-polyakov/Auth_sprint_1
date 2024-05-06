@@ -79,7 +79,7 @@ class PostgresStorage(TasksStorage):
         try:
 
             query = select(
-                func.count().label('total_sended'),
+                func.count().filter(Notifications.is_sended).label('total_sended'),
                 func.count().filter(Notifications.is_error).label('errors')
             ).where(Notifications.task_id == task_id)
             result = await session.execute(query)

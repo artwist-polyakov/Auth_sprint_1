@@ -3,12 +3,13 @@ import logging
 import os
 import signal
 import sys
-from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from db.storage.postgres_storage import PostgresStorage
+from models.enriching_message import EnrichingMessageTask
 from models.message import Message
 from models.single_task import SingleTask
+from queues.rabbit_queue import RabbitQueue
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)
@@ -17,6 +18,7 @@ logger.addHandler(logging.StreamHandler())
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
 rabbitmq_tasks = RabbitQueue(get_settings().get_rabbit_settings().tasks_queue)
 rabbitmq_notifications = RabbitQueue(get_settings().get_rabbit_settings().notifications_key)
+rabbitmq_enriched = RabbitQueue(get_settings().rabbit.enriched_key)
 storage = PostgresStorage()
 
 
@@ -29,7 +31,7 @@ def handler(ch, method, properties, body):
     try:
         data = Message(**ast.literal_eval(body.decode()))
         task = SingleTask(**data.model_dump())
-        logger.info(f"Processing task {data}")
+        logger.info(f"Processing task | creation_worker | {data}")
         for user_id in data.user_ids:
             task.user_id = user_id
             task.task_id = data.id
@@ -38,7 +40,11 @@ def handler(ch, method, properties, body):
 
             task.id = created_notification.id
 
-            rabbitmq_notifications.push(message=task)
+            if task.type == "email":
+                rabbitmq_notifications.push(message=task)
+            else:
+                task = EnrichingMessageTask(**task.model_dump(), contact="websocket")
+                rabbitmq_enriched.push(message=task)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:

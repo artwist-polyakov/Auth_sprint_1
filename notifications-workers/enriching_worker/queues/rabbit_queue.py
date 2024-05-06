@@ -1,8 +1,8 @@
-from queue.base_queue import BaseQueue
 from typing import Callable, TypeVar
 
 import pika
 from configs.settings import get_settings
+from queues.base_queue import BaseQueue
 
 T = TypeVar('T')
 
@@ -36,7 +36,7 @@ class RabbitQueue(BaseQueue):
             self.channel.confirm_delivery()
             properties = pika.BasicProperties(
                 delivery_mode=2,
-                headers={"Notification-Id": str(message.id)}
+                headers={"Task-Id": str(message.id)}
             )
             self.channel.basic_publish(
                 exchange=get_settings().get_rabbit_settings().exchange,

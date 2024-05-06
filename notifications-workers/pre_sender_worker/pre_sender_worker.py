@@ -3,17 +3,17 @@ import logging
 import os
 import signal
 import sys
-from queue.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from models.enriching_message import EnrichingMessageTask
+from queues.rabbit_queue import RabbitQueue
 
-logger = logging.getLogger('creating-worker-logger')
+logger = logging.getLogger('pre-sender-worker-logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 worker_id = os.getenv("WORKER_ID", "worker_unknown")
-rabbitmq_enriched = RabbitQueue(get_settings().rabbit.enriched_queue)
+rabbitmq_enriched = RabbitQueue(get_settings().get_rabbit_settings().enriched_queue)
 rabbitmq_to_sending = RabbitQueue(get_settings().get_rabbit_settings().to_sending_key)
 
 
@@ -25,11 +25,12 @@ def handle_exit(sig, frame):
 def handler(ch, method, properties, body):
     try:
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing task {worker_id} | {data}")
+
+        logger.info(f"Processing task | pre_sender_worker | {data}")
 
         # тут мы проверяем можем ли мы отправлять сообщение или нет
 
-        rabbitmq_enriched.push(message=data)
+        rabbitmq_to_sending.push(message=data)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f"Error in callback: {e}")

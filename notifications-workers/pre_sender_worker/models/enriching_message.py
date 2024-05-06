@@ -10,4 +10,3 @@ class EnrichingMessageTask(BaseORJSONModel):
     created_at: int
     scenario: str
     contact: str
-    template: str
