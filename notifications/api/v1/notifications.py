@@ -35,9 +35,7 @@ async def create_task(
         type=params.type,
         scenario=params.scenario
     )
-    logging.warning(f"Task: {task}")
     result = await tasks_service.handle_task_request(task)
-    logging.warning(f"Result: {result}")
     if not result:
         return JSONResponse(
             status_code=HTTPStatus.BAD_REQUEST,
