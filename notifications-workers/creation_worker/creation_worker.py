@@ -3,14 +3,13 @@ import logging
 import os
 import signal
 import sys
-
-from notifications.db.models.tasks import NotificationType
 from queues.rabbit_queue import RabbitQueue
 
 from configs.settings import get_settings
 from db.storage.postgres_storage import PostgresStorage
 from models.message import Message
 from models.single_task import SingleTask
+from models.enriching_message import EnrichingMessageTask
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)
@@ -44,6 +43,7 @@ def handler(ch, method, properties, body):
             if task.type == "email":
                 rabbitmq_notifications.push(message=task)
             else:
+                task = EnrichingMessageTask(**task.model_dump(), contact="")
                 rabbitmq_enriched.push(message=task)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
