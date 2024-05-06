@@ -31,7 +31,7 @@ class PostgresStorage(TasksStorage):
             try:
                 yield session
             except Exception as e:
-                print(e)
+                logging.error(e)
                 await session.rollback()
             finally:
                 await session.close()
@@ -71,7 +71,7 @@ class PostgresStorage(TasksStorage):
             task = result.scalar_one_or_none()
             return task
         except Exception as e:
-            print(e)
+            logging.error(e)
             return None
 
     @_with_session
@@ -87,7 +87,7 @@ class PostgresStorage(TasksStorage):
 
             return total_sended, errors
         except Exception as e:
-            print(e)
+            logging.error(e)
             return 0
 
     @_with_session
