@@ -48,26 +48,32 @@ def handler(ch, method, properties, body):
             'link_url': 'https://ya.ru',
             'link_text': 'Перейти на Яндекс'
         }
+        result_of_sending = False
         match data.type:
             case "email":
-                mail_service.send(
+                result_of_sending = mail_service.send(
                     email=data.contact,
                     subject=f"user {data.user_id}",
                     data=message_data,
                     template=data.scenario  # название темплейта = название сценария?
                 )
-            case "websocket":
-                result = loop.run_until_complete(
+            case "push":
+                result_of_sending = loop.run_until_complete(
                     websocket_service.send_message(data.user_id, f"{message_data}")
                 )
-                logger.info(f"Processing task | sender_worker | result = {result}")
-                if not result:
+                logger.info(f"Processing task | sender_worker | result = {result_of_sending}")
+                if not result_of_sending:
                     update_notification = storage.edit_notification_error_true(
                         task_id=data.task_id
                     )
                     logger.info(f"Processing task | sender_worker "
                                 f"| update_notification = {update_notification}")
-
+        if result_of_sending:
+            update_notification = storage.edit_notification_sent_true(
+                notification_id=data.id
+            )
+            logger.info(f"Processing task | sender_worker | "
+                        f"update_notification = {update_notification}")
         logger.info(f"Processing task | sender_worker | {message_data}")
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:

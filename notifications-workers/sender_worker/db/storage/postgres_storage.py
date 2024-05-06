@@ -4,6 +4,7 @@ from functools import wraps
 
 from configs.settings import get_settings
 from db.models.notifications import Notifications  # noqa
+from db.models.tasks import Tasks  # noqa
 from db.storage.tasks_storage import TasksStorage
 from sqlalchemy import create_engine, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -45,10 +46,15 @@ class PostgresStorage(TasksStorage):
     @_with_session
     def edit_notification_error_true(self, task_id: int, session=None):
         query = update(Notifications).where(Notifications.uuid == task_id).values(is_error=True)
-
-        logging.error(f"!!!!!!!!!!!!!!!!: {query}")
         session.execute(query)
-        session.commit()
+        return True
+
+    @_with_session
+    def edit_notification_sent_true(self, notification_id: int, session=None):
+        query = update(Notifications).where(
+            Notifications.id == notification_id
+        ).values(is_sended=True)
+        session.execute(query)
         return True
 
     def close(self):

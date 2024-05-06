@@ -8,5 +8,9 @@ class TasksStorage(ABC):
         pass
 
     @abstractmethod
+    def edit_notification_sent_true(self, notification_id: int):
+        pass
+
+    @abstractmethod
     def close(self):
         pass
