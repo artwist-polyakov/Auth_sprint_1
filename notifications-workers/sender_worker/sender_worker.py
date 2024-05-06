@@ -6,6 +6,7 @@ import signal
 import sys
 
 from configs.settings import get_settings  # noqa
+from db.storage.postgres_storage import PostgresStorage
 from models.enriching_message import EnrichingMessageTask
 from queues.rabbit_queue import RabbitQueue  # noqa
 from service.mail.fake_mail_service import FakeMailService
@@ -23,6 +24,7 @@ mail_service = FakeMailService()
 websocket_service = LocalWebsocketService()
 loop = asyncio.get_event_loop()
 loop.run_until_complete(websocket_service.connect())
+storage = PostgresStorage()
 
 
 def handle_exit(sig, frame):
@@ -53,9 +55,12 @@ def handler(ch, method, properties, body):
                 result = loop.run_until_complete(
                     websocket_service.send_message(data.user_id, f"{message_data}")
                 )
+                logger.info(f"Processing task | sender_worker | result = {result}")
                 if not result:
-                    ...
-                    # нужно пометить как ошибочное в бд
+                    update_notification = storage.edit_notification_error_true(
+                        task_id=data.task_id
+                    )
+                    logger.info(f"Processing task | sender_worker | update_notification = {update_notification}")
 
         logger.info(f"Processing task | sender_worker | {message_data}")
         ch.basic_ack(delivery_tag=method.delivery_tag)
