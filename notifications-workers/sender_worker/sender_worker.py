@@ -37,7 +37,9 @@ def handle_exit(sig, frame):
 data = {
     'title': 'Новое письмо!',
     'text': 'Произошло что-то интересное! :)',
-    'image': 'https://pictures.s3.yandex.net:443/resources/news_1682073799.jpeg'
+    'image': 'https://pictures.s3.yandex.net:443/resources/news_1682073799.jpeg',
+    'link_url': 'https://ya.ru',
+    'link_text': 'Перейти на Яндекс'
 }
 
 
