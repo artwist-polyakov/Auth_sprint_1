@@ -4,10 +4,13 @@ import logging
 import os
 import signal
 import sys
+from types import FrameType
 
 from configs.settings import get_settings  # noqa
 from db.storage.postgres_storage import PostgresStorage
 from models.enriching_message import EnrichingMessageTask
+from pika.channel import Channel
+from pika.spec import Basic, BasicProperties
 from queues.rabbit_queue import RabbitQueue  # noqa
 from service.mail.fake_mail_service import FakeMailService  # noqa
 from service.mail.smtp_mail_service import SMTPMailService  # noqa
@@ -29,13 +32,18 @@ loop.run_until_complete(websocket_service.connect())
 storage = PostgresStorage()
 
 
-def handle_exit(sig, frame):
+def handle_exit(sig: int, frame: FrameType):
     logger.info(f"{worker_id} received signal to terminate.")
     loop.run_until_complete(websocket_service.close())
     sys.exit(0)
 
 
-def handler(ch, method, properties, body):
+def handler(
+        ch: Channel,
+        method: Basic.Deliver,
+        properties: BasicProperties,
+        body: bytes
+):
     try:
         # получаем финальные данные из очереди на отправку
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
