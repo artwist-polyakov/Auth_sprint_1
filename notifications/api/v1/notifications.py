@@ -1,4 +1,3 @@
-import logging
 from http import HTTPStatus
 
 from api.v1.models.task_result import TaskResult
