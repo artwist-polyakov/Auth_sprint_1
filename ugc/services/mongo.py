@@ -2,9 +2,9 @@ import json
 from functools import lru_cache
 from typing import Any
 
+from bson import json_util
 from core.settings import settings
 from pymongo import MongoClient
-from bson import json_util
 
 
 class MongoService:

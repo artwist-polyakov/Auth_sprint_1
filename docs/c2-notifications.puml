@@ -1,0 +1,72 @@
+@startuml
+
+
+title
+<b>Movies notifications pipeline</b>
+end title
+
+package Users {
+    actor Admin
+    usecase NotificationBot
+    usecase WelcomeBot
+}
+
+package ETL {
+    component NotificationLauncher
+}
+
+package Starage {
+    database NotificationsTasks
+    database NotificationsResults
+}
+
+package SecureStorage {
+    database UsersDB
+}
+
+package Api {
+    component NotificationsAPI
+}
+
+package Queues {
+    queue TasksQueue
+    queue NotificationsQueue
+    queue EnrichedQueue
+    queue ToSending
+}
+
+package DLQ {
+    queue DeadLetterQueue
+}
+
+package Workers {
+    component CreationWorker
+    component EnrichingWorker
+    component PreSenderWorker
+    component SenderWorker
+}
+
+package Mailing {
+    component EMial
+    component SMS
+    component Push
+}
+
+Admin -up-> NotificationsAPI
+NotificationBot  -up-> NotificationsAPI
+WelcomeBot  -up-> NotificationsAPI
+NotificationsAPI -up-> NotificationsTasks: " Записывает задачу в базу данных"
+NotificationsTasks -up-> NotificationLauncher: "NotificationLauncher \nопрашивает базу \nна предмет новых задач"
+NotificationLauncher -up-> TasksQueue: " Размещает задачу в очередь"
+TasksQueue --up-> CreationWorker
+CreationWorker --down-> NotificationsQueue
+NotificationsQueue --up-> EnrichingWorker
+EnrichingWorker --down-> EnrichedQueue
+EnrichingWorker <-- UsersDB
+EnrichedQueue --up-> PreSenderWorker
+PreSenderWorker --down-> ToSending
+ToSending --up-> SenderWorker
+SenderWorker --down-> NotificationsResults: " Записывает в базу данных \n информацию об успешной отправке"
+SenderWorker --up-> Mailing
+
+@enduml

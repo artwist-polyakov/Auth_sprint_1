@@ -370,6 +370,105 @@ services:
       - mongo2
       - mongo3
 
+  notifications:
+    container_name: notifications
+    build: ./notifications
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+    depends_on:
+      - jaeger
+      - notifications-db
+    restart: on-failure
+
+  notifications-db:
+    container_name: notifications-db
+    image: postgres:${NOTIFICATIONS_DB_VERSION}
+    env_file:
+      - .env
+    volumes:
+      - notifications_db_data:/var/lib/postgresql/data
+    ports:
+      - ${NOTIFICATIONS_DB_PORTS}
+    expose:
+      - ${NOTIFICATIONS_DB_PORT}
+    command: -p ${NOTIFICATIONS_DB_PORT}
+    environment:
+        POSTGRES_DB: ${NOTIFICATIONS_DB_NAME}
+        POSTGRES_USER: ${NOTIFICATIONS_DB_USER}
+        POSTGRES_PASSWORD: ${NOTIFICATIONS_DB_PASSWORD}
+    restart: on-failure
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:${RABBIT_MQ_VERSION}-management-alpine
+    ports:
+      - ${RABBIT_MQ_PORTS}
+      - ${RABBIT_MQ_AMQP_PORTS}
+    expose:
+      - ${RABBIT_MQ_PORT}
+    hostname: ${RABBIT_MQ_HOST}
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_MQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_MQ_PASSWORD}
+    restart: on-failure
+
+  rabbitmq-init:
+    container_name: rabbitmq-init
+    image: rabbitmq:${RABBIT_MQ_VERSION}-management
+    volumes:
+      - ./rabbitmq/init.sh:/scripts/init.sh
+    entrypoint: [ "bash", "/scripts/init.sh" ]
+    environment:
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_PORT: ${RABBIT_MQ_PORT}
+      RABBIT_MQ_TASKS_KEY: ${RABBIT_MQ_TASKS_KEY}
+      RABBIT_MQ_NOTIFICATIONS_KEY: ${RABBIT_MQ_NOTIFICATIONS_KEY}
+      RABBIT_MQ_ENRICHED_KEY: ${RABBIT_MQ_ENRICHED_KEY}
+      RABBIT_MQ_TO_SENDING_KEY: ${RABBIT_MQ_TO_SENDING_KEY}
+      RABBIT_MQ_EXCHANGE: ${RABBIT_MQ_EXCHANGE}
+      RABBIT_MQ_TASKS_QUEUE: ${RABBIT_MQ_TASKS_QUEUE}
+      RABBIT_MQ_NOTIFICATIONS_QUEUE: ${RABBIT_MQ_NOTIFICATIONS_QUEUE}
+      RABBIT_MQ_ENRICHED_QUEUE: ${RABBIT_MQ_ENRICHED_QUEUE}
+      RABBIT_MQ_TO_SENDING_QUEUE: ${RABBIT_MQ_TO_SENDING_QUEUE}
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+
+  etl-notifications-tasks:
+    container_name: etl-notifications-tasks
+    build: ./etl-notifications-tasks
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+    restart: always
+
+  notifications-workers:
+    container_name: notifications-workers
+    build: ./notifications-workers
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+      - ./mailings:/app/mailings:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  ws:
+    container_name: ${WEBSOCKET_HOST}
+    build: ./ws
+    env_file:
+      - .env
+    ports:
+      - ${WEBSOCKET_PORTS}
+    expose:
+      - ${WEBSOCKET_PORT}
+
 volumes:
     static_volume:
     media_volume:
@@ -380,3 +479,4 @@ volumes:
     postgres_data:
     kafka_data:
     logs:
+    notifications_db_data:
