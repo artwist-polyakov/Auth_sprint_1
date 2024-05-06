@@ -43,7 +43,7 @@ def handler(ch, method, properties, body):
             if task.type == "email":
                 rabbitmq_notifications.push(message=task)
             else:
-                task = EnrichingMessageTask(**task.model_dump(), contact="")
+                task = EnrichingMessageTask(**task.model_dump(), contact="websocket")
                 rabbitmq_enriched.push(message=task)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)

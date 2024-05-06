@@ -51,11 +51,7 @@ def handler(ch, method, properties, body):
                 )
             case "websocket":
                 result = loop.run_until_complete(
-                    websocket_service.send_message(
-                        data.user_id,
-                        f"Заголовок: {message_data['title']} | "
-                        f"Текст: {message_data['text']}"
-                    )
+                    websocket_service.send_message(data.user_id, f"{message_data}")
                 )
                 if not result:
                     ...
