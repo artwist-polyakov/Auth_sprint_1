@@ -469,6 +469,17 @@ services:
     expose:
       - ${WEBSOCKET_PORT}
 
+  worker-create:
+    container_name: worker-create
+    build: ./worker-create
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+
 volumes:
     static_volume:
     media_volume:
