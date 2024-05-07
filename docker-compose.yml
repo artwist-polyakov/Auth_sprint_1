@@ -478,7 +478,19 @@ services:
       - ./logs:/logs:rw
     depends_on:
       - rabbitmq
-    restart: on-failure
+    restart: always
+
+  worker-send:
+    container_name: worker-send
+    build: ./worker-send
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+      - ./mailings:/app/mailings:rw
+    depends_on:
+      - rabbitmq
+    restart: always
 
 volumes:
     static_volume:
