@@ -2,9 +2,7 @@ import ast
 import asyncio
 import logging
 import os
-import signal
 import sys
-from types import FrameType
 
 from configs.settings import get_settings  # noqa
 from db.storage.postgres_storage import PostgresStorage

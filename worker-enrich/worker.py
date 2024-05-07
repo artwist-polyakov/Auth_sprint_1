@@ -2,9 +2,7 @@ import ast
 import asyncio
 import logging
 import os
-import signal
 import sys
-from types import FrameType
 
 from configs.settings import get_settings
 from db.pg_client import PostgresClient
@@ -48,7 +46,6 @@ def handler(
     except Exception as e:
         print(f"Error in callback: {e}")
         sys.stdout.flush()
-
 
 
 try:
