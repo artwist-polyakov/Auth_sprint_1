@@ -195,7 +195,7 @@ services:
     container_name: redis
     image: redis:latest
     volumes:
-      - ./core/redis.conf:/redis.conf
+      - ./core/redis.conf:/redis.conf:rw
     command: [ "redis-server", "/redis.conf" ]
     restart: on-failure
 
