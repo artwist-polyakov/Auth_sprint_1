@@ -2,9 +2,7 @@ import ast
 import asyncio
 import logging
 import os
-import signal
 import sys
-from types import FrameType
 
 from configs.settings import get_settings
 from db.pg_client import PostgresClient
@@ -26,11 +24,6 @@ rabbitmq_enriched = RabbitQueue(get_settings().rabbit.enriched_key)
 loop = asyncio.get_event_loop()
 user_storage = PostgresClient()
 notifications_storage = PostgresStorage()
-
-
-def handle_exit(sig: int, frame: FrameType):
-    print(f"{worker_id} received signal to terminate.")
-    sys.exit(0)
 
 
 def handler(
@@ -55,11 +48,7 @@ def handler(
         sys.stdout.flush()
 
 
-signal.signal(signal.SIGTERM, handle_exit)
-
 try:
     rabbitmq_notifications.pop(handler=handler)
 except Exception as e:
-    print(f"{worker_id} encountered an error: {e}")
-    sys.stdout.flush()  # Принудительно записываем лог
-    sys.exit(1)
+    logger.error(f"Error in worker: {e}")

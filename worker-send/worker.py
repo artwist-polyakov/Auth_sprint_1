@@ -2,9 +2,7 @@ import ast
 import asyncio
 import logging
 import os
-import signal
 import sys
-from types import FrameType
 
 from configs.settings import get_settings  # noqa
 from db.storage.postgres_storage import PostgresStorage
@@ -30,12 +28,6 @@ websocket_service = LocalWebsocketService()
 loop = asyncio.get_event_loop()
 loop.run_until_complete(websocket_service.connect())
 storage = PostgresStorage()
-
-
-def handle_exit(sig: int, frame: FrameType):
-    logger.info(f"{worker_id} received signal to terminate.")
-    loop.run_until_complete(websocket_service.close())
-    sys.exit(0)
 
 
 def handler(
@@ -89,11 +81,7 @@ def handler(
         sys.stdout.flush()
 
 
-signal.signal(signal.SIGTERM, handle_exit)
-
 try:
     rabbitmq_to_sending.pop(handler=handler)
 except Exception as e:
-    print(f"{worker_id} encountered an error: {e}")
-    sys.stdout.flush()  # Принудительно записываем лог
-    sys.exit(1)
+    logger.error(f"Error in callback: {e}")
