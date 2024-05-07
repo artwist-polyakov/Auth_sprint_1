@@ -447,18 +447,6 @@ services:
       - ./logs:/logs:rw
     restart: always
 
-  notifications-workers:
-    container_name: notifications-workers
-    build: ./notifications-workers
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/logs:rw
-      - ./mailings:/app/mailings:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
   ws:
     container_name: ${WEBSOCKET_HOST}
     build: ./ws
@@ -483,6 +471,29 @@ services:
   worker-send:
     container_name: worker-send
     build: ./worker-send
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+      - ./mailings:/app/mailings:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  worker-enrich:
+    container_name: worker-enrich
+    build: ./worker-enrich
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  worker-pre-send:
+    container_name: worker-pre-send
+    build: ./worker-pre-send
     env_file:
       - .env
     volumes:
