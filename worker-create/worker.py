@@ -57,4 +57,4 @@ def handler(
 try:
     rabbitmq_tasks.pop(handler=handler)
 except Exception as e:
-    sys.exit(1)
+    logger.error(f"Error in worker: {e}")
