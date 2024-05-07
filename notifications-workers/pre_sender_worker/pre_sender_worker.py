@@ -3,9 +3,12 @@ import logging
 import os
 import signal
 import sys
+from types import FrameType
 
 from configs.settings import get_settings
 from models.enriching_message import EnrichingMessageTask
+from pika.channel import Channel
+from pika.spec import Basic, BasicProperties
 from queues.rabbit_queue import RabbitQueue
 
 logger = logging.getLogger('pre-sender-worker-logger')
@@ -17,12 +20,17 @@ rabbitmq_enriched = RabbitQueue(get_settings().get_rabbit_settings().enriched_qu
 rabbitmq_to_sending = RabbitQueue(get_settings().get_rabbit_settings().to_sending_key)
 
 
-def handle_exit(sig, frame):
+def handle_exit(sig: int, frame: FrameType):
     print(f"{worker_id} received signal to terminate.")
     sys.exit(0)
 
 
-def handler(ch, method, properties, body):
+def handler(
+        ch: Channel,
+        method: Basic.Deliver,
+        properties: BasicProperties,
+        body: bytes
+):
     try:
         data = EnrichingMessageTask(**ast.literal_eval(body.decode()))
 
